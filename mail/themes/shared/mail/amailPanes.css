@@ -149,3 +149,109 @@
     }
   }
 }
+
+/* Message list: a card with rounded top corners next to the folder pane,
+   header row with folder name, count and aMail toggles, Outlook-style
+   compact columns. */
+
+@media not (forced-colors) {
+  body {
+    background-color: var(--color-surface-lower);
+  }
+
+  #threadPane {
+    margin-block-start: 8px;
+    margin-inline-start: 8px;
+    border-start-start-radius: 8px;
+    border-start-end-radius: 8px;
+    overflow: hidden;
+    background-color: var(--color-surface-base);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  #messagePane {
+    background-color: var(--color-surface-lower);
+  }
+
+  #threadPaneHeaderBar {
+    min-block-size: 48px;
+    padding: 8px 12px 8px 16px;
+    background-color: var(--color-surface-base);
+    border-block-end: 1px solid var(--color-surface-border);
+  }
+
+  #threadPaneFolderName {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .thread-pane-count-info {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  /* The toggles replace the quick filter and display buttons. */
+  #threadPaneQuickFilterButton,
+  #threadPaneDisplayButton {
+    display: none;
+  }
+
+  .amail-toggle {
+    appearance: none;
+    block-size: 28px;
+    margin: 0;
+    padding: 0 10px;
+    border: none;
+    border-radius: 4px;
+    background: none;
+    color: var(--color-text-base);
+    font: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--amail-hover);
+    }
+
+    &[aria-pressed="true"] {
+      background-color: var(--color-surface-deep);
+      color: var(--color-primary-default);
+      font-weight: 600;
+    }
+  }
+
+  /* Column headers: From | Subject | Received. */
+  #threadTree thead th {
+    block-size: 28px;
+    background-color: var(--color-surface-subtle);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+    border-color: color-mix(in srgb, var(--color-surface-border) 45%, transparent);
+  }
+
+  #threadTree tr.table-layout {
+    border-block-end: 1px solid var(--color-surface-border);
+  }
+
+  #threadTree tr.table-layout td {
+    border-inline-end: 1px solid color-mix(in srgb, var(--color-surface-border) 45%, transparent);
+  }
+
+  #threadTree .datecol-column {
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    text-align: end;
+  }
+
+  /* Unread: blue bar, bold sender, blue subject and date. */
+  #threadTree tr.table-layout[data-properties~="unread"] {
+    & > td:first-child {
+      box-shadow: inset 3px 0 0 var(--color-primary-default);
+    }
+
+    & :is(.subjectcol-column, .datecol-column) {
+      color: var(--color-primary-default);
+      font-weight: 600;
+    }
+  }
+}

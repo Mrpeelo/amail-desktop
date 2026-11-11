@@ -4710,6 +4710,48 @@ var threadPaneHeader = {
         triggerEvent: event,
       });
     });
+
+    // aMail list header toggles: Compact (table view), Conversations
+    // (threaded), Run filters.
+    document
+      .getElementById("amailCompactButton")
+      .addEventListener("click", () => {
+        const compact =
+          Services.prefs.getIntPref("mail.threadpane.listview", 0) == 1;
+        Services.prefs.setIntPref("mail.threadpane.listview", compact ? 0 : 1);
+      });
+    document
+      .getElementById("amailConversationsButton")
+      .addEventListener("click", () => {
+        if (gViewWrapper?.showThreaded) {
+          sortController.sortUnthreaded();
+        } else {
+          sortController.sortThreaded();
+        }
+        this.updateAmailToggles();
+      });
+    document
+      .getElementById("amailRunFiltersButton")
+      .addEventListener("click", () => goDoCommand("cmd_applyFilters"));
+    Services.prefs.addObserver("mail.threadpane.listview", () =>
+      this.updateAmailToggles()
+    );
+    this.updateAmailToggles();
+  },
+
+  /**
+   * Reflect the list view and threading state on the aMail toggles.
+   */
+  updateAmailToggles() {
+    document
+      .getElementById("amailCompactButton")
+      .setAttribute(
+        "aria-pressed",
+        Services.prefs.getIntPref("mail.threadpane.listview", 0) == 1
+      );
+    document
+      .getElementById("amailConversationsButton")
+      .setAttribute("aria-pressed", !!gViewWrapper?.showThreaded);
   },
 
   uninit() {
@@ -4820,6 +4862,7 @@ var threadPaneHeader = {
     if (this.isHidden) {
       return;
     }
+    this.updateAmailToggles();
 
     // Hide any potential stale data if we don't have a folder.
     if (!gFolder && !gDBView && !gViewWrapper?.isSynthetic) {
@@ -5732,7 +5775,8 @@ var threadPane = {
     // different scope. But we can get it from customElements.
     const rowClass = customElements.get("thread-row");
     const cardClass = customElements.get("thread-card");
-    const currentFontSize = UIFontSize.size;
+    // aMail's interface font is 14px (amailPanes.css).
+    const currentFontSize = Math.max(UIFontSize.size, 14);
     // subject line-height * this.rowCount * current font-size.
     const cardRowConstant = Math.round(1.5 * this.rowCount * currentFontSize);
     let rowHeight = Math.ceil(currentFontSize * 1.4);
@@ -5755,7 +5799,8 @@ var threadPane = {
           cardRowConstant + lineGap * this.rowCount + densityPaddingConstant;
         break;
       default:
-        rowHeight = rowHeight + 7;
+        // aMail compact list: 34px rows.
+        rowHeight = Math.max(rowHeight + 7, 34);
         lineGap = 3;
         densityPaddingConstant = 7; // card padding-block + 2 * row padding-block
         cardRowHeight =
@@ -6639,6 +6684,7 @@ var threadPane = {
     } else {
       threadTree.table.header.classList.add("threaded");
     }
+    threadPaneHeader.updateAmailToggles();
   },
 };
 

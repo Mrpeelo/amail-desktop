@@ -50,3 +50,12 @@ amail-import-settings-legend = Import from Thunderbird
 amail-import-settings-description = Replace this profile with a complete copy of a Thunderbird or Betterbird profile.
 amail-import-settings-button =
     .label = Import full Thunderbird profile…
+
+## Message list header
+
+amail-list-compact = Compact
+    .title = One line per message
+amail-list-conversations = Conversations
+    .title = Group messages into conversations
+amail-list-run-filters = Run filters
+    .title = Run the account's filters on this folder
