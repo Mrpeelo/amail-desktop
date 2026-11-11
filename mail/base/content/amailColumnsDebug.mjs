@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global threadTree */
+/* global gDBView, threadTree */
 
 // Developer diagnostic for message list column sizing. Only runs when the
 // AMAIL_DEBUG_COLUMNS environment variable is set; writes
@@ -44,6 +44,28 @@ export async function runColumnsDebug() {
   const top = window.browsingContext.topChromeWindow;
   await wait(4000);
   out.push(snapshot("start"));
+
+  // Selecting marks the message read; remember and restore that state.
+  const firstHdr = gDBView?.rowCount ? gDBView.getMsgHdrAt(0) : null;
+  const wasRead = firstHdr?.isRead;
+  threadTree.selectedIndex = 0;
+  threadTree.table.body.focus();
+  await wait(800);
+  const row = threadTree.table.body.querySelector(".table-layout.selected");
+  if (firstHdr && !wasRead) {
+    firstHdr.folder.markMessagesRead([firstHdr], false);
+  }
+  if (row) {
+    const subject = row.querySelector(".subjectcol-column");
+    out.push({
+      label: "selected row colors",
+      rowBackground: getComputedStyle(row).backgroundColor,
+      rowColor: getComputedStyle(row).color,
+      subjectColor: subject && getComputedStyle(subject).color,
+      unread: row.dataset.properties,
+      columns: [],
+    });
+  }
 
   const origW = top.outerWidth;
   const origH = top.outerHeight;

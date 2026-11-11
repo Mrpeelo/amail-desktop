@@ -295,13 +295,14 @@
 /* Compact list selection: neutral gray like the folder pane, so blue only
    means "unread". Slightly stronger while the list has focus. */
 @media not (forced-colors) {
+  /* The listbox variables are resolved on :root from --selected-item-color,
+     so set the ones the table rows actually use here. */
   #threadTree[rows="thread-row"] {
     --selected-item-color: color-mix(in srgb, var(--color-text-base) 10%, var(--color-surface-base));
     --selected-item-text-color: var(--color-text-base);
-
-    &:focus-within {
-      --selected-item-color: color-mix(in srgb, var(--color-text-base) 15%, var(--color-surface-base));
-    }
+    --listbox-selected-bg: color-mix(in srgb, var(--color-text-base) 10%, var(--color-surface-base));
+    --listbox-focused-selected-bg: color-mix(in srgb, var(--color-text-base) 15%, var(--color-surface-base));
+    --listbox-selected-color: var(--color-text-base);
   }
 }
 
