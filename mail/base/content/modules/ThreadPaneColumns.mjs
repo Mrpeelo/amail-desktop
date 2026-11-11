@@ -116,7 +116,6 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 7,
     sortKey: "byAuthor",
-    hidden: true,
   },
   {
     id: "recipientCol",
@@ -140,6 +139,7 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 9,
     sortKey: "byCorrespondent",
+    hidden: true,
   },
   {
     id: "junkStatusCol",

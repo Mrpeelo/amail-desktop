@@ -39,7 +39,12 @@
   border-block-end: 1px solid var(--color-surface-border);
   -moz-window-dragging: drag;
 
-  & :is(button, toolbarbutton, global-search-bar, #tabs-toolbar) {
+  /* Empty areas move the window; only the controls themselves don't. */
+  & :is(#amailBrand, #amailTabsSlot, #amailSearch, #amailTopActions, .amail-name, .amail-logo) {
+    -moz-window-dragging: drag;
+  }
+
+  & :is(button, toolbarbutton, global-search-bar, #tabs-toolbar, #amailAppSwitch) {
     -moz-window-dragging: no-drag;
   }
 
@@ -263,4 +268,19 @@ unified-toolbar {
    don't need it. */
 :root[amail-space]:not([amail-space="mail"], [amail-space="calendar"]) unified-toolbar {
   display: none;
+}
+
+/* Settings, Address Book and other tabs: content on a rounded card over the
+   app background, like the mail panes. */
+@media not (forced-colors) {
+  :root[amail-space]:not([amail-space="mail"]) #tabpanelcontainer {
+    background-color: var(--color-surface-lower);
+  }
+
+  :root[amail-space]:not([amail-space="mail"]) .contentTabInstance {
+    margin: 8px;
+    border-radius: 8px;
+    overflow: clip;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
 }

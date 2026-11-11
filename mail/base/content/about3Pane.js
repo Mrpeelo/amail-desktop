@@ -6084,6 +6084,26 @@ var threadPane = {
    * @param {JSON} columnStates - The parsed JSON of a previously saved state.
    */
   applyPersistedColumnsState(columnStates) {
+    // aMail shows the sender (or the recipient in outgoing folders) where a
+    // saved layout shows Correspondents.
+    if (columnStates.correspondentCol?.visible) {
+      const outgoing = gFolder?.isSpecialFolder(
+        Ci.nsMsgFolderFlags.SentMail |
+          Ci.nsMsgFolderFlags.Drafts |
+          Ci.nsMsgFolderFlags.Queue,
+        true
+      );
+      const replacement = outgoing ? "recipientCol" : "senderCol";
+      columnStates = {
+        ...columnStates,
+        [replacement]: {
+          ...columnStates[replacement],
+          visible: true,
+          ordinal: columnStates.correspondentCol.ordinal,
+        },
+        correspondentCol: { ...columnStates.correspondentCol, visible: false },
+      };
+    }
     this.columns.forEach(c => {
       c.hidden = !columnStates[c.id]?.visible;
       c.ordinal = columnStates[c.id]?.ordinal ?? 0;

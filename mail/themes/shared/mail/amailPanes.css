@@ -255,3 +255,16 @@
     }
   }
 }
+
+/* Compact list selection: light blue with normal text, stronger while the
+   list has focus (aMail --selected / --selected-strong). */
+@media not (forced-colors) {
+  #threadTree[rows="thread-row"] {
+    --selected-item-color: color-mix(in srgb, var(--color-primary-default) 16%, var(--color-surface-base));
+    --selected-item-text-color: var(--color-text-base);
+
+    &:focus-within {
+      --selected-item-color: color-mix(in srgb, var(--color-primary-default) 26%, var(--color-surface-base));
+    }
+  }
+}

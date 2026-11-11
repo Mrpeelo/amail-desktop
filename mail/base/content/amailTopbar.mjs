@@ -20,7 +20,7 @@ function openSpaceByName(name) {
 }
 
 function updateAppSwitch() {
-  const tabInfo = tabmail.currentTabInfo;
+  const tabInfo = tabmail?.currentTabInfo;
   const current = tabInfo
     ? gSpacesToolbar.spaces?.find(space => space.tabInSpace(tabInfo))?.name
     : gSpacesToolbar.currentSpace?.name;
@@ -33,10 +33,19 @@ function updateAppSwitch() {
     .classList.toggle("on", current == "calendar");
 }
 
-function adoptToolbarParts() {
+/**
+ * Move the app menu button into the top bar. The unified toolbar creates it
+ * from a template, possibly after the spaces toolbar is ready, so retry for a
+ * few seconds.
+ *
+ * @param {number} [attempt=0]
+ */
+function adoptToolbarParts(attempt = 0) {
   const appMenuButton = document.getElementById("button-appmenu");
   if (appMenuButton) {
     document.getElementById("amailTopActions").append(appMenuButton);
+  } else if (attempt < 20) {
+    setTimeout(() => adoptToolbarParts(attempt + 1), 250);
   }
 }
 
@@ -100,7 +109,7 @@ function onSpacesReady() {
   // without its command bar or menu button.
   for (const step of [
     updateAppSwitch,
-    adoptToolbarParts,
+    () => adoptToolbarParts(),
     () => gSpacesToolbar.toggleToolbar(true),
     applyDefaultThemeOnce,
     offerImportOnFirstStart,
@@ -134,7 +143,17 @@ document
   .getElementById("amailSettings")
   .addEventListener("click", () => openPreferencesTab());
 
-tabmail.tabContainer.addEventListener("TabSelect", updateAppSwitch);
+// TabSelect bubbles from the tab strip; listening on the window doesn't
+// depend on tabmail being set up yet.
+window.addEventListener("TabSelect", () => {
+  setTimeout(() => {
+    try {
+      updateAppSwitch();
+    } catch (error) {
+      console.error(error);
+    }
+  });
+});
 
 if (gSpacesToolbar.isLoaded) {
   onSpacesReady();
