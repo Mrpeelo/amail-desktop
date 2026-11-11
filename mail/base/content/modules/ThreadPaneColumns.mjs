@@ -92,6 +92,7 @@ const DEFAULT_COLUMNS = [
     ordinal: 5,
     picker: false,
     sortKey: "bySubject",
+    flex: true,
   },
   {
     id: "unreadButtonColHeader",
@@ -116,6 +117,7 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 7,
     sortKey: "byAuthor",
+    defaultWidth: 240,
   },
   {
     id: "recipientCol",
@@ -127,6 +129,7 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 8,
     sortKey: "byRecipient",
+    defaultWidth: 240,
     hidden: true,
   },
   {
@@ -139,6 +142,7 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 9,
     sortKey: "byCorrespondent",
+    defaultWidth: 240,
     hidden: true,
   },
   {
@@ -164,6 +168,7 @@ const DEFAULT_COLUMNS = [
     },
     ordinal: 11,
     sortKey: "byDate",
+    defaultWidth: 150,
   },
   {
     id: "receivedCol",

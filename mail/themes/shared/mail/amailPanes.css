@@ -246,19 +246,37 @@
     text-overflow: ellipsis;
   }
 
-  /* Subject takes the free width; Received stays a fixed, right-aligned
-     column (Thunderbird otherwise stretches the last column). */
-  #threadTree th#subjectCol {
-    width: auto !important;
+  /* Received header aligns with the right-aligned dates. Subject takes the
+     free width (flex column in ThreadPaneColumns.mjs). */
+  #threadTree th#dateCol button {
+    justify-content: flex-end;
+    text-align: end;
   }
 
-  #threadTree th#dateCol {
-    width: 150px !important;
-    text-align: end;
+  /* Header: the folder name gives way, the toggles never wrap. */
+  #threadPaneHeaderBar .list-header-bar-container-start {
+    min-inline-size: 0;
+  }
 
-    & button {
-      justify-content: flex-end;
-    }
+  #threadPaneFolderName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .amail-toggle {
+    white-space: nowrap;
+    flex: none;
+  }
+
+  /* Vertical layout: the reading pane keeps its dragged width but never
+     squeezes the message list below 440px; shrinking the window takes space
+     from the reading pane first. */
+  body.layout-vertical {
+    grid-template:
+      "folders folderPaneSplitter threads messagePaneSplitter message" auto
+      / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(440px, 1fr) min-content
+        minmax(auto, min(var(--messagePaneSplitter-width), max(320px, calc(100% - var(--folderPaneSplitter-width) - 460px))));
   }
 
   /* Unread: blue bar, bold sender, blue subject and date. */
