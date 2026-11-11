@@ -80,6 +80,8 @@ messenger.jar:
 *   content/messenger/SearchDialog.xhtml            (content/SearchDialog.xhtml)
     content/messenger/spacesToolbar.js              (content/spacesToolbar.js)
     content/messenger/amailTopbar.mjs               (content/amailTopbar.mjs)
+    content/messenger/amailImport.xhtml             (content/amailImport.xhtml)
+    content/messenger/amailImport.mjs               (content/amailImport.mjs)
     content/messenger/specialTabs.js                (content/specialTabs.js)
 #ifdef MOZ_SERVICES_SYNC
     content/messenger/sync.js                       (content/sync.js)

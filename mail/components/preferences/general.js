@@ -192,6 +192,12 @@ var gGeneralPane = {
         .addEventListener(aEventType, aCallback.bind(gGeneralPane));
     }
 
+    document
+      .getElementById("amailImportButton")
+      .addEventListener("command", () =>
+        window.browsingContext.topChromeWindow.amailOpenImport()
+      );
+
     Preferences.addSyncFromPrefListener(
       document.getElementById("saveWhere"),
       () => gDownloadDirSection.onReadUseDownloadDir()

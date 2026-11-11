@@ -508,6 +508,7 @@
   skin/classic/messenger/colors.css                           (../shared/mail/colors.css)
   skin/classic/messenger/amailPalettes.css                    (../shared/mail/amailPalettes.css)
   skin/classic/messenger/amailChrome.css                      (../shared/mail/amailChrome.css)
+  skin/classic/messenger/amailImport.css                      (../shared/mail/amailImport.css)
   skin/classic/messenger/layout.css                           (../shared/mail/layout.css)
   skin/classic/messenger/folderColors.css                     (../shared/mail/folderColors.css)
   skin/classic/messenger/spacings.css                          (../shared/mail/spacings.css)

@@ -59,8 +59,45 @@ async function applyDefaultThemeOnce() {
   await light?.enable();
 }
 
+/**
+ * Open the full Thunderbird profile import dialog. Also used from the app
+ * menu and Settings.
+ */
+window.amailOpenImport = () => {
+  window.openDialog(
+    "chrome://messenger/content/amailImport.xhtml",
+    "amailImport",
+    "chrome,modal,centerscreen,resizable"
+  );
+};
+
+/**
+ * On the first start of a new profile without accounts, offer the import if
+ * a Thunderbird/Betterbird profile exists.
+ */
+async function offerImportOnFirstStart() {
+  const pref = "amail.import.offered";
+  if (Services.prefs.getBoolPref(pref, false)) {
+    return;
+  }
+  Services.prefs.setBoolPref(pref, true);
+  const { MailServices } = ChromeUtils.importESModule(
+    "resource:///modules/MailServices.sys.mjs"
+  );
+  if (MailServices.accounts.accounts.length) {
+    return;
+  }
+  const { AmailProfileImport } = ChromeUtils.importESModule(
+    "resource:///modules/AmailProfileImport.sys.mjs"
+  );
+  if ((await AmailProfileImport.findProfiles()).length) {
+    window.amailOpenImport();
+  }
+}
+
 function onSpacesReady() {
   applyDefaultThemeOnce();
+  offerImportOnFirstStart();
   gSpacesToolbar.toggleToolbar(true);
   adoptToolbarParts();
   updateAppSwitch();
