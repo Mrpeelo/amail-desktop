@@ -2041,7 +2041,8 @@ var gGeneralPane = {
     if (AppConstants.platform == "win") {
       return (
         isExecutable &&
-        aExecutable.leafName != AppConstants.MOZ_APP_NAME + ".exe"
+        aExecutable.leafName != AppConstants.MOZ_APP_NAME + ".exe" &&
+        aExecutable.leafName != "amail.exe"
       );
     }
 

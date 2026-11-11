@@ -76,7 +76,12 @@ imply_option("MOZ_DEDICATED_PROFILES", False)
 imply_option("--enable-updater", False)
 imply_option("--enable-maintenance-service", False, when=target_is_windows)
 imply_option("--enable-crashreporter", False)
+imply_option("--enable-launcher-process", False, when=target_is_windows)
 set_define("AMAIL_PORTABLE", True, when=target_is_windows)
+# Only the executable file is renamed. MOZ_APP_NAME/BASENAME stay
+# "thunderbird"/"Thunderbird" so the User-Agent, OAuth (Google) client
+# identity, add-on compatibility and toolkit checks are unchanged.
+set_config("AMAIL_EXE_NAME", "amail", when=target_is_windows)
 imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", True)
 imply_option("MOZ_PROFILE_MIGRATOR", True)
 

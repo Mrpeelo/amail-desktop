@@ -58,7 +58,7 @@
 @RESPATH@/fonts/*
 #endif
 @RESPATH@/hyphenation/*
-#ifdef HAVE_MAKENSISU
+#if defined(HAVE_MAKENSISU) && !defined(AMAIL_PORTABLE)
 @BINPATH@/uninstall/helper.exe
 #endif
 #ifdef MOZ_UPDATER
@@ -156,7 +156,11 @@
 
 [mail]
 #ifndef XP_UNIX
+#ifdef AMAIL_PORTABLE
+@BINPATH@/amail.exe
+#else
 @BINPATH@/@MOZ_APP_NAME@.exe
+#endif
 @BINPATH@/thunderbird.VisualElementsManifest.xml
 @BINPATH@/VisualElements/VisualElements_150.png
 @BINPATH@/VisualElements/VisualElements_70.png
@@ -311,7 +315,7 @@
 
 ; Windows Search integration
 ; the module is included as part of the "Modules" rule
-#ifdef XP_WIN
+#if defined(XP_WIN) && !defined(AMAIL_PORTABLE)
 @BINPATH@/WSEnable.exe
 #endif
 
@@ -478,7 +482,9 @@
 
 ; [ Ping Sender ]
 ;
+#ifndef AMAIL_PORTABLE
 @BINPATH@/pingsender@BIN_SUFFIX@
+#endif
 
 ; [ Notification COM Server ]
 ;
