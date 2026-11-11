@@ -83,3 +83,8 @@
     border-block-start: 1px solid var(--color-surface-border);
   }
 }
+
+/* Reply / Forward / Archive / Spam / Delete live in the command bar. */
+#header-view-toolbar {
+  display: none;
+}

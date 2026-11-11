@@ -65,3 +65,8 @@ amail-list-run-filters = Run filters
 # $folder - folder being indexed, $percent - progress in that folder
 amail-index-status = Indexing { $folder } · { $percent } %
     .title = Building the search index: { $folder } ({ $percent } %)
+
+## Reading pane empty state
+
+amail-reader-empty = Select an item to read
+amail-reader-empty-sub = Nothing is selected
