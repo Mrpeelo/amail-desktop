@@ -1583,6 +1583,7 @@ pref("mail.taskbar.lists.enabled", false);
 pref("mail.taskbar.lists.tasks.enabled", false);
 // Windows toast notifications register the app in the registry; opt-in only.
 pref("mail.biff.use_system_alert", false);
+pref("alerts.useSystemBackend", false);
 pref("alerts.useSystemBackend.windows.notificationserver.enabled", false);
 pref("datareporting.healthreport.uploadEnabled", false);
 pref("datareporting.policy.dataSubmissionEnabled", false);
@@ -1595,3 +1596,6 @@ pref("toolkit.telemetry.bhrPing.enabled", false);
 pref("app.normandy.enabled", false);
 pref("app.shield.optoutstudies.enabled", false);
 #endif
+
+// aMail color palette: "amail", "synthwave" or "thunderbird" (stock).
+pref("amail.theme.palette", "amail");

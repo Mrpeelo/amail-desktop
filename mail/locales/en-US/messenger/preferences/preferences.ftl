@@ -1308,6 +1308,32 @@ qr-export-more-accounts = Export more accounts
 
 appearance-category-header = Appearance
 
+amail-theme-legend = Color Theme
+
+amail-theme-palette-label =
+    .value = Color palette:
+
+amail-theme-palette-amail =
+    .label = aMail (white and light blue)
+
+amail-theme-palette-synthwave =
+    .label = Synthwave
+
+amail-theme-palette-thunderbird =
+    .label = Thunderbird classic
+
+amail-theme-mode-label =
+    .value = Mode:
+
+amail-theme-mode-light =
+    .label = Light
+
+amail-theme-mode-dark =
+    .label = Dark
+
+amail-theme-mode-system =
+    .label = Follow Windows
+
 accent-color-legend = Accent Color
 
 accent-color-label =

@@ -1,0 +1,167 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * aMail colour palettes, selected with the "amail.theme.palette" pref:
+ *   "amail"       Outlook-style white + light blue (default)
+ *   "synthwave"   purple / magenta / gold, from the Daily branding
+ *   "thunderbird" stock Thunderbird colours (no overrides)
+ * Light, dark and "follow Windows" come from the Light / Dark / System
+ * themes; every value here is a light-dark() pair.
+ *
+ * The gray steps are remapped per scheme by the role layout.css gives them
+ * (light: white/05..30 = backgrounds, 70/90 = text; dark: 90..60 =
+ * backgrounds, 10/30 = text). The :not(#__amail) part only raises
+ * specificity so these win over colors.css, which imports this file.
+ */
+
+@media not (forced-colors) {
+  @media -moz-pref("amail.theme.palette", "amail") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      --color-white: light-dark(#ffffff, #ffffff);
+      --color-black: light-dark(#000000, #1b1b1b);
+      --color-gray-05: light-dark(#f5f9fe, #f5f5f5);
+      --color-gray-10: light-dark(#eef5fc, #f0f0f0);
+      --color-gray-20: light-dark(#e2ecf7, #e0e0e0);
+      --color-gray-30: light-dark(#c3cfdb, #c2c2c2);
+      --color-gray-40: light-dark(#a3b1bf, #a0a0a0);
+      --color-gray-50: light-dark(#8a939c, #8f8f8f);
+      --color-gray-60: light-dark(#6b7580, #4d4d4d);
+      --color-gray-70: light-dark(#5c6670, #3a3a3a);
+      --color-gray-80: light-dark(#3a4048, #2b2b2b);
+      --color-gray-90: light-dark(#242424, #242424);
+      --color-neutral-200: light-dark(#dbe5ef, #3a3a3a);
+
+      --color-blue-30: #62abf5;
+      --color-blue-40: #479ef5;
+      --color-blue-50: #2886de;
+      --color-blue-60: #0f6cbd;
+      --color-blue-70: #115ea3;
+
+      --sidebar-highlight-background-color: light-dark(#0f6cbd, #479ef5);
+      --sidebar-highlight-text-color: light-dark(#ffffff, #0a0a0a);
+
+      --color-surface-base-light: #ffffff;
+      --color-surface-raised-light: #ffffff;
+      --color-surface-subtle-light: #f5f9fe;
+      --color-surface-lower-light: #eef5fc;
+      --color-surface-deep-light: #d6e8fa;
+      --color-surface-border-light: #dbe5ef;
+      --color-surface-border-intense-light: #c3cfdb;
+      --color-primary-soft-light: #ebf3fc;
+      --color-primary-default-light: #0f6cbd;
+      --color-primary-hover-light: #115ea3;
+      --color-primary-pressed-light: #0c3b5e;
+      --color-critical-soft-light: #fdf3f4;
+      --color-critical-default-light: #c50f1f;
+      --color-critical-hover-light: #a50d1a;
+      --color-critical-pressed-light: #750b14;
+      --color-warning-soft-light: #fff4ce;
+      --color-text-base-light: #242424;
+      --color-text-secondary-light: #5c6670;
+      --color-text-muted-light: #8a939c;
+      --color-text-brand-light: #0c3b5e;
+      --color-text-highlight-light: #0f6cbd;
+      --color-text-warning-light: #835b00;
+      --color-text-critical-light: #c50f1f;
+
+      --color-surface-base-dark: #242424;
+      --color-surface-raised-dark: #2b2b2b;
+      --color-surface-subtle-dark: #2b2b2b;
+      --color-surface-lower-dark: #1b1b1b;
+      --color-surface-deep-dark: #163b5e;
+      --color-surface-border-dark: #3a3a3a;
+      --color-surface-border-intense-dark: #4d4d4d;
+      --color-primary-soft-dark: #0e2a44;
+      --color-primary-default-dark: #479ef5;
+      --color-primary-hover-dark: #62abf5;
+      --color-primary-pressed-dark: #2886de;
+      --color-critical-soft-dark: #3f1418;
+      --color-critical-default-dark: #f1707b;
+      --color-critical-hover-dark: #f58e97;
+      --color-critical-pressed-dark: #e0505c;
+      --color-warning-soft-dark: #3d3214;
+      --color-text-base-dark: #f0f0f0;
+      --color-text-secondary-dark: #c2c2c2;
+      --color-text-muted-dark: #8f8f8f;
+      --color-text-brand-dark: #62abf5;
+      --color-text-highlight-dark: #479ef5;
+      --color-text-warning-dark: #f2c661;
+      --color-text-critical-dark: #f1707b;
+    }
+  }
+
+  @media -moz-pref("amail.theme.palette", "synthwave") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      --color-white: light-dark(#fffdff, #ffffff);
+      --color-black: light-dark(#12081f, #140a2b);
+      --color-gray-05: light-dark(#faf5ff, #fdf4ff);
+      --color-gray-10: light-dark(#f3e8ff, #f3e8ff);
+      --color-gray-20: light-dark(#ead7fb, #e9d5ff);
+      --color-gray-30: light-dark(#d8bdf4, #c9b3e6);
+      --color-gray-40: light-dark(#b493d6, #a58cc8);
+      --color-gray-50: light-dark(#8c6bb0, #8a74ad);
+      --color-gray-60: light-dark(#6f4f93, #4a2c78);
+      --color-gray-70: light-dark(#57397a, #3a1f63);
+      --color-gray-80: light-dark(#3a2358, #2a1650);
+      --color-gray-90: light-dark(#22123a, #1e0f3d);
+      --color-neutral-200: light-dark(#e2cdf7, #3a1f63);
+
+      --color-blue-30: #bce0fd;
+      --color-blue-40: #96cefd;
+      --color-blue-50: #88ccfc;
+      --color-blue-60: #458fcd;
+      --color-blue-70: #0b4186;
+
+      --sidebar-highlight-background-color: light-dark(#b51fa3, #d63aef);
+      --sidebar-highlight-text-color: light-dark(#ffffff, #ffffff);
+
+      --color-surface-base-light: #fffdff;
+      --color-surface-raised-light: #fffdff;
+      --color-surface-subtle-light: #faf5ff;
+      --color-surface-lower-light: #f3e8ff;
+      --color-surface-deep-light: #ead7fb;
+      --color-surface-border-light: #e2cdf7;
+      --color-surface-border-intense-light: #b493d6;
+      --color-primary-soft-light: #fbeafa;
+      --color-primary-default-light: #b51fa3;
+      --color-primary-hover-light: #96198a;
+      --color-primary-pressed-light: #650877;
+      --color-secondary-default-light: #590df2;
+      --color-warning-soft-light: #fdf3dc;
+      --color-text-base-light: #22123a;
+      --color-text-secondary-light: #57397a;
+      --color-text-muted-light: #8c6bb0;
+      --color-text-brand-light: #650877;
+      --color-text-highlight-light: #b51fa3;
+      --color-text-warning-light: #7a5300;
+      --color-accent-pink-light: #f53db8;
+      --color-accent-purple-light: #590df2;
+
+      --color-surface-base-dark: #1e0f3d;
+      --color-surface-raised-dark: #2a1650;
+      --color-surface-subtle-dark: #2a1650;
+      --color-surface-lower-dark: #140a2b;
+      --color-surface-deep-dark: #4a2c78;
+      --color-surface-border-dark: #3a1f63;
+      --color-surface-border-intense-dark: #6f4f93;
+      --color-primary-soft-dark: #3a0b4e;
+      --color-primary-default-dark: #f53db8;
+      --color-primary-hover-dark: #ff63c8;
+      --color-primary-pressed-dark: #d63aef;
+      --color-secondary-default-dark: #88ccfc;
+      --color-warning-soft-dark: #3d2f14;
+      --color-text-base-dark: #f3e8ff;
+      --color-text-secondary-dark: #c9b3e6;
+      --color-text-muted-dark: #8a74ad;
+      --color-text-brand-dark: #ff63c8;
+      --color-text-highlight-dark: #88ccfc;
+      --color-text-warning-dark: #f9d286;
+      --color-accent-pink-dark: #f53db8;
+      --color-accent-purple-dark: #d63aef;
+    }
+  }
+}

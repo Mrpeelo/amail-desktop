@@ -6,11 +6,13 @@
 
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
+  AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
 
 Preferences.addAll([
+  { id: "amail.theme.palette", type: "string" },
   { id: "mail.appearance.accentColor", type: "string" },
   { id: "mail.threadpane.listview", type: "int" },
   { id: "mail.threadpane.cardsview.rowcount", type: "int" },
@@ -33,6 +35,7 @@ const prefersContrast = window.matchMedia("(prefers-contrast)");
 export const appearancePane = {
   init() {
     this.addEventListeners();
+    this.initThemeMode();
     this.toggleExtraViewOptions();
     Preferences.get("mail.threadpane.listview").on(
       "change",
@@ -66,6 +69,24 @@ export const appearancePane = {
       });
     prefersContrast.addEventListener("change", () => {
       document.getElementById("accentColor").disabled = prefersContrast.matches;
+    });
+  },
+
+  /**
+   * Light / Dark / Follow Windows maps to the built-in theme add-ons, which
+   * only set the color scheme; the palette pref supplies the colors.
+   */
+  async initThemeMode() {
+    const radiogroup = document.getElementById("amailThemeMode");
+    const themes = await lazy.AddonManager.getAddonsByTypes(["theme"]);
+    const active = themes.find(theme => theme.isActive);
+    const values = [...radiogroup.querySelectorAll("radio")].map(r => r.value);
+    radiogroup.value = values.includes(active?.id)
+      ? active.id
+      : "default-theme@mozilla.org";
+    radiogroup.addEventListener("command", async () => {
+      const theme = await lazy.AddonManager.getAddonByID(radiogroup.value);
+      await theme?.enable();
     });
   },
 

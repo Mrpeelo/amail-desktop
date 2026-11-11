@@ -9,6 +9,32 @@
     <html:h1 data-l10n-id="appearance-category-header"/>
   </hbox>
 
+  <html:fieldset id="amailThemeGroup" data-category="paneAppearance">
+    <html:legend data-l10n-id="amail-theme-legend"></html:legend>
+    <hbox align="center" pack="start">
+      <label data-l10n-id="amail-theme-palette-label"
+             control="amailThemePalette"/>
+      <menulist id="amailThemePalette" preference="amail.theme.palette">
+        <menupopup>
+          <menuitem value="amail" data-l10n-id="amail-theme-palette-amail"/>
+          <menuitem value="synthwave"
+                    data-l10n-id="amail-theme-palette-synthwave"/>
+          <menuitem value="thunderbird"
+                    data-l10n-id="amail-theme-palette-thunderbird"/>
+        </menupopup>
+      </menulist>
+    </hbox>
+    <label control="amailThemeMode" data-l10n-id="amail-theme-mode-label"/>
+    <radiogroup id="amailThemeMode" class="indent appearance-options">
+      <radio value="thunderbird-compact-light@mozilla.org"
+             data-l10n-id="amail-theme-mode-light"/>
+      <radio value="thunderbird-compact-dark@mozilla.org"
+             data-l10n-id="amail-theme-mode-dark"/>
+      <radio value="default-theme@mozilla.org"
+             data-l10n-id="amail-theme-mode-system"/>
+    </radiogroup>
+  </html:fieldset>
+
   <html:fieldset id="colorGroup" data-category="paneAppearance">
     <html:legend data-l10n-id="accent-color-legend"></html:legend>
     <hbox align="center" pack="start">
