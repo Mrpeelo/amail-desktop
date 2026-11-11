@@ -246,7 +246,9 @@ export const AmailProfileImport = {
       .split("\n")
       .filter(
         line =>
-          !/^user_pref\("mail\.tabs\.(drawInTitlebar|autoHide)"/.test(line)
+          !/^user_pref\("(mail\.tabs\.(drawInTitlebar|autoHide)|mailnews\.database\.global\.indexer\.enabled)"/.test(
+            line
+          )
       )
       .join("\n");
     await IOUtils.writeUTF8(prefsPath, kept);

@@ -104,10 +104,30 @@ async function offerImportOnFirstStart() {
   }
 }
 
+/**
+ * The top search runs on the global search index (Gloda); aMail always
+ * keeps it on. If it was off, the search bar skipped its setup, so recreate
+ * it after enabling.
+ */
+function ensureSearchIndex() {
+  const pref = "mailnews.database.global.indexer.enabled";
+  if (Services.prefs.getBoolPref(pref, true)) {
+    return;
+  }
+  Services.prefs.setBoolPref(pref, true);
+  const searchBar = document.querySelector("#amailSearch global-search-bar");
+  if (searchBar && !searchBar.shadowRoot) {
+    const parent = searchBar.parentNode;
+    searchBar.remove();
+    parent.append(searchBar);
+  }
+}
+
 function onSpacesReady() {
   // Each step is independent; one failing must not leave the window
   // without its command bar or menu button.
   for (const step of [
+    ensureSearchIndex,
     updateAppSwitch,
     () => adoptToolbarParts(),
     () => gSpacesToolbar.toggleToolbar(true),
