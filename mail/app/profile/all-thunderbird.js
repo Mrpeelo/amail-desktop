@@ -1599,3 +1599,6 @@ pref("app.shield.optoutstudies.enabled", false);
 
 // aMail color palette: "amail", "synthwave" or "thunderbird" (stock).
 pref("amail.theme.palette", "amail");
+
+// aMail: no Thundermail (Thunderbird's own mail service) sign-in in account setup.
+pref("mail.accounthub.thundermail.enabled", false);

@@ -178,6 +178,14 @@
     content: var(--icon-unread);
   }
 
+  & .toggle-read .button-icon {
+    content: var(--icon-unread);
+  }
+
+  & .flag-message .button-icon {
+    content: var(--icon-star);
+  }
+
   & .view-picker .button-icon {
     content: var(--icon-eye);
   }

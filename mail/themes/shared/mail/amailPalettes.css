@@ -43,6 +43,10 @@
       --sidebar-highlight-background-color: light-dark(#0f6cbd, #479ef5);
       --sidebar-highlight-text-color: light-dark(#ffffff, #0a0a0a);
 
+      --amail-topbar-bg: light-dark(#dceaf8, #1f2d3b);
+      --amail-topbar-text: light-dark(#0b3a63, #e6eef6);
+      --amail-topbar-hover: light-dark(rgba(15, 108, 189, 0.12), rgba(255, 255, 255, 0.12));
+
       --color-surface-base-light: #ffffff;
       --color-surface-raised-light: #ffffff;
       --color-surface-subtle-light: #f5f9fe;
@@ -118,6 +122,10 @@
 
       --sidebar-highlight-background-color: light-dark(#b51fa3, #d63aef);
       --sidebar-highlight-text-color: light-dark(#ffffff, #ffffff);
+
+      --amail-topbar-bg: light-dark(#ead7fb, #2a1650);
+      --amail-topbar-text: light-dark(#3a0764, #f3e8ff);
+      --amail-topbar-hover: light-dark(rgba(181, 31, 163, 0.14), rgba(245, 61, 184, 0.18));
 
       --color-surface-base-light: #fffdff;
       --color-surface-raised-light: #fffdff;

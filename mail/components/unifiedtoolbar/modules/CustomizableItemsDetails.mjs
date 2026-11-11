@@ -324,6 +324,24 @@ export default [
     ],
   },
   {
+    id: "toggle-read",
+    labelId: "toolbar-toggle-read",
+    spaces: ["mail"],
+    templateId: "toggleReadTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
+    id: "flag-message",
+    labelId: "toolbar-flag-message",
+    spaces: ["mail"],
+    templateId: "flagMessageTemplate",
+    requiredModules: [
+      "chrome://messenger/content/unifiedtoolbar/mail-tab-button.mjs",
+    ],
+  },
+  {
     id: "mark-as",
     labelId: "toolbar-mark-as",
     spaces: ["mail"],

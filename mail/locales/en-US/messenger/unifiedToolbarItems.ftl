@@ -138,6 +138,16 @@ toolbar-forward-attachment-label = Forward as Attachment
 toolbar-forward-attachment =
     .title = Forward selected message as an attachment
 
+toolbar-toggle-read-label = Read / Unread
+
+toolbar-toggle-read =
+    .title = Mark as read or unread (Q)
+
+toolbar-flag-message-label = Flag
+
+toolbar-flag-message =
+    .title = Flag or unflag (Insert)
+
 toolbar-mark-as-label = Mark
 
 toolbar-mark-as =

@@ -94,6 +94,7 @@
   <link rel="stylesheet" href="chrome://calendar/skin/calendar-task-tree.css" />
   <link rel="stylesheet" href="chrome://calendar/skin/calendar-task-view.css" />
   <link rel="stylesheet" href="chrome://calendar/skin/calendar-views.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailChrome.css" />
   <link
     rel="stylesheet"
     href="chrome://calendar/skin/shared/calendar-alarms.css"
@@ -110,6 +111,7 @@
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/shortcuts.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/amail.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="toolkit/printing/printUI.ftl" />
@@ -265,6 +267,8 @@
 
   <!-- Unified toolbar -->
   <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/unified-toolbar.mjs"></script>
+  <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs"></script>
+  <script type="module" defer="defer" src="chrome://messenger/content/amailTopbar.mjs"></script>
 
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
@@ -493,6 +497,34 @@
 <toolbox id="navigation-toolbox" labelalign="end" defaultlabelalign="end">
 
   <vbox id="titlebar">
+    <html:header id="amailTopbar">
+      <html:div id="amailBrand">
+        <html:span class="amail-logo" aria-hidden="true"></html:span>
+        <html:span class="amail-name" data-l10n-id="amail-app-name"></html:span>
+        <html:div id="amailAppSwitch" role="group" data-l10n-id="amail-app-switch">
+          <html:button id="amailGoMail" class="on" data-l10n-id="amail-go-mail"></html:button>
+          <html:button id="amailGoCalendar" data-l10n-id="amail-go-calendar"></html:button>
+        </html:div>
+      </html:div>
+      <html:div id="amailTabsSlot"></html:div>
+      <html:div id="amailSearch">
+        <html:global-search-bar data-l10n-id="search-bar-item2"
+                                data-l10n-attrs="label"
+                                aria-keyshortcuts="Control+K">
+          <html:span slot="placeholder" data-l10n-id="search-bar-placeholder-with-key" class="kbd-container"></html:span>
+          <html:img data-l10n-id="search-bar-button"
+                    slot="search-button"
+                    class="search-button-icon"
+                    src="" />
+        </html:global-search-bar>
+      </html:div>
+      <html:div id="amailTopActions">
+        <html:button id="amailGetMessages" class="amail-icon-button" data-l10n-id="amail-get-messages"></html:button>
+        <html:button id="amailAddressBook" class="amail-icon-button" data-l10n-id="amail-address-book"></html:button>
+        <html:button id="amailSettings" class="amail-icon-button" data-l10n-id="amail-settings"></html:button>
+      </html:div>
+#include messenger-titlebar-items.inc.xhtml
+    </html:header>
     <html:unified-toolbar></html:unified-toolbar>
     <!-- Menu -->
     <toolbar id="toolbar-menubar"

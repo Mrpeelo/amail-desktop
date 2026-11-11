@@ -1687,7 +1687,7 @@ function QuickSearchFocus() {
       break;
     default:
       searchInput = document.querySelector(
-        "#unifiedToolbarContent .search-bar global-search-bar"
+        "#amailSearch global-search-bar, #unifiedToolbarContent .search-bar global-search-bar"
       );
       break;
   }

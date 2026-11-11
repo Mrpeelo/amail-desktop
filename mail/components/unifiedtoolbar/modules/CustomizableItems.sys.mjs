@@ -17,8 +17,23 @@ XPCOMUtils.defineLazyPreferenceGetter(
   () => Services.obs.notifyObservers(null, "unified-toolbar-state-change")
 );
 
-const DEFAULT_ITEMS = ["spacer", "search-bar", "spacer"];
 const DEFAULT_ITEMS_WITHOUT_SEARCH = ["spacer"];
+// aMail: the global search lives in the top bar, so the mail space toolbar
+// is the Outlook-style command bar.
+const AMAIL_MAIL_ITEMS = [
+  "get-messages",
+  "write-message",
+  "delete",
+  "archive",
+  "junk",
+  "move-to",
+  "toggle-read",
+  "flag-message",
+  "reply",
+  "reply-all",
+  "forward-inline",
+  "spacer",
+];
 
 /**
  * @type {{id: string, spaces: string[], installDate: Date}[]}
@@ -120,9 +135,12 @@ export function getAvailableItemIdsForSpace(
  * @returns {string[]} Array of item IDs to show by default in the space.
  */
 export function getDefaultItemIdsForSpace(space) {
-  return (
-    lazy.glodaEnabled ? DEFAULT_ITEMS : DEFAULT_ITEMS_WITHOUT_SEARCH
-  ).concat(getExtensionsForSpace(space, true));
+  if (space === "mail") {
+    return AMAIL_MAIL_ITEMS.concat(getExtensionsForSpace(space, true));
+  }
+  return DEFAULT_ITEMS_WITHOUT_SEARCH.concat(
+    getExtensionsForSpace(space, true)
+  );
 }
 
 /**
