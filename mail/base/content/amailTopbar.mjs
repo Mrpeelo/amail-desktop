@@ -174,10 +174,6 @@ function onSpacesReady() {
 }
 
 document
-  .getElementById("amailTabsSlot")
-  .append(document.getElementById("tabs-toolbar"));
-
-document
   .getElementById("amailGoMail")
   .addEventListener("click", () => openSpaceByName("mail"));
 document

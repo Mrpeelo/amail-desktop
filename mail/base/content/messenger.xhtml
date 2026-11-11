@@ -507,7 +507,39 @@
           <html:button id="amailGoCalendar" data-l10n-id="amail-go-calendar"></html:button>
         </html:div>
       </html:div>
-      <html:div id="amailTabsSlot"></html:div>
+      <html:div id="amailTabsSlot">
+    <!-- The tab strip lives in the aMail top bar; it hides itself while only
+         one tab is open (mail.tabs.autoHide). -->
+    <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
+      <tabs is="tabmail-tabs" id="tabmail-tabs"
+            flex="1"
+            align="end"
+            setfocus="false"
+            alltabsbutton="alltabs-button"
+            context="toolbar-context-menu"
+            collapsetoolbar="tabs-toolbar">
+        <html:img is="drop-indicator" />
+        <arrowscrollbox id="tabmail-arrowscrollbox"
+                        orient="horizontal"
+                        flex="1"
+                        clicktoscroll=""
+                        style="min-width: 1px;">
+          <tab is="tabmail-tab" selected="true"
+               class="tabmail-tab" crop="end"/>
+        </arrowscrollbox>
+      </tabs>
+
+      <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
+                      id="alltabs-button"
+                      type="menu"
+                      hidden="hidden"
+                      tooltiptext="&listAllTabs.label;">
+        <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
+                    position="after_end"
+                    tabcontainer="tabmail-tabs"/>
+      </toolbarbutton>
+    </toolbar>
+      </html:div>
       </html:div>
       <html:div id="amailTopCenter">
       <html:div id="amailSearch">
@@ -549,37 +581,6 @@
 # The entire main menubar is placed into messenger-menubar.inc.xhtml, so that it
 # can be shared with other top level windows.
 #include messenger-menubar.inc.xhtml
-    </toolbar>
-
-    <toolbar id="tabs-toolbar" class="chromeclass-toolbar">
-      <tabs is="tabmail-tabs" id="tabmail-tabs"
-            flex="1"
-            align="end"
-            setfocus="false"
-            alltabsbutton="alltabs-button"
-            context="toolbar-context-menu"
-            collapsetoolbar="tabs-toolbar">
-        <html:img is="drop-indicator" />
-        <arrowscrollbox id="tabmail-arrowscrollbox"
-                        orient="horizontal"
-                        flex="1"
-                        clicktoscroll=""
-                        style="min-width: 1px;">
-          <tab is="tabmail-tab" selected="true"
-               class="tabmail-tab" crop="end"/>
-        </arrowscrollbox>
-      </tabs>
-
-      <toolbarbutton class="toolbarbutton-1 tabs-alltabs-button"
-                      id="alltabs-button"
-                      type="menu"
-                      hidden="hidden"
-                      tooltiptext="&listAllTabs.label;">
-        <menupopup is="tabmail-alltabs-menupopup" id="alltabs-popup"
-                    position="after_end"
-                    tabcontainer="tabmail-tabs"/>
-      </toolbarbutton>
-
     </toolbar>
 
   </vbox>

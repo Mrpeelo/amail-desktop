@@ -183,6 +183,11 @@ window.addEventListener("DOMContentLoaded", async event => {
   await folderPane.init();
   await threadPane.init();
   threadPaneHeader.init();
+  if (Services.env.get("AMAIL_DEBUG_COLUMNS")) {
+    import("chrome://messenger/content/amailColumnsDebug.mjs").then(module =>
+      module.runColumnsDebug()
+    );
+  }
   await messagePane.isReady();
   webBrowser = messagePane.webBrowser;
   messageBrowser = messagePane.messageBrowser;
