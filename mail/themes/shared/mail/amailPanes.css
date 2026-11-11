@@ -8,7 +8,7 @@
  */
 
 :root {
-  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 14px;
   /* Neutral grays like Outlook on the web; they follow any palette. */
   --amail-hover: color-mix(in srgb, var(--color-text-base) 5%, transparent);
@@ -241,6 +241,24 @@
     font-size: 12px;
     color: var(--color-text-secondary);
     text-align: end;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Subject takes the free width; Received stays a fixed, right-aligned
+     column (Thunderbird otherwise stretches the last column). */
+  #threadTree th#subjectCol {
+    width: auto !important;
+  }
+
+  #threadTree th#dateCol {
+    width: 150px !important;
+    text-align: end;
+
+    & button {
+      justify-content: flex-end;
+    }
   }
 
   /* Unread: blue bar, bold sender, blue subject and date. */

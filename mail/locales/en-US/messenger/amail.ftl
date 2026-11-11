@@ -59,3 +59,9 @@ amail-list-conversations = Conversations
     .title = Group messages into conversations
 amail-list-run-filters = Run filters
     .title = Run the account's filters on this folder
+
+## Search index status (top bar)
+
+# $folder - folder being indexed, $percent - progress in that folder
+amail-index-status = Indexing { $folder } · { $percent } %
+    .title = Building the search index: { $folder } ({ $percent } %)

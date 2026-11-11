@@ -9,7 +9,7 @@
  */
 
 :root {
-  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
   font-size: 14px;
   --amail-topbar-bg: var(--layout-background-1);
   --amail-topbar-text: var(--layout-color-1);
@@ -28,10 +28,13 @@
 
 /* Top bar */
 
+/* Three columns: the search stays centred on the window whatever the side
+   groups contain. */
 #amailTopbar {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 640px) minmax(0, 1fr);
   align-items: center;
-  gap: 16px;
+  column-gap: 16px;
   min-block-size: var(--amail-topbar-height);
   padding-inline-start: 16px;
   background-color: var(--amail-topbar-bg);
@@ -40,7 +43,7 @@
   -moz-window-dragging: drag;
 
   /* Empty areas move the window; only the controls themselves don't. */
-  & :is(#amailBrand, #amailTabsSlot, #amailSearch, #amailTopActions, .amail-name, .amail-logo) {
+  & :is(#amailTopLeft, #amailTopCenter, #amailTopRight, #amailBrand, #amailTabsSlot, #amailSearch, #amailTopActions, .amail-name, .amail-logo, #amailIndexStatus) {
     -moz-window-dragging: drag;
   }
 
@@ -52,6 +55,39 @@
     align-self: stretch;
     margin-inline-start: 4px;
   }
+}
+
+#amailTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-inline-size: 0;
+  align-self: stretch;
+}
+
+#amailTopCenter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-inline-size: 0;
+}
+
+#amailTopRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: stretch;
+  min-inline-size: 0;
+}
+
+#amailIndexStatus {
+  flex: none;
+  max-inline-size: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  opacity: 0.8;
 }
 
 #amailBrand {

@@ -498,6 +498,7 @@
 
   <vbox id="titlebar">
     <html:header id="amailTopbar">
+      <html:div id="amailTopLeft">
       <html:div id="amailBrand">
         <html:span class="amail-logo" aria-hidden="true"></html:span>
         <html:span class="amail-name" data-l10n-id="amail-app-name"></html:span>
@@ -507,6 +508,8 @@
         </html:div>
       </html:div>
       <html:div id="amailTabsSlot"></html:div>
+      </html:div>
+      <html:div id="amailTopCenter">
       <html:div id="amailSearch">
         <html:global-search-bar data-l10n-id="search-bar-item2"
                                 data-l10n-attrs="label"
@@ -518,12 +521,16 @@
                     src="" />
         </html:global-search-bar>
       </html:div>
+      <html:span id="amailIndexStatus" role="status" aria-live="polite" hidden="hidden"></html:span>
+      </html:div>
+      <html:div id="amailTopRight">
       <html:div id="amailTopActions">
         <html:button id="amailGetMessages" class="amail-icon-button" data-l10n-id="amail-get-messages"></html:button>
         <html:button id="amailAddressBook" class="amail-icon-button" data-l10n-id="amail-address-book"></html:button>
         <html:button id="amailSettings" class="amail-icon-button" data-l10n-id="amail-settings"></html:button>
       </html:div>
 #include messenger-titlebar-items.inc.xhtml
+      </html:div>
     </html:header>
     <html:unified-toolbar></html:unified-toolbar>
     <!-- Menu -->

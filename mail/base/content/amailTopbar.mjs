@@ -123,11 +123,41 @@ function ensureSearchIndex() {
   }
 }
 
+/**
+ * Show search indexing progress next to the search field while Gloda works.
+ */
+function watchIndexing() {
+  const { GlodaIndexer } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/GlodaIndexer.sys.mjs"
+  );
+  const { GlodaConstants } = ChromeUtils.importESModule(
+    "resource:///modules/gloda/GlodaConstants.sys.mjs"
+  );
+  const status = document.getElementById("amailIndexStatus");
+  const listener = (state, folder, jobIndex, item, goal) => {
+    if (state != GlodaConstants.kIndexerIndexing) {
+      status.hidden = true;
+      return;
+    }
+    const percent = goal ? Math.min(100, Math.round((item / goal) * 100)) : 0;
+    document.l10n.setAttributes(status, "amail-index-status", {
+      folder: folder ?? "",
+      percent,
+    });
+    status.hidden = false;
+  };
+  GlodaIndexer.addListener(listener);
+  window.addEventListener("unload", () =>
+    GlodaIndexer.removeListener(listener)
+  );
+}
+
 function onSpacesReady() {
   // Each step is independent; one failing must not leave the window
   // without its command bar or menu button.
   for (const step of [
     ensureSearchIndex,
+    watchIndexing,
     updateAppSwitch,
     () => adoptToolbarParts(),
     () => gSpacesToolbar.toggleToolbar(true),
