@@ -1572,3 +1572,26 @@ pref("widget.macos.native-anchored-menus", false);
 
 // The color used to style primary buttons and elements.
 pref("mail.appearance.accentColor", "accent-color");
+
+// aMail portable build: nothing outside the app folder, no data collection.
+// Kept together at the end so later prefs override the defaults above.
+#ifdef AMAIL_PORTABLE
+pref("mail.shell.checkDefaultClient", false);
+pref("mail.winsearch.enable", false);
+pref("mail.winsearch.firstRunDone", true);
+pref("mail.taskbar.lists.enabled", false);
+pref("mail.taskbar.lists.tasks.enabled", false);
+// Windows toast notifications register the app in the registry; opt-in only.
+pref("mail.biff.use_system_alert", false);
+pref("alerts.useSystemBackend.windows.notificationserver.enabled", false);
+pref("datareporting.healthreport.uploadEnabled", false);
+pref("datareporting.policy.dataSubmissionEnabled", false);
+pref("toolkit.telemetry.archive.enabled", false);
+pref("toolkit.telemetry.shutdownPingSender.enabled", false);
+pref("toolkit.telemetry.firstShutdownPing.enabled", false);
+pref("toolkit.telemetry.newProfilePing.enabled", false);
+pref("toolkit.telemetry.updatePing.enabled", false);
+pref("toolkit.telemetry.bhrPing.enabled", false);
+pref("app.normandy.enabled", false);
+pref("app.shield.optoutstudies.enabled", false);
+#endif

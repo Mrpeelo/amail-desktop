@@ -17,6 +17,7 @@
 #if defined(XP_WIN)
 #  include <windows.h>
 #  include <stdlib.h>
+#  include <string>
 #elif defined(XP_UNIX)
 #  include <sys/resource.h>
 #  include <unistd.h>
@@ -146,6 +147,52 @@ static bool IsArg(const char* arg, const char* s) {
 
   return false;
 }
+
+#if defined(XP_WIN) && defined(AMAIL_PORTABLE)
+/**
+ * Keep all user data in <exe dir>\Data: Roaming (profiles.ini, profiles),
+ * Local (caches) and Temp. Child processes inherit the environment.
+ * Variables that are already set are respected, except TEMP/TMP.
+ */
+static void SetupPortableEnvironment() {
+  std::wstring dir(MAX_PATH, L'\0');
+  for (;;) {
+    DWORD len = GetModuleFileNameW(nullptr, dir.data(), DWORD(dir.size()));
+    if (len == 0) {
+      return;
+    }
+    if (len < dir.size()) {
+      dir.resize(len);
+      break;
+    }
+    dir.resize(dir.size() * 2);
+  }
+  size_t slash = dir.find_last_of(L"\\/");
+  if (slash == std::wstring::npos) {
+    return;
+  }
+  dir.resize(slash);
+
+  std::wstring data = dir + L"\\Data";
+  auto useDir = [](const wchar_t* aVar, const std::wstring& aPath,
+                   bool aOverride) {
+    if (!aOverride) {
+      const wchar_t* existing = _wgetenv(aVar);
+      if (existing && *existing) {
+        return;
+      }
+    }
+    CreateDirectoryW(aPath.c_str(), nullptr);
+    _wputenv_s(aVar, aPath.c_str());
+  };
+
+  CreateDirectoryW(data.c_str(), nullptr);
+  useDir(L"MOZ_APP_DATA", data + L"\\Roaming", false);
+  useDir(L"MOZ_LOCAL_APP_DATA", data + L"\\Local", false);
+  useDir(L"TEMP", data + L"\\Temp", true);
+  useDir(L"TMP", data + L"\\Temp", true);
+}
+#endif
 
 constinit Bootstrap::UniquePtr gBootstrap;
 
@@ -396,6 +443,10 @@ int main(int argc, char* argv[], char* envp[]) {
 
     return NS_FAILED(rv) ? 1 : 0;
   }
+#endif
+
+#if defined(XP_WIN) && defined(AMAIL_PORTABLE)
+  SetupPortableEnvironment();
 #endif
 
 #ifdef HAS_DLL_BLOCKLIST

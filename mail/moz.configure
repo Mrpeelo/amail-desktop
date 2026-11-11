@@ -68,8 +68,15 @@ set_config("commtopsrcdir", commtopsrcdir)
 
 
 imply_option("MOZ_PLACES", True)
-imply_option("MOZ_SERVICES_HEALTHREPORT", True)
-imply_option("MOZ_DEDICATED_PROFILES", True)
+imply_option("MOZ_SERVICES_HEALTHREPORT", False)
+# aMail portable build: one profile set in <app>\Data, no per-install
+# profiles (the install path changes when the app folder moves), and none of
+# the services that write outside the app folder.
+imply_option("MOZ_DEDICATED_PROFILES", False)
+imply_option("--enable-updater", False)
+imply_option("--enable-maintenance-service", False, when=target_is_windows)
+imply_option("--enable-crashreporter", False)
+set_define("AMAIL_PORTABLE", True, when=target_is_windows)
 imply_option("MOZ_BLOCK_PROFILE_DOWNGRADE", True)
 imply_option("MOZ_PROFILE_MIGRATOR", True)
 
