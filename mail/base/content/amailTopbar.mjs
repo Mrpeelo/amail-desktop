@@ -96,11 +96,22 @@ async function offerImportOnFirstStart() {
 }
 
 function onSpacesReady() {
-  applyDefaultThemeOnce();
-  offerImportOnFirstStart();
-  gSpacesToolbar.toggleToolbar(true);
-  adoptToolbarParts();
-  updateAppSwitch();
+  // Each step is independent; one failing must not leave the window
+  // without its command bar or menu button.
+  for (const step of [
+    updateAppSwitch,
+    adoptToolbarParts,
+    () => gSpacesToolbar.toggleToolbar(true),
+    applyDefaultThemeOnce,
+    offerImportOnFirstStart,
+  ]) {
+    try {
+      const result = step();
+      result?.catch?.(console.error);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 }
 
 document

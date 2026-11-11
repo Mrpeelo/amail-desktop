@@ -1,0 +1,85 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * aMail reading pane (about:message): the message sits on a white card with
+ * rounded corners over the app background; subject on top, then avatar,
+ * sender, recipients and date; remote content banner in warning colours.
+ */
+
+:root {
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+}
+
+@media not (forced-colors) {
+  body {
+    background-color: var(--color-surface-lower);
+  }
+
+  #messagepanebox {
+    margin: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--color-surface-base);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+
+  #msgHeaderView {
+    background-color: var(--color-surface-base);
+    border-block-end: none;
+  }
+
+  .message-header-container {
+    padding: 16px 20px 8px;
+    row-gap: 4px;
+  }
+
+  /* Subject first, as the card title. */
+  #headerSubjectSecurityContainer {
+    order: -1;
+    margin-block-end: 8px;
+  }
+
+  #expandedsubjectBox,
+  #expandedsubjectBox .header-row-value {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  /* Sender: name semibold, address dim. */
+  #expandedfromBox {
+    font-weight: 600;
+
+    & .recipient-address,
+    & .recipient-single-line .recipient-address {
+      font-weight: normal;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  #expandedtoRow,
+  #dateLabel {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+  }
+
+  .recipient-avatar {
+    border-radius: 50%;
+  }
+
+  /* Remote content blocked: warning banner inside the card. */
+  #mail-notification-top notification-message {
+    margin: 0 20px 8px;
+    border-radius: 4px;
+    --message-bar-background-color: var(--color-warning-soft);
+    --message-bar-text-color: var(--color-text-warning);
+    --message-bar-border-color: transparent;
+  }
+
+  #messagepane {
+    border-block-start: 1px solid var(--color-surface-border);
+  }
+}

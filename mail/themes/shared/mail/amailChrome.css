@@ -9,6 +9,8 @@
  */
 
 :root {
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
   --amail-topbar-bg: var(--layout-background-1);
   --amail-topbar-text: var(--layout-color-1);
   --amail-topbar-hover: color-mix(in srgb, currentColor 12%, transparent);
@@ -130,7 +132,10 @@
   block-size: 32px;
 
   & global-search-bar {
+    display: block;
+    inline-size: 100%;
     block-size: 100%;
+    color: var(--color-text-base);
     --search-bar-background: var(--color-surface-base);
     --search-bar-focus-background: var(--color-surface-base);
     --search-bar-border-color: var(--color-surface-border-intense);
@@ -256,6 +261,6 @@ unified-toolbar {
 
 /* The command bar is for mail and calendar; Settings, Address Book etc.
    don't need it. */
-:root:not([amail-space="mail"], [amail-space="calendar"]) unified-toolbar {
+:root[amail-space]:not([amail-space="mail"], [amail-space="calendar"]) unified-toolbar {
   display: none;
 }

@@ -2705,7 +2705,7 @@ const gHeaderCustomize = {
    */
   customizeData: {
     showAvatar: true,
-    showBigAvatar: false,
+    showBigAvatar: true,
     showFullAddress: true,
     hideLabels: true,
     subjectLarge: true,

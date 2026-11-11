@@ -165,6 +165,7 @@ export const AmailProfileImport = {
 
       await this._copySignatures(targetDir);
       await this._rewritePaths(sourceDir, targetDir);
+      await this._resetWindowLayout(targetDir);
 
       const profile = profileService.createUniqueProfile(
         new FileUtils.File(targetDir),
@@ -209,6 +210,46 @@ export const AmailProfileImport = {
       );
     }
     await IOUtils.writeUTF8(prefsPath, prefs);
+  },
+
+  /**
+   * aMail's window layout (top bar, command bar, no menu bar or spaces
+   * toolbar) replaces the source's toolbar customisation; everything else
+   * is kept as it was.
+   *
+   * @param {string} targetDir
+   */
+  async _resetWindowLayout(targetDir) {
+    const xulStorePath = PathUtils.join(targetDir, "xulstore.json");
+    if (await IOUtils.exists(xulStorePath)) {
+      try {
+        const store = await IOUtils.readJSON(xulStorePath);
+        const messenger =
+          store["chrome://messenger/content/messenger.xhtml"] ?? {};
+        for (const id of [
+          "unifiedToolbar",
+          "toolbar-menubar",
+          "spacesToolbar",
+          "messageHeader",
+        ]) {
+          delete messenger[id];
+        }
+        await IOUtils.writeJSON(xulStorePath, store);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    const prefsPath = PathUtils.join(targetDir, "prefs.js");
+    const prefs = await IOUtils.readUTF8(prefsPath);
+    const kept = prefs
+      .split("\n")
+      .filter(
+        line =>
+          !/^user_pref\("mail\.tabs\.(drawInTitlebar|autoHide)"/.test(line)
+      )
+      .join("\n");
+    await IOUtils.writeUTF8(prefsPath, kept);
   },
 
   /**

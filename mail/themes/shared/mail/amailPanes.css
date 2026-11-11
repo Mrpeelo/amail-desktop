@@ -1,0 +1,151 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * aMail look for the three panes (about:3pane): font, folder tree.
+ * Values follow the aMail UI spec (Outlook styling, Thunderbird tree).
+ */
+
+:root {
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  /* Neutral grays like Outlook on the web; they follow any palette. */
+  --amail-hover: color-mix(in srgb, var(--color-text-base) 5%, transparent);
+  --amail-selected: color-mix(in srgb, var(--color-text-base) 10%, transparent);
+  --amail-icon-color: color-mix(in srgb, var(--color-text-base) 80%, transparent);
+  --amail-radius: 6px;
+}
+
+@media not (forced-colors) {
+  /* Folder pane */
+
+  #folderPane {
+    background-color: var(--color-surface-subtle);
+    border-inline-end: 1px solid var(--color-surface-border);
+  }
+
+  /* Get messages / New message duplicate the command bar. */
+  #folderPaneHeaderBar {
+    display: none;
+  }
+
+  #folderTree {
+    padding: 8px 0;
+
+    /* Thin-line folder icons. */
+    --icon-folder: url("chrome://messenger/skin/icons/amail/folder.svg");
+    --icon-inbox: url("chrome://messenger/skin/icons/amail/inbox.svg");
+    --icon-draft: url("chrome://messenger/skin/icons/amail/drafts.svg");
+    --icon-sent: url("chrome://messenger/skin/icons/amail/sent.svg");
+    --icon-trash: url("chrome://messenger/skin/icons/amail/trash.svg");
+    --icon-archive: url("chrome://messenger/skin/icons/amail/archive.svg");
+    --icon-spam: url("chrome://messenger/skin/icons/amail/junk.svg");
+    --icon-template: url("chrome://messenger/skin/icons/amail/template.svg");
+    --icon-outbox: url("chrome://messenger/skin/icons/amail/outbox.svg");
+    --icon-folder-filter: url("chrome://messenger/skin/icons/amail/filter.svg");
+    --icon-rss: url("chrome://messenger/skin/icons/amail/rss.svg");
+
+    /* Only one folder mode: no "All Folders" heading. */
+    & > li:only-child > .mode-container {
+      display: none;
+    }
+
+    & .container {
+      min-block-size: 28px;
+      margin-inline: 6px;
+      padding-inline: calc(2px + var(--indent)) 8px;
+      gap: 8px;
+      border: none;
+      border-radius: var(--amail-radius);
+    }
+
+    & li:not(.selected) > .container:hover {
+      background-color: var(--amail-hover);
+    }
+
+    & li.selected > .container,
+    &:focus-within li.selected > .container,
+    &:focus-within li.selected.current > .container {
+      background-color: var(--amail-selected);
+      color: var(--color-text-base);
+
+      &:hover:not(:active) {
+        background-color: var(--amail-selected);
+      }
+
+      & > .name {
+        font-weight: 600;
+      }
+    }
+
+    & li.unread > .container > .name {
+      font-weight: 600;
+    }
+
+    & .twisty {
+      inline-size: 16px;
+      block-size: 16px;
+      margin-inline-end: -4px;
+      flex: none;
+    }
+
+    & .twisty-icon {
+      inline-size: 12px;
+      block-size: 12px;
+      fill: var(--color-text-secondary);
+    }
+
+    & .icon {
+      inline-size: 20px;
+      block-size: 20px;
+      flex: none;
+      fill: none;
+      stroke: var(--amail-icon-color);
+    }
+
+    & .name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Unread counts: brand-coloured number, no pill. */
+    & .unread-count,
+    & li.unread > .container > .unread-count,
+    & li.new-messages > .container > .unread-count,
+    &:focus-within li.selected.unread.children.collapsed > .container > .unread-count {
+      padding: 0;
+      border: none;
+      background: none;
+      color: var(--color-primary-default);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Account rows: chevron, colour dot, bold name. */
+    & li[data-server-type] {
+      margin-block-start: 4px;
+
+      & > .container > .icon {
+        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3E%3Ccircle cx='4' cy='4' r='4' fill='context-fill'/%3E%3C/svg%3E");
+        inline-size: 8px;
+        block-size: 8px;
+        margin-inline: 2px;
+        fill: var(--account-color, var(--color-primary-default));
+        stroke: none;
+      }
+
+      & > .container > .name {
+        font-weight: 600;
+      }
+    }
+
+    /* Parents the server doesn't list (Gmail's [Gmail]) look dimmed. */
+    & li.noselect-folder > .container > .name {
+      color: var(--color-text-secondary);
+      font-weight: normal;
+    }
+  }
+}
