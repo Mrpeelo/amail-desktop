@@ -83,22 +83,58 @@ const CHECKS = {
     if (!cw) {
       return;
     }
-    const to = cw.document.getElementById("toAddrInput");
+    record({
+      label: "from row",
+      fromInToolbar: !!cw.document.querySelector("#composeToolbar2 #msgIdentity"),
+      sendRect: rect(cw.document.getElementById("button-send")),
+      fromRect: rect(cw.document.getElementById("msgIdentity")),
+      toRect: rect(cw.document.getElementById("toAddrContainer")),
+    });
+
+    // A second new message while the first is untouched: replaced in place.
+    const first = browser;
+    top.goDoCommand("cmd_newMessage");
+    await wait(5000);
+    const second = document.getElementById("amailComposeBrowser");
+    record({
+      label: "second new message (first untouched)",
+      windowsOpened: [...Services.wm.getEnumerator(null)].length - windowsBefore,
+      replaced: !!second && second != first,
+      firstGone: !first.isConnected,
+      ready: !!second?.contentWindow?.gMsgCompose,
+    });
+
+    // A third while the second has changes: it must be saved to Drafts and
+    // closed. The save itself is stubbed, nothing is written to the mailbox.
+    const cw2 = second.contentWindow;
+    const to = cw2.document.getElementById("toAddrInput");
     to.value = "first@example.invalid, second@example.invalid";
-    cw.recipientAddPills(to);
-    cw.document.getElementById("addr_ccShowAddressRowButton").click();
-    cw.document.getElementById("msgSubject").value = "A subject";
-    cw.updateSendLock?.();
-    cw.goUpdateCommand?.("cmd_sendButton");
-    await wait(1500);
+    cw2.recipientAddPills(to);
+    cw2.document.getElementById("msgSubject").value = "A subject";
+    cw2.gContentChanged = true;
+    await wait(1000);
     await snapshot("inline-compose-filled");
-    cw.gContentChanged = false;
-    cw.gMsgCompose.bodyModified = false;
-    for (const pill of cw.document.querySelectorAll("mail-address-pill")) {
-      pill.remove();
-    }
-    cw.document.getElementById("msgSubject").value = "";
-    cw.gAmailInlineHost.close();
+    let saveCalls = 0;
+    let closeAfterSave = null;
+    cw2.SaveAsDraft = () => {
+      saveCalls++;
+      closeAfterSave = cw2.gCloseWindowAfterSave;
+      cw2.SetContentAndBodyAsUnmodified();
+      cw2.amailCloseCompose();
+    };
+    top.goDoCommand("cmd_newMessage");
+    await wait(5000);
+    const third = document.getElementById("amailComposeBrowser");
+    record({
+      label: "third new message (second edited)",
+      windowsOpened: [...Services.wm.getEnumerator(null)].length - windowsBefore,
+      saveToDraftsCalls: saveCalls,
+      closeAfterSave,
+      replaced: !!third && third != second,
+      secondGone: !second.isConnected,
+      newSubject: third?.contentWindow?.document.getElementById("msgSubject")?.value,
+    });
+    third?.contentWindow?.gAmailInlineHost.close();
     await wait(2500);
     record({
       label: "closed",

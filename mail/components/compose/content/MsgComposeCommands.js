@@ -293,6 +293,28 @@ var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 var gAmailInlineHost =
   window.browsingContext.embedderElement?.amailComposeHost ?? null;
 
+/**
+ * aMail: From (with the Cc / Bcc toggles) sits on the same row as Send, as in
+ * Outlook. The toolbar ignores the item when it is customized.
+ */
+function amailMoveFromToToolbar() {
+  const toolbar = document.getElementById("composeToolbar2");
+  if (!toolbar || document.getElementById("amail-from")) {
+    return;
+  }
+  const item = document.createXULElement("toolbaritem");
+  item.id = "amail-from";
+  item.setAttribute("skipintoolbarset", "true");
+  item.setAttribute("align", "center");
+  item.append(document.getElementById("top-gradient-box"));
+  const send = toolbar.querySelector("#button-send");
+  if (send) {
+    send.after(item);
+  } else {
+    toolbar.prepend(item);
+  }
+}
+
 /** Close the compose window, or the inline compose view. */
 function amailCloseCompose() {
   if (gAmailInlineHost) {
@@ -4647,6 +4669,7 @@ async function ComposeStartup() {
     document.getElementById("msgSubject"),
     "amail-compose-subject"
   );
+  amailMoveFromToToolbar();
   if (gAmailInlineHost) {
     // The menu bar shows with Alt, as in the main window.
     document

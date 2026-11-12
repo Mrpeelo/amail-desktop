@@ -178,3 +178,25 @@
 :root:root #messageArea {
   padding: 4px 8px 0;
 }
+
+/* From on the Send row (amailMoveFromToToolbar). */
+
+:root:root #amail-from {
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  margin-inline: 12px 8px;
+
+  & #top-gradient-box {
+    margin-inline-start: 0;
+    min-block-size: 32px;
+  }
+
+  & #identityLabel-box {
+    inline-size: auto !important;
+    margin-inline-end: 6px;
+  }
+}
+
+:root:root #MsgHeadersToolbar {
+  grid-template-rows: minmax(0, min-content) min-content;
+}
