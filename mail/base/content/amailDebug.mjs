@@ -20,55 +20,64 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
-   * Theme, colors and mark-as-read in Settings are radio buttons that work
-   * with a real click.
+   * The Theme dropdown in Settings opens, stays open and picking Dark
+   * switches the theme. Traces what closes it.
    */
   async "settings-theme"(record) {
     const top = window.browsingContext.topChromeWindow;
-    const browser = top.document.getElementById("amailSettingsBrowser");
+    const doc = top.document;
+    const browser = doc.getElementById("amailSettingsBrowser");
     const { AddonManager } = ChromeUtils.importESModule(
       "resource://gre/modules/AddonManager.sys.mjs"
     );
     const activeTheme = async () =>
       (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id;
     const original = await activeTheme();
-    const palette = Services.prefs.getCharPref("amail.theme.palette");
     await wait(6000);
     top.amailSettingsDialog.openSettings("general");
     await wait(2500);
     const page = browser.contentDocument;
     const win = browser.contentWindow;
-    const click = input => {
-      const r = input.getBoundingClientRect();
-      for (const type of ["mousedown", "mouseup"]) {
-        win.synthesizeMouseEvent(type, r.x + r.width / 2, r.y + r.height / 2, {
-          button: 0,
-          clickCount: 1,
-        });
-      }
-    };
-    const checked = name => page.querySelector(`input[name=${name}]:checked`)?.value;
+    const select = page.getElementById("themeMode");
+    const t0 = Date.now();
+    const trace = [];
+    const log = (what, stack) =>
+      trace.push(`${Date.now() - t0}ms ${what}${stack ? " <- " + stack : ""}`);
+    const dropdown = doc.getElementById("ContentSelectDropdown");
+    const shortStack = () =>
+      new Error().stack.split("\n").slice(1, 9).map(l => l.replace(/@.*\//, "@")).join(" | ");
+    for (const type of ["popupshowing", "popupshown", "popuphidden"]) {
+      dropdown?.addEventListener(type, () => log(type), true);
+    }
+    dropdown?.addEventListener("popuphiding", () => log("popuphiding", shortStack()), true);
+    select.addEventListener("focus", () => log("select focus"));
+    select.addEventListener("blur", () => log("select blur"));
+    select.addEventListener("mozshowdropdown", () => log("mozshowdropdown"));
+    top.addEventListener("focus", e => log(`chrome focus ${e.target.id || e.target.localName}`), true);
+    top.addEventListener("blur", e => log(`chrome blur ${e.target.id || e.target.localName}`), true);
+    const r = select.getBoundingClientRect();
+    log(`rect ${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}`);
+    win.synthesizeMouseEvent("mousedown", r.x + 20, r.y + r.height / 2, { button: 0, clickCount: 1 });
+    await wait(150);
+    win.synthesizeMouseEvent("mouseup", r.x + 20, r.y + r.height / 2, { button: 0, clickCount: 1 });
+    await wait(1500);
+    const popup = dropdown?.menupopup;
+    const pr = popup?.getOuterScreenRect();
     record({
-      label: "before",
+      label: "open theme list",
       original,
-      palette,
-      themeRadio: checked("themeMode"),
-      paletteRadio: checked("palette"),
-      markRead: checked("markRead"),
-      delayHidden: page.getElementById("markReadDelay").hidden,
+      popupState: popup?.state,
+      popupRect: pr ? `${Math.round(pr.left)},${Math.round(pr.top)} ${Math.round(pr.width)}x${Math.round(pr.height)}` : null,
+      dropdownParent: dropdown?.parentNode?.id || dropdown?.parentNode?.localName,
+      trace,
     });
-    click(page.querySelector("input[name=themeMode][value*=dark]"));
-    click(page.querySelector("input[name=palette][value=synthwave]"));
-    await wait(2500);
-    record({
-      label: "after clicking Dark + Synthwave",
-      activeTheme: await activeTheme(),
-      palette: Services.prefs.getCharPref("amail.theme.palette"),
-      themeRadio: checked("themeMode"),
-    });
-    await (await AddonManager.getAddonByID(original))?.enable();
-    Services.prefs.setCharPref("amail.theme.palette", palette);
-    record({ label: "restored", activeTheme: await activeTheme() });
+    const dark = popup && [...popup.querySelectorAll("menuitem")].find(m => /dark/i.test(m.label));
+    if (dark && popup.state == "open") {
+      popup.activateItem(dark);
+      await wait(2500);
+      record({ label: "after picking Dark", selectValue: select.value, activeTheme: await activeTheme() });
+      await (await AddonManager.getAddonByID(original))?.enable();
+    }
     top.amailSettingsDialog.close();
   },
   /**

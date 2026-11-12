@@ -32,6 +32,7 @@ function show(url) {
   if (modal.hidden) {
     returnFocus = document.activeElement;
     modal.hidden = false;
+    browser.docShellIsActive = true;
   }
   back.hidden = url == SETTINGS;
   card.classList.toggle("amail-settings-wide", url != SETTINGS);
@@ -143,6 +144,7 @@ function close() {
   rememberTab();
   load("about:blank");
   modal.hidden = true;
+  browser.docShellIsActive = false;
   if (returnFocus?.isConnected) {
     returnFocus.focus();
   }

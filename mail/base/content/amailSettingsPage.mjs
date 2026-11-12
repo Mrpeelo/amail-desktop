@@ -79,29 +79,6 @@ function showTab(name) {
   renderers[name]();
 }
 
-function radios(name) {
-  return [...document.querySelectorAll(`input[type=radio][name="${name}"]`)];
-}
-
-/**
- * Check the radio button of a group with this value.
- *
- * @returns {boolean} If a radio button has the value.
- */
-function setRadio(name, value) {
-  const radio = radios(name).find(r => r.value == value);
-  if (radio) {
-    radio.checked = true;
-  }
-  return !!radio;
-}
-
-function onRadio(name, callback) {
-  for (const radio of radios(name)) {
-    radio.addEventListener("change", () => radio.checked && callback(radio.value));
-  }
-}
-
 // General
 
 function bindPrefs() {
@@ -130,36 +107,42 @@ function bindPrefs() {
     }
   }
 
-  onRadio("markRead", value => {
-    Services.prefs.setBoolPref("mailnews.mark_message_read.auto", value != "never");
-    Services.prefs.setBoolPref("mailnews.mark_message_read.delay", value == "after");
+  const markMode = $("markReadMode");
+  markMode.addEventListener("change", () => {
+    Services.prefs.setBoolPref(
+      "mailnews.mark_message_read.auto",
+      markMode.value != "never"
+    );
+    Services.prefs.setBoolPref(
+      "mailnews.mark_message_read.delay",
+      markMode.value == "after"
+    );
     renderGeneral();
   });
-  onRadio("palette", value =>
-    Services.prefs.setCharPref("amail.theme.palette", value)
-  );
-  onRadio("themeMode", async value => {
-    const theme = await AddonManager.getAddonByID(value);
+
+  const themeMode = $("themeMode");
+  themeMode.addEventListener("change", async () => {
+    const theme = await AddonManager.getAddonByID(themeMode.value);
     await theme?.enable();
   });
 }
 
 async function renderGeneral() {
-  let markRead = "now";
+  const markMode = $("markReadMode");
   if (!Services.prefs.getBoolPref("mailnews.mark_message_read.auto")) {
-    markRead = "never";
+    markMode.value = "never";
   } else if (Services.prefs.getBoolPref("mailnews.mark_message_read.delay")) {
-    markRead = "after";
+    markMode.value = "after";
+  } else {
+    markMode.value = "now";
   }
-  setRadio("markRead", markRead);
-  $("markReadDelay").hidden = markRead != "after";
-  setRadio("palette", Services.prefs.getCharPref("amail.theme.palette", "amail"));
+  $("markReadDelay").hidden = markMode.value != "after";
 
+  const themeMode = $("themeMode");
   const themes = await AddonManager.getAddonsByTypes(["theme"]);
   const active = themes.find(theme => theme.isActive)?.id;
-  if (!setRadio("themeMode", active)) {
-    setRadio("themeMode", "default-theme@mozilla.org");
-  }
+  const values = [...themeMode.options].map(option => option.value);
+  themeMode.value = values.includes(active) ? active : "default-theme@mozilla.org";
 }
 
 // Accounts
