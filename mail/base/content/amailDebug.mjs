@@ -20,6 +20,43 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
+   * The gear button opens Settings in the dialog and it stays open.
+   */
+  async "settings-gear"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const modal = doc.getElementById("amailSettingsModal");
+    const browser = doc.getElementById("amailSettingsBrowser");
+    await wait(8000);
+    const since = Date.now();
+    record({
+      label: "before click",
+      dialogGlobal: typeof top.amailSettingsDialog?.open,
+      oldGlobalName: String(top.amailSettings),
+      gearId: doc.getElementById("amailSettings")?.localName,
+    });
+    doc.getElementById("amailSettings").click();
+    for (const ms of [300, 2000, 6000]) {
+      await wait(ms);
+      record({
+        label: `after click +${ms}`,
+        modalShown: !modal.hidden,
+        url: browser.currentURI?.spec,
+        modalRect: (() => {
+          const r = modal.getBoundingClientRect();
+          return `${Math.round(r.top)},${Math.round(r.width)}x${Math.round(r.height)}`;
+        })(),
+      });
+    }
+    const errors = Services.console
+      .getMessageArray()
+      .filter(m => m instanceof Ci.nsIScriptError && m.timeStamp >= since)
+      .map(m => `${m.errorMessage} @ ${m.sourceName}:${m.lineNumber}`)
+      .slice(0, 15);
+    record({ label: "console errors", errors });
+    top.amailSettingsDialog?.close();
+  },
+  /**
    * Settings open in the dialog over the app (a pane, account settings,
    * back, close), not in a tab.
    */

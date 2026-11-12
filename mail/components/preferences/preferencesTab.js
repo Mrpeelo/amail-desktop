@@ -151,7 +151,7 @@ var preferencesTabType = {
   },
 
   restoreTab(aTabmail, aPersistedState) {
-    if (window.amailSettings) {
+    if (window.amailSettingsDialog) {
       return;
     }
     aTabmail.openTab("preferencesTab", {

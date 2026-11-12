@@ -5,7 +5,7 @@
 /**
  * aMail Settings: about:preferences and about:accountsettings open in a
  * dialog over the app (like Outlook on the web) instead of a tab.
- * openPreferencesTab() and MsgAccountManager() use window.amailSettings.
+ * openPreferencesTab() and MsgAccountManager() use window.amailSettingsDialog.
  */
 
 const PREFERENCES = "about:preferences";
@@ -135,4 +135,4 @@ tabmail?.registerTabMonitor({
   onTabRestored() {},
 });
 
-window.amailSettings = { open, openAccounts, close };
+window.amailSettingsDialog = { open, openAccounts, close };

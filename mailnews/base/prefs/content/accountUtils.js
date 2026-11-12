@@ -150,8 +150,8 @@ async function MsgAccountManager(selectPage, server) {
   // If the server is still not found, account settings will default to
   // the first account.
 
-  if (win.amailSettings) {
-    win.amailSettings.openAccounts(server, selectPage);
+  if (win.amailSettingsDialog) {
+    win.amailSettingsDialog.openAccounts(server, selectPage);
     return;
   }
 

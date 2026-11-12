@@ -321,12 +321,12 @@ function openContentTab(url, where, linkHandler) {
  *   object of the preferences page, once loaded.
  */
 function openPreferencesTab(paneID, scrollPaneTo, otherArgs) {
-  const settingsWindow = window.amailSettings
+  const settingsWindow = window.amailSettingsDialog
     ? window
     : Services.wm.getMostRecentWindow("mail:3pane");
-  if (settingsWindow?.amailSettings) {
+  if (settingsWindow?.amailSettingsDialog) {
     settingsWindow.focus();
-    return settingsWindow.amailSettings.open(paneID, scrollPaneTo, otherArgs);
+    return settingsWindow.amailSettingsDialog.open(paneID, scrollPaneTo, otherArgs);
   }
   const { promise, resolve } = Promise.withResolvers();
   openTab("preferencesTab", {
