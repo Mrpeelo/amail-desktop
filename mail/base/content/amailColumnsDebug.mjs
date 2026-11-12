@@ -166,12 +166,62 @@ async function runChecks(out) {
       saveItem: !!document.getElementById("amailSortSave"),
       columns: [],
     });
+    Services.prefs.setStringPref(
+      "amail.sort.presets",
+      JSON.stringify([{ ...test, mode: "group" }, original])
+    );
+    out.push({
+      label: "grouped saved sort applied",
+      wanted: `${test.column} ascending=${test.ascending} grouped`,
+      ...(await applyFromMenu(0)),
+      grouped: gViewWrapper.showGroupedBySort,
+      columns: [],
+    });
     out.push({
       label: "original sort restored",
       wanted: `${original.column} ascending=${original.ascending}`,
       ...(await applyFromMenu(1)),
       columns: [],
     });
+    // Apply to a folder that is not open, then open it and check.
+    {
+      const { applyToStoredFolder } = await import(
+        "chrome://messenger/content/amailSortPresets.mjs"
+      );
+      const home = gFolder;
+      const other = home.server.rootFolder.getFolderWithFlags(
+        Ci.nsMsgFolderFlags.SentMail
+      );
+      const before = other.msgDatabase.dBFolderInfo;
+      const otherOriginal = {
+        viewFlags: before.viewFlags,
+        sortType: before.sortType,
+        sortOrder: before.sortOrder,
+      };
+      other.msgDatabase = null;
+      const target = {
+        ...test,
+        sortType: Ci.nsMsgViewSortType.bySubject,
+        sortOrder: Ci.nsMsgViewSortOrder.descending,
+        viewFlags: Ci.nsMsgViewFlagsType.kNone,
+      };
+      applyToStoredFolder(target, other);
+      displayFolder(other.URI);
+      await wait(2500);
+      out.push({
+        label: "saved sort applied to closed folder",
+        folder: other.localizedName,
+        wanted: "subjectCol descending, plain list",
+        sortedBy: gViewWrapper?.primarySortColumnId,
+        ascending: gViewWrapper?.isSortedAscending,
+        threaded: gViewWrapper?.showThreaded,
+        columns: [],
+      });
+      displayFolder(home.URI);
+      await wait(2000);
+      applyToStoredFolder({ ...test, ...otherOriginal }, other);
+    }
+
     if (savedPresets) {
       Services.prefs.setStringPref("amail.sort.presets", savedPresets);
     } else {

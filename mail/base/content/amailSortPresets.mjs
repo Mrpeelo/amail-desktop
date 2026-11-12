@@ -88,9 +88,10 @@ function applyToOpenFolder(preset) {
     return;
   }
   const command = value => sortController.handleCommand({ target: { value } });
-  command(preset.mode);
+  // Choosing a sort column ungroups the list, so the grouping comes last.
   command(preset.column);
   command(preset.ascending ? "ascending" : "descending");
+  command(preset.mode);
   threadPane.restoreSortIndicator();
 }
 
@@ -101,14 +102,17 @@ function applyToOpenFolder(preset) {
  * @param {SortPreset} preset
  * @param {nsIMsgFolder} folder
  */
-function applyToStoredFolder(preset, folder) {
+export function applyToStoredFolder(preset, folder) {
   if (folder.isServer) {
     return;
   }
-  const info = folder.msgDatabase.dBFolderInfo;
+  const database = folder.msgDatabase;
+  const info = database.dBFolderInfo;
   info.viewFlags = preset.viewFlags;
   info.sortType = preset.sortType;
   info.sortOrder = preset.sortOrder;
+  // Without a commit the change is lost when the database closes.
+  database.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   folder.msgDatabase = null;
 }
 
