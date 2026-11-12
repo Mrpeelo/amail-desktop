@@ -1209,7 +1209,9 @@ function showAddressRowMenuItemSetPreferButton(menuItem, preferButton) {
  */
 function updateRecipientsVisibility() {
   document.getElementById("extraAddressRowsMenuButton").hidden =
-    !document.querySelector("#extraAddressRowsMenu > :not([hidden])");
+    !document.querySelector(
+      "#extraAddressRowsMenu > :not([hidden], #addr_replyShowAddressRowMenuItem)"
+    );
 
   const buttonbox = document.getElementById("extraAddressRowsArea");
   // Toggle the class to show/hide the pseudo element separator

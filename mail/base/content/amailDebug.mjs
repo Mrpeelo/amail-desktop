@@ -89,6 +89,18 @@ const CHECKS = {
       sendRect: rect(cw.document.getElementById("button-send")),
       fromRect: rect(cw.document.getElementById("msgIdentity")),
       toRect: rect(cw.document.getElementById("toAddrContainer")),
+      attachRect: rect(cw.document.getElementById("button-attach")),
+      encryptRect: rect(cw.document.getElementById("button-encryption")),
+      ccStyle: (() => {
+        const cs = cw.getComputedStyle(
+          cw.document.getElementById("addr_ccShowAddressRowButton")
+        );
+        return `${cs.borderTopWidth} ${cs.borderTopLeftRadius} ${cs.backgroundColor}`;
+      })(),
+      replyToShown: cw.document
+        .getElementById("addr_replyShowAddressRowMenuItem")
+        .checkVisibility(),
+      moreButtonHidden: cw.document.getElementById("extraAddressRowsMenuButton").hidden,
     });
 
     // A second new message while the first is untouched: replaced in place.

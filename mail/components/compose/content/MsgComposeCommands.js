@@ -295,7 +295,8 @@ var gAmailInlineHost =
 
 /**
  * aMail: From (with the Cc / Bcc toggles) sits on the same row as Send, as in
- * Outlook. The toolbar ignores the item when it is customized.
+ * Outlook, below the row with the other buttons. The toolbar ignores the
+ * added items when it is customized.
  */
 function amailMoveFromToToolbar() {
   const toolbar = document.getElementById("composeToolbar2");
@@ -313,6 +314,12 @@ function amailMoveFromToToolbar() {
   } else {
     toolbar.prepend(item);
   }
+  // Send and From wrap to their own row, below the other buttons
+  // (amailCompose.css).
+  const rowBreak = document.createXULElement("toolbaritem");
+  rowBreak.id = "amail-row-break";
+  rowBreak.setAttribute("skipintoolbarset", "true");
+  toolbar.append(rowBreak);
 }
 
 /** Close the compose window, or the inline compose view. */
