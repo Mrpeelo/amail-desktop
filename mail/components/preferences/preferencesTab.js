@@ -150,14 +150,7 @@ var preferencesTabType = {
     };
   },
 
-  restoreTab(aTabmail, aPersistedState) {
-    if (window.amailSettingsDialog) {
-      return;
-    }
-    aTabmail.openTab("preferencesTab", {
-      paneID: aPersistedState.paneID,
-      scrollPaneTo: aPersistedState.scrollPaneTo,
-      otherArgs: aPersistedState.otherArgs,
-    });
-  },
+  // aMail: Settings only open in the Settings dialog (amailSettings.mjs),
+  // never in a tab, so a saved tab is not restored.
+  restoreTab() {},
 };

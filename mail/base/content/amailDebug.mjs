@@ -91,8 +91,51 @@ const CHECKS = {
     const browser = doc.getElementById("amailSettingsBrowser");
     await wait(8000);
     const since = Date.now();
-    doc.getElementById("amailSettings").click();
+    const t0 = Date.now();
+    const trace = [];
+    const log = what => trace.push(`${Date.now() - t0}ms ${what}`);
+    new top.MutationObserver(() => log(`modal hidden=${modal.hidden}`)).observe(
+      modal,
+      { attributes: true, attributeFilter: ["hidden"] }
+    );
+    doc.getElementById("tabmail").registerTabMonitor({
+      monitorName: "amailDebug",
+      onTabTitleChanged() {},
+      onTabSwitched(tab, old) {
+        log(`tabSwitched ${old?.mode?.name}->${tab?.mode?.name} same=${tab == old}`);
+      },
+      onTabOpened(tab) {
+        log(`tabOpened ${tab?.mode?.name}`);
+      },
+      onTabClosing() {},
+      onTabPersist() {
+        return null;
+      },
+      onTabRestored() {},
+    });
+    browser.addProgressListener?.({
+      QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
+      onLocationChange(wp, req, uri) {
+        log(`location ${uri.spec}`);
+      },
+    });
+    log(`dialog global ${typeof top.amailSettingsDialog?.open}`);
+    try {
+      doc.getElementById("amailSettings").click();
+      log("clicked");
+    } catch (e) {
+      log(`click threw ${e}`);
+    }
     await wait(2500);
+    record({
+      label: "trace",
+      trace,
+      errors: Services.console
+        .getMessageArray()
+        .filter(m => m instanceof Ci.nsIScriptError && m.timeStamp >= since)
+        .map(m => `${m.errorMessage} @ ${m.sourceName}:${m.lineNumber}`)
+        .slice(0, 15),
+    });
     const page = () => browser.contentDocument;
     const card = doc.getElementById("amailSettingsCard").getBoundingClientRect();
     record({

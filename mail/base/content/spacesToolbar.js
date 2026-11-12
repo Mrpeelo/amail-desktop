@@ -299,8 +299,9 @@ var gSpacesToolbar = {
           }
           return 0;
         },
-        open(where) {
-          return openTab("preferencesTab", {}, where);
+        open() {
+          window.amailSettingsDialog.open();
+          return null;
         },
       },
     ];

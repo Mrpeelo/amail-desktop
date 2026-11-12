@@ -169,11 +169,35 @@ function onKeyDown(event) {
 modal.addEventListener("keydown", onKeyDown);
 
 const tabmail = document.getElementById("tabmail");
-tabmail?.registerTabMonitor({
+
+// Settings never open in a tab: anything that asks for a Settings or account
+// settings tab gets the dialog.
+const openTab = tabmail.openTab;
+tabmail.openTab = function (mode, args = {}, ...rest) {
+  if (mode == "preferencesTab") {
+    open(args.paneID, args.scrollPaneTo, args.otherArgs);
+    return null;
+  }
+  if (mode == "contentTab" && args.url == ACCOUNTS) {
+    openAccounts();
+    return null;
+  }
+  if (mode == "contentTab" && args.url?.startsWith(PREFERENCES)) {
+    open("paneGeneral");
+    return null;
+  }
+  return openTab.call(this, mode, args, ...rest);
+};
+
+tabmail.registerTabMonitor({
   monitorName: "amailSettings",
   onTabTitleChanged() {},
-  onTabSwitched: close,
-  onTabOpened: close,
+  onTabSwitched(tab, oldTab) {
+    if (tab != oldTab) {
+      close();
+    }
+  },
+  onTabOpened() {},
   onTabClosing() {},
   onTabPersist() {
     return null;

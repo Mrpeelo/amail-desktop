@@ -1003,6 +1003,13 @@ var specialTabs = {
       };
     },
     restoreTab(aTabmail, aPersistedState) {
+      if (
+        ["about:accountsettings", "about:preferences"].includes(
+          aPersistedState.tabURI
+        )
+      ) {
+        return;
+      }
       const tab = aTabmail.openTab("contentTab", {
         background: true,
         duplicate: aPersistedState.duplicate,
