@@ -20,6 +20,64 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
+   * Settings open in the dialog over the app (a pane, account settings,
+   * back, close), not in a tab.
+   */
+  async "settings-modal"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const modal = doc.getElementById("amailSettingsModal");
+    const browser = doc.getElementById("amailSettingsBrowser");
+    const tabsBefore = top.document.getElementById("tabmail").tabInfo.length;
+    top.amailSettingsCloseLog = [];
+    const prefs = await Promise.race([
+      top.openPreferencesTab("paneCompose"),
+      wait(15000),
+    ]);
+    await wait(500);
+    const card = doc.getElementById("amailSettingsCard").getBoundingClientRect();
+    record({
+      label: "settings",
+      modalShown: !modal.hidden,
+      url: browser.currentURI?.spec,
+      resolved: !!prefs,
+      pane: browser.contentDocument
+        .querySelector("#categories > .category[selected]")
+        ?.getAttribute("value"),
+      footerLinks: [
+        ...browser.contentDocument.querySelectorAll(".sidebar-footer-link"),
+      ].map(a => a.id),
+      card: `${Math.round(card.width)}x${Math.round(card.height)}`,
+      closeLog: top.amailSettingsCloseLog.map(s =>
+        s.split("\n").slice(0, 6).join(" < ")
+      ),
+      tabsAdded: top.document.getElementById("tabmail").tabInfo.length - tabsBefore,
+    });
+    top.MsgAccountManager(null);
+    await wait(3000);
+    record({
+      label: "accounts",
+      url: browser.currentURI?.spec,
+      backShown: !doc.getElementById("amailSettingsBack").hidden,
+      title: doc.getElementById("amailSettingsTitle").textContent,
+      accounts: browser.contentDocument.getElementById("accounttree")?.rowCount ??
+        browser.contentDocument.querySelectorAll("#accounttree li").length,
+    });
+    doc.getElementById("amailSettingsBack").click();
+    await wait(3000);
+    record({ label: "back", url: browser.currentURI?.spec });
+    modal.dispatchEvent(
+      new top.KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+    );
+    await wait(500);
+    record({
+      label: "closed by Esc",
+      hidden: modal.hidden,
+      url: browser.currentURI?.spec,
+      tabsAdded: top.document.getElementById("tabmail").tabInfo.length - tabsBefore,
+    });
+  },
+  /**
    * Subject row inside the message card without a close button, light
    * header buttons, larger date; no offline status button; chat disabled.
    */

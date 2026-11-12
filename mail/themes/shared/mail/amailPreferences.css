@@ -1,0 +1,106 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * aMail Settings (about:preferences inside the Settings dialog): Outlook on
+ * the web look. Category list on a light rail on the left, the selected
+ * category tinted with an accent bar; content on the card surface.
+ */
+
+@namespace html url("http://www.w3.org/1999/xhtml");
+
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  font-size: 14px;
+}
+
+@media not (forced-colors) {
+  #pref-category-box {
+    inline-size: 232px;
+    padding-block: 12px;
+    border-inline-end: 1px solid var(--color-surface-border);
+    background-color: var(--color-surface-lower);
+  }
+
+  #categories > .category,
+  .sidebar-footer-link {
+    position: relative;
+    min-height: 36px;
+    margin-inline: 8px;
+    padding-inline: 12px;
+    border: none;
+    border-radius: 4px;
+    color: var(--color-text-base);
+
+    &:hover {
+      border: none;
+      background-color: color-mix(in srgb, var(--color-text-base) 6%, transparent);
+      color: var(--color-text-base);
+    }
+  }
+
+  #categories > .category[selected] {
+    background-color: color-mix(in srgb, var(--color-primary-default) 12%, transparent);
+    color: var(--color-text-base);
+    font-weight: 600;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block: 8px;
+      inset-inline-start: 0;
+      inline-size: 3px;
+      border-radius: 2px;
+      background-color: var(--color-primary-default);
+    }
+
+    & > .category-icon {
+      stroke: var(--color-primary-default);
+      fill: color-mix(in srgb, var(--color-primary-default) 20%, transparent);
+    }
+  }
+
+  #preferencesContainer,
+  .sticky-container {
+    background-color: var(--color-surface-base);
+  }
+}
+
+.category-icon,
+.sidebar-footer-icon {
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+.category-name,
+.sidebar-footer-label {
+  font-size: 14px;
+  padding-inline-start: 10px;
+}
+
+.sidebar-footer-list {
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--color-surface-border);
+}
+
+#preferencesContainer {
+  padding: 0 32px 40px;
+}
+
+#policies-container,
+#searchInput {
+  margin: 16px 0 20px;
+}
+
+html|h1 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+html|legend {
+  font-size: 15px;
+}

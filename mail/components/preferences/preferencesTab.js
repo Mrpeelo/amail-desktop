@@ -151,6 +151,9 @@ var preferencesTabType = {
   },
 
   restoreTab(aTabmail, aPersistedState) {
+    if (window.amailSettings) {
+      return;
+    }
     aTabmail.openTab("preferencesTab", {
       paneID: aPersistedState.paneID,
       scrollPaneTo: aPersistedState.scrollPaneTo,

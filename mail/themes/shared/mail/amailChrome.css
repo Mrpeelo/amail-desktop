@@ -373,3 +373,109 @@ unified-toolbar {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   }
 }
+
+/* Settings dialog (amailSettings.mjs): a tall centred card over a dimmed
+   window; the top bar stays usable. */
+#amailSettingsModal {
+  position: fixed;
+  inset: var(--amail-topbar-height) 0 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+#amailSettingsCard {
+  display: flex;
+  flex-direction: column;
+  inline-size: min(1120px, calc(100% - 48px));
+  block-size: calc(100% - 48px);
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+#amailSettingsHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-block-size: 52px;
+  padding-inline: 20px 10px;
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+#amailSettingsTitle {
+  flex: 1;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+#amailSettingsBrowser {
+  flex: 1;
+  min-block-size: 0;
+}
+
+.amail-settings-icon {
+  appearance: none;
+  flex: none;
+  inline-size: 32px;
+  block-size: 32px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--color-text-base);
+  cursor: pointer;
+
+  &::before {
+    content: "";
+    display: block;
+    inline-size: 20px;
+    block-size: 20px;
+    margin: auto;
+    background-color: currentColor;
+    mask: var(--amail-settings-icon) center / contain no-repeat;
+  }
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--color-text-base) 8%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-default);
+    outline-offset: -2px;
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+#amailSettingsBack {
+  margin-inline-start: -10px;
+  --amail-settings-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 10H4M9 5l-5 5 5 5'/%3E%3C/svg%3E");
+
+  &:dir(rtl)::before {
+    transform: scaleX(-1);
+  }
+}
+
+#amailSettingsClose {
+  --amail-settings-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='m5 5 10 10M15 5 5 15'/%3E%3C/svg%3E");
+}
+
+@media (forced-colors) {
+  #amailSettingsCard {
+    border: 1px solid CanvasText;
+  }
+}

@@ -150,6 +150,11 @@ async function MsgAccountManager(selectPage, server) {
   // If the server is still not found, account settings will default to
   // the first account.
 
+  if (win.amailSettings) {
+    win.amailSettings.openAccounts(server, selectPage);
+    return;
+  }
+
   // If Account settings tab is already open, change the server
   // and the selected page, reload the tab and switch to the tab.
   for (const tabInfo of tabmail.tabInfo) {

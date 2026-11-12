@@ -47,6 +47,7 @@
   />
   <link rel="stylesheet" href="chrome://calendar/skin/calendar.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/folderMenus.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailPreferences.css" />
 
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/preferences/preferences.ftl" />
@@ -214,6 +215,36 @@
                       alt="" />
             <label class="sidebar-footer-label"
                    data-l10n-id="open-addons-sidebar-button"
+                   flex="1"/>
+          </html:a>
+
+          <html:a id="amailFiltersButton" class="sidebar-footer-link"
+                  onclick="window.browsingContext.topChromeWindow.MsgFilters();">
+            <html:img class="sidebar-footer-icon"
+                      src="chrome://messenger/skin/icons/new/compact/filter.svg"
+                      alt="" />
+            <label class="sidebar-footer-label"
+                   data-l10n-id="amail-settings-filters"
+                   flex="1"/>
+          </html:a>
+
+          <html:a id="amailTrustedSendersButton" class="sidebar-footer-link"
+                  onclick="gPrivacyPane.showRemoteContentExceptions();">
+            <html:img class="sidebar-footer-icon"
+                      src="chrome://messenger/skin/icons/new/compact/shield.svg"
+                      alt="" />
+            <label class="sidebar-footer-label"
+                   data-l10n-id="amail-settings-trusted-senders"
+                   flex="1"/>
+          </html:a>
+
+          <html:a id="amailAboutButton" class="sidebar-footer-link"
+                  onclick="window.browsingContext.topChromeWindow.openAboutDialog();">
+            <html:img class="sidebar-footer-icon"
+                      src="chrome://messenger/skin/icons/new/compact/info.svg"
+                      alt="" />
+            <label class="sidebar-footer-label"
+                   data-l10n-id="amail-settings-about"
                    flex="1"/>
           </html:a>
         </vbox>

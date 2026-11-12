@@ -148,3 +148,17 @@ amail-list-unsubscribe = Unsubscribe
 
 # $time - the time the message arrived today, e.g. 10.18
 amail-date-today = Today at { $time }
+
+## Settings dialog
+
+amail-settings-title = Settings
+amail-settings-accounts-title = Account settings
+amail-settings-back =
+    .title = Back to Settings
+    .aria-label = Back to Settings
+amail-settings-close =
+    .title = Close (Esc)
+    .aria-label = Close settings
+amail-settings-filters = Message filters
+amail-settings-trusted-senders = Trusted senders
+amail-settings-about = About { -brand-short-name }

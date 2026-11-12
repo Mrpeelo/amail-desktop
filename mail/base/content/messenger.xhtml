@@ -269,6 +269,7 @@
   <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/unified-toolbar.mjs"></script>
   <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs"></script>
   <script type="module" defer="defer" src="chrome://messenger/content/amailTopbar.mjs"></script>
+  <script type="module" defer="defer" src="chrome://messenger/content/amailSettings.mjs"></script>
 
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
@@ -727,6 +728,32 @@
 #include ../../../calendar/base/content/calendar-status-bar.inc.xhtml
   </hbox>
 </vbox><!-- Closing #messengerBody. -->
+
+<!-- aMail: Settings and account settings in a dialog over the app. -->
+<html:div id="amailSettingsModal" hidden="hidden">
+  <html:div id="amailSettingsCard"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="amailSettingsTitle">
+    <html:header id="amailSettingsHeader">
+      <html:button id="amailSettingsBack"
+                   class="amail-settings-icon"
+                   data-l10n-id="amail-settings-back"
+                   hidden="hidden"></html:button>
+      <html:h1 id="amailSettingsTitle" data-l10n-id="amail-settings-title"></html:h1>
+      <html:button id="amailSettingsClose"
+                   class="amail-settings-icon"
+                   data-l10n-id="amail-settings-close"></html:button>
+    </html:header>
+    <browser id="amailSettingsBrowser"
+             type="content"
+             manualactiveness="true"
+             disablehistory="true"
+             autocompletepopup="PopupAutoComplete"
+             messagemanagergroup="single-site"
+             onclick="return contentAreaClick(event);"/>
+  </html:div>
+</html:div>
 
 #include tabDialogs.inc.xhtml
 #include ../../components/accountcreation/templates/accountHubTemplate.inc.xhtml

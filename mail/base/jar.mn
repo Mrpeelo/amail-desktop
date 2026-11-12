@@ -84,6 +84,7 @@ messenger.jar:
     content/messenger/amailImport.mjs               (content/amailImport.mjs)
     content/messenger/amailColumns.mjs              (content/amailColumns.mjs)
     content/messenger/amailDates.mjs                (content/amailDates.mjs)
+    content/messenger/amailSettings.mjs             (content/amailSettings.mjs)
     content/messenger/amailLayout.mjs               (content/amailLayout.mjs)
     content/messenger/amailReader.mjs               (content/amailReader.mjs)
     content/messenger/amailSplitButtons.mjs         (content/amailSplitButtons.mjs)
