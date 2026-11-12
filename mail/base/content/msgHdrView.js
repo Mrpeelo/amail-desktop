@@ -3095,7 +3095,10 @@ const gMessageHeader = {
       .getElementById("listIdPlaceHolder")
       .setAttribute(
         "label",
-        element.value.textContent.replace(/.*<([^>]+)>.*/, "$1")
+        (element.rawValue ?? element.value.textContent).replace(
+          /.*<([^>]+)>.*/,
+          "$1"
+        )
       );
 
     const popup = document.getElementById("listIdPopup");
@@ -3294,7 +3297,7 @@ const gMessageHeader = {
       event.currentTarget.parentNode.headerField;
     navigator.clipboard.writeText(
       window.getSelection().isCollapsed
-        ? target.textContent
+        ? (target.rawValue ?? target.textContent)
         : window.getSelection().toString()
     );
   },
@@ -3396,16 +3399,29 @@ const gMessageHeader = {
     );
   },
 
-  openListURL(event) {
+  openListURL(event, linkEvent = event) {
     const url = event.target.value;
     if (url.startsWith("mailto:")) {
       const [identity] = MailUtils.getIdentityForHeader(gMessage);
       top.composeEmailTo(url, identity);
       return;
     }
-    openUILink(url, event);
+    openUILink(url, linkEvent);
   },
 };
+window.addEventListener("amailListUnsubscribe", event => {
+  const urls = [
+    ...(currentHeaderData["list-unsubscribe"]?.headerValue ?? "").matchAll(
+      /<([^>]+)>/g
+    ),
+  ].map(m => m[1].trim());
+  const url =
+    urls.find(u => u.startsWith("https:")) ||
+    urls.find(u => u.startsWith("mailto:"));
+  if (url) {
+    gMessageHeader.openListURL({ target: { value: url } }, event.detail.event);
+  }
+});
 window.addEventListener(
   "openListId",
   event => {

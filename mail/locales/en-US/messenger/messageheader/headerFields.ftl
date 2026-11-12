@@ -23,7 +23,7 @@ message-header-followup-to-list-name = Followup to
 message-header-tags-list-name = Tags
 
 # List management header - RFC 2369.
-message-header-list-id = List-ID
+message-header-list-id = Mailing list
 
 # List management header - RFC 2369.
 message-header-list-help = List-Help
@@ -67,7 +67,7 @@ message-header-in-reply-to-field = In reply to<span data-l10n-name="field-separa
 
 message-header-website-field = Website<span data-l10n-name="field-separator">:</span>
 
-message-header-list-id-field = List-ID<span data-l10n-name="field-separator">:</span>
+message-header-list-id-field = Mailing list<span data-l10n-name="field-separator">:</span>
 
 message-header-list-help-field = List-Help<span data-l10n-name="field-separator">:</span>
 

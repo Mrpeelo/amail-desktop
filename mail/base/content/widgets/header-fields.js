@@ -694,6 +694,64 @@
 
       this.addEventListener("click", this);
       this.addEventListener("keypress", this);
+
+      this.unsubscribe = document.createElement("button");
+      this.unsubscribe.classList.add("amail-list-unsubscribe");
+      this.unsubscribe.hidden = true;
+      document.l10n.setAttributes(this.unsubscribe, "amail-list-unsubscribe");
+      this.unsubscribe.addEventListener("click", event => {
+        event.stopPropagation();
+        this.dispatchEvent(
+          new CustomEvent("amailListUnsubscribe", {
+            bubbles: true,
+            detail: { event },
+          })
+        );
+      });
+      this.unsubscribe.addEventListener("keypress", event =>
+        event.stopPropagation()
+      );
+      this.appendChild(this.unsubscribe);
+    }
+
+    /**
+     * Show the list's name, or its id when it has no name. An id that is not
+     * in the standard domain form (e.g. "1128") is shown as a newsletter from
+     * the sender's domain. The raw header is kept in rawValue and the tooltip.
+     *
+     * @param {string} val - The List-ID header value.
+     */
+    set headerValue(val) {
+      this.rawValue = val;
+      this.title = val;
+      const match = /^\s*"?([^"<]*?)"?\s*<([^>]*)>/.exec(val);
+      const name = match?.[1].trim();
+      const id = (match ? match[2] : val).trim();
+      this.unsubscribe.hidden = !(
+        "list-unsubscribe" in (window.currentHeaderData ?? {})
+      );
+      if (name || id.includes(".")) {
+        this.#show(name || id);
+        return;
+      }
+      const from = window.currentHeaderData?.from?.headerValue ?? "";
+      const domain = /@([^\s>]+)/.exec(from)?.[1];
+      this.#show(id);
+      document.l10n
+        .formatValue(
+          domain ? "amail-list-newsletter-from" : "amail-list-newsletter",
+          { domain }
+        )
+        .then(text => {
+          if (this.rawValue == val) {
+            this.#show(text);
+          }
+        });
+    }
+
+    #show(text) {
+      this.value.textContent = text;
+      this.setAttribute("aria-label", `${this.heading.textContent} ${text}`);
     }
 
     handleEvent(event) {

@@ -135,3 +135,11 @@ amail-index-status = Indexing { $folder } · { $percent } %
 
 amail-reader-empty = Select an item to read
 amail-reader-empty-sub = Nothing is selected
+
+## Mailing list row in the message header
+
+# $domain - the sender's domain, e.g. owlcat.games
+amail-list-newsletter-from = Newsletter from { $domain }
+amail-list-newsletter = Newsletter
+amail-list-unsubscribe = Unsubscribe
+    .title = Unsubscribe from this mailing list

@@ -20,6 +20,68 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
+   * Mailing list row on the Owlcat newsletter: readable text, raw value in
+   * the tooltip, Unsubscribe link.
+   */
+  async "list-id"(record) {
+    const about3Pane = window;
+    const { threadTree } = about3Pane;
+    const home = about3Pane.gFolder;
+    let found = null;
+    for (const account of about3Pane.MailServices.accounts.accounts) {
+      const inbox = account.incomingServer.rootFolder.getFolderWithFlags(
+        Ci.nsMsgFolderFlags.Inbox
+      );
+      if (!inbox) {
+        continue;
+      }
+      for (const hdr of inbox.messages) {
+        if (hdr.mime2DecodedSubject.includes("Dark Heresy Release Date")) {
+          found = hdr;
+          break;
+        }
+      }
+      if (found) {
+        break;
+      }
+    }
+    if (!found) {
+      record({ label: "Owlcat message not found" });
+      return;
+    }
+    const wasRead = found.isRead;
+    if (about3Pane.gFolder != found.folder) {
+      about3Pane.displayFolder(found.folder.URI);
+      await wait(2500);
+    }
+    const before = threadTree.selectedIndices;
+    threadTree.selectedIndex = about3Pane.gDBView.findIndexOfMsgHdr(found, true);
+    await wait(2500);
+    const rdoc = about3Pane.document.getElementById("messageBrowser")
+      .contentDocument;
+    const row = rdoc.getElementById("expandedlist-idBox");
+    const unsub = row.querySelector(".amail-list-unsubscribe");
+    record({
+      label: "mailing list row",
+      rowVisible: !rdoc.getElementById("expandedlist-id").hidden,
+      heading: row.heading.textContent,
+      value: row.value.textContent,
+      tooltip: row.title,
+      unsubscribeShown: !unsub.hidden,
+      unsubscribeText: unsub.textContent,
+      unsubscribeHeader: rdoc.defaultView.currentHeaderData["list-unsubscribe"]
+        ?.headerValue.slice(0, 120),
+    });
+    threadTree.selectedIndices = before;
+    if (!wasRead) {
+      found.folder.markMessagesRead([found], false);
+    }
+    if (home && about3Pane.gFolder != home) {
+      about3Pane.displayFolder(home.URI);
+      await wait(1500);
+    }
+  },
+  /**
    * Subject row inside the message card without a close button, light
    * header buttons, larger date; no offline status button; chat disabled.
    */

@@ -231,3 +231,25 @@ body {
 :root:dir(rtl) :is(#amailPreviousMessage, #amailNextMessage)::before {
   transform: scaleX(-1);
 }
+
+/* Mailing list row: readable list name with an Unsubscribe link. */
+.amail-list-unsubscribe {
+  appearance: none;
+  margin: 0 0 0 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-primary-default);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-default);
+    outline-offset: 1px;
+    border-radius: 2px;
+  }
+}
