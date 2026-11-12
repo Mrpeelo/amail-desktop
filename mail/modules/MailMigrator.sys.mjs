@@ -62,8 +62,6 @@ export var MailMigrator = {
 
       if (currentUIVersion < 38) {
         lazy.migrateToolbarForSpace("calendar");
-        lazy.migrateToolbarForSpace("tasks");
-        lazy.migrateToolbarForSpace("chat");
         lazy.migrateToolbarForSpace("settings");
         lazy.migrateToolbarForSpace("addressbook");
         // Clear menubar and tabbar XUL toolbar state.

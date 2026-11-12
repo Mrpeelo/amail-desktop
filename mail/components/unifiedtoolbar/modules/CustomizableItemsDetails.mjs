@@ -79,14 +79,6 @@ export default [
     ],
   },
   {
-    id: "chat",
-    labelId: "toolbar-chat",
-    templateId: "chatTemplate",
-    requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
-    ],
-  },
-  {
     id: "add-ons-and-themes",
     labelId: "toolbar-add-ons-and-themes",
     templateId: "addOnsAndThemesTemplate",
@@ -103,14 +95,6 @@ export default [
     ],
   },
   {
-    id: "tasks",
-    labelId: "toolbar-tasks",
-    templateId: "tasksTemplate",
-    requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/space-button.mjs",
-    ],
-  },
-  {
     id: "mail",
     labelId: "toolbar-mail",
     templateId: "mailTemplate",
@@ -122,14 +106,6 @@ export default [
     id: "new-event",
     labelId: "toolbar-new-event",
     templateId: "newEventTemplate",
-    requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
-    ],
-  },
-  {
-    id: "new-task",
-    labelId: "toolbar-new-task",
-    templateId: "newTaskTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
     ],
@@ -279,15 +255,6 @@ export default [
     ],
   },
   {
-    id: "add-as-task",
-    labelId: "toolbar-add-as-task",
-    spaces: ["mail"],
-    templateId: "addAsTaskTemplate",
-    requiredModules: [
-      "chrome://messenger/content/unifiedtoolbar/add-to-calendar-button.mjs",
-    ],
-  },
-  {
     id: "folder-location",
     labelId: "toolbar-folder-location",
     spaces: ["mail"],
@@ -417,7 +384,7 @@ export default [
   {
     id: "edit-event",
     labelId: "toolbar-edit-event",
-    spaces: ["calendar", "tasks"],
+    spaces: ["calendar"],
     templateId: "editEventTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
@@ -426,7 +393,7 @@ export default [
   {
     id: "synchronize",
     labelId: "toolbar-synchronize",
-    spaces: ["calendar", "tasks"],
+    spaces: ["calendar"],
     templateId: "synchronizeTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
@@ -435,7 +402,7 @@ export default [
   {
     id: "delete-event",
     labelId: "toolbar-delete-event",
-    spaces: ["calendar", "tasks"],
+    spaces: ["calendar"],
     templateId: "deleteEventTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",
@@ -444,7 +411,7 @@ export default [
   {
     id: "print-event",
     labelId: "toolbar-print-event",
-    spaces: ["calendar", "tasks"],
+    spaces: ["calendar"],
     templateId: "printEventTemplate",
     requiredModules: [
       "chrome://messenger/content/unifiedtoolbar/unified-toolbar-button.mjs",

@@ -49,8 +49,6 @@
   />
   <link rel="stylesheet" href="chrome://messenger/skin/tabmail.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/popupPanel.css" />
-  <link rel="stylesheet" href="chrome://messenger/skin/chat.css" />
-  <link rel="stylesheet" href="chrome://chat/skin/imtooltip.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/messageHeader.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/icons.css" />
   <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
@@ -126,7 +124,6 @@
   <link rel="localization" href="calendar/calendar-context-menus.ftl" />
   <link rel="localization" href="calendar/calendar-editable-item.ftl" />
   <link rel="localization" href="calendar/calendar-event-listing.ftl" />
-  <link rel="localization" href="messenger/chat.ftl" />
   <link rel="localization" href="messenger/messageheader/headerFields.ftl" />
   <link rel="localization" href="messenger/mailWidgets.ftl" />
   <link rel="localization" href="messenger/inAppNotifications.ftl" />
@@ -154,10 +151,6 @@
   <script defer="defer" src="chrome://communicator/content/contentAreaClick.js"></script>
   <script defer="defer" src="chrome://messenger/content/toolbarIconColor.js"></script>
   <script defer="defer" src="chrome://messenger/content/jsTreeView.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-messenger.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/imStatusSelector.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/imContextMenu.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-conversation.js"></script>
   <script defer="defer" src="chrome://messenger/content/addressbook/addressBookTab.js"></script>
   <script defer="defer" src="chrome://messenger/content/preferences/preferencesTab.js"></script>
   <script defer="defer" src="chrome://messenger/content/mailCore.js"></script>
@@ -169,12 +162,8 @@
   <script defer="defer" src="chrome://messenger/content/msgViewPickerOverlay.js"></script>
   <script defer="defer" src="chrome://messenger/content/viewZoomOverlay.js"></script>
   <script defer="defer" src="chrome://communicator/content/utilityOverlay.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-conversation-info.js"></script>
   <script defer="defer" src="chrome://gloda/content/autocomplete-richlistitem.js"></script>
   <script defer="defer" src="chrome://gloda/content/glodacomplete.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-contact.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-group.js"></script>
-  <script defer="defer" src="chrome://messenger/content/chat/chat-imconv.js"></script>
   <script defer="defer" src="chrome://messenger/content/tabmail-tab.js"></script>
   <script defer="defer" src="chrome://messenger/content/tabmail-tabs.js"></script>
   <script defer="defer" src="chrome://messenger/content/tabmail.js"></script>
@@ -229,7 +218,6 @@
   <script type="module" src="chrome://messenger/content/drop-indicator.mjs"></script>
 
   <!-- NEEDED FOR TASK VIEW/LIST SUPPORT -->
-  <script defer="defer" src="chrome://calendar/content/calendar-task-editing.js"></script>
 
   <script defer="defer" src="chrome://calendar/content/calendar-extract.js"></script>
 
@@ -254,7 +242,6 @@
   <!-- NEEDED FOR TASK VIEW -->
   <script defer="defer" src="chrome://calendar/content/calendar-task-tree-view.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-task-tree.js"></script>
-  <script defer="defer" src="chrome://calendar/content/calendar-task-view.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-dialog-utils.js"></script>
   <script defer="defer" src="chrome://calendar/content/calApplicationUtils.js"></script>
   <script defer="defer" src="chrome://calendar/content/calendar-menus.js"></script>
@@ -279,9 +266,6 @@
     window.addEventListener("MozBeforeInitialXULLayout",
      gMailInit.onBeforeInitialXULLayout.bind(gMailInit), { once: true });
   </script>
-
-  <!-- Needed for chat log panel -->
-  <script type="module" src="chrome://messenger/content/lazy-findbar.mjs" />
 
   <!-- Color customization for the folder pane. -->
   <style id="folderColorsStyle"></style>
@@ -472,7 +456,6 @@
     </popupnotificationcontent>
   </popupnotification>
 
-#include ../../components/im/content/chat-menu.inc.xhtml
 </popupset>
 
 <!--
@@ -605,7 +588,6 @@
              tabcontainer="tabmail-tabs">
      <tabbox id="tabmail-tabbox" flex="1" eventnode="document" tabcontainer="tabmail-tabs">
       <tabpanels id="tabpanelcontainer" flex="1" class="plain" selectedIndex="0">
-#include ../../components/im/content/chat-messenger.inc.xhtml
 #include ../../../calendar/base/content/calendar-tab-panels.inc.xhtml
 #include ../../../calendar/base/content/item-editing/calendar-item-panel.inc.xhtml
       </tabpanels>

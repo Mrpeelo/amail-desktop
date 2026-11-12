@@ -15,7 +15,6 @@
 /* import-globals-from customizeToolbar.js */
 /* import-globals-from utilityOverlay.js */
 
-/* globals gChatTab */ // From globals chat-messenger.js
 /* globals currentAttachments */ // From msgHdrView.js
 
 var { openLinkExternally } = ChromeUtils.importESModule(
@@ -500,18 +499,6 @@ async function toCalendar() {
   });
 }
 
-function showChatTab() {
-  if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
-    return;
-  }
-  const tabmail = document.getElementById("tabmail");
-  if (gChatTab) {
-    tabmail.switchToTab(gChatTab);
-  } else {
-    tabmail.openTab("chat", {});
-  }
-}
-
 /**
  * Open about:import tab.
  *
@@ -609,42 +596,6 @@ function openFolderQuota() {
   document
     .getElementById("tabmail")
     .currentAbout3Pane?.folderPane.editFolder(undefined, "QuotaTab");
-}
-
-function openIMAccountMgr() {
-  var win = Services.wm.getMostRecentWindow("Messenger:Accounts");
-  if (win) {
-    win.focus();
-  } else {
-    win = Services.ww.openWindow(
-      null,
-      "chrome://messenger/content/chat/imAccounts.xhtml",
-      "Accounts",
-      "chrome,resizable,centerscreen",
-      null
-    );
-  }
-  return win;
-}
-
-function openIMAccountWizard() {
-  const kFeatures = "chrome,centerscreen,modal,titlebar";
-  const kUrl = "chrome://messenger/content/chat/imAccountWizard.xhtml";
-  const kName = "IMAccountWizard";
-
-  if (AppConstants.platform == "macosx") {
-    // On Mac, avoid using the hidden window as a parent as that would
-    // make it visible.
-    const hiddenWindowUrl = Services.prefs.getCharPref(
-      "browser.hiddenWindowChromeURL"
-    );
-    if (window.location.href == hiddenWindowUrl) {
-      Services.ww.openWindow(null, kUrl, kName, kFeatures, null);
-      return;
-    }
-  }
-
-  window.openDialog(kUrl, kName, kFeatures);
 }
 
 function openSavedFilesWnd() {

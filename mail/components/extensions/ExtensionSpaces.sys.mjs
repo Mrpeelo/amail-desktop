@@ -173,16 +173,6 @@ export class SpaceTracker {
         tabInSpace: tabInfo => (tabInfo.mode.name == "calendar" ? 1 : 0),
       },
       {
-        name: "tasks",
-        spaceButtonId: "tasksButton",
-        tabInSpace: tabInfo => (tabInfo.mode.name == "tasks" ? 1 : 0),
-      },
-      {
-        name: "chat",
-        spaceButtonId: "chatButton",
-        tabInSpace: tabInfo => (tabInfo.mode.name == "chat" ? 1 : 0),
-      },
-      {
         name: "settings",
         spaceButtonId: "settingsButton",
         tabInSpace: tabInfo => {

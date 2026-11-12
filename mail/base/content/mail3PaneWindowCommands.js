@@ -9,7 +9,6 @@
 
 /* global MozElements */
 
-/* import-globals-from ../../components/im/content/chat-messenger.js */
 /* import-globals-from mailCore.js */
 /* import-globals-from mailWindow.js */ // msgWindow and a loooot more
 /* import-globals-from utilityOverlay.js */
@@ -40,16 +39,11 @@ var DefaultController = {
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
-      case "cmd_chat":
       case "cmd_goFolder":
       case "cmd_newCard":
         return true;
       case "cmd_synchronizeOffline":
         return MailOfflineMgr.isOnline();
-      case "cmd_joinChat":
-      case "cmd_addChatBuddy":
-      case "cmd_chatStatus":
-        return !!chatHandler;
 
       default:
         return false;
@@ -90,12 +84,6 @@ var DefaultController = {
         return IsAccountOfflineEnabled();
       case "cmd_goFolder":
         return isFolderPaneInitialized();
-      case "cmd_chat":
-        return Services.prefs.getBoolPref("mail.chat.enabled");
-      case "cmd_joinChat":
-      case "cmd_addChatBuddy":
-      case "cmd_chatStatus":
-        return !!chatHandler;
       case "cmd_newCard":
         return (
           document.getElementById("tabmail")?.selectedTab.mode.name !=
@@ -164,9 +152,6 @@ var DefaultController = {
         document
           .getElementById("tabmail")
           .currentAbout3Pane.displayFolder(event.target._folder);
-        break;
-      case "cmd_chat":
-        showChatTab();
         break;
       case "cmd_newCard":
         openNewCardDialog();

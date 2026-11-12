@@ -20,7 +20,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
   );
   const lazy = {};
   ChromeUtils.defineESModuleGetters(lazy, {
-    GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
     Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
     GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
     GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
@@ -207,9 +206,6 @@ customElements.whenDefined("autocomplete-input").then(() => {
         const args = {
           searcher: new lazy.GlodaMsgSearcher(null, searchString),
         };
-        if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-          args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
-        }
         tabmail.openTab("glodaFacet", args);
       }
     }

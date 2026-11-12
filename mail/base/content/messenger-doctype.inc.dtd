@@ -8,8 +8,6 @@
 %msgHdrViewOverlayDTD;
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd">
 %messengerDTD;
-<!ENTITY % chatDTD SYSTEM "chrome://messenger/locale/chat.dtd">
-%chatDTD;
 <!ENTITY % customizeToolbarDTD SYSTEM "chrome://messenger/locale/customizeToolbar.dtd">
 %customizeToolbarDTD;
 <!ENTITY % tabMailDTD SYSTEM "chrome://messenger/locale/tabmail.dtd">

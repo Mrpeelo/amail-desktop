@@ -19,9 +19,7 @@
     document.documentURI == "chrome://extensions/content/dummy.xhtml";
   if (!isDummyDocument) {
     for (const [tag, script] of [
-      ["", "chrome://chat/content/conversation-browser.js"],
       ["", "chrome://messenger/content/gloda-autocomplete-input.js"],
-      ["", "chrome://chat/content/chat-tooltip.js"],
       ["", "chrome://messenger/content/statuspanel.js"],
       ["folder-summary", "chrome://messenger/content/foldersummary.js"],
       [

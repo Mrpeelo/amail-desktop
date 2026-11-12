@@ -13,7 +13,6 @@ def test(mod, path, entity=None):
         "devtools/shared",
         "devtools/client",
         "mail",
-        "chat",
         "extensions/spellcheck",
         "mail/branding/thunderbird",
         "mail/branding/tb_beta",

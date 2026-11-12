@@ -25,8 +25,6 @@ const BUILTIN_SPACES = new Set([
   "mail",
   "addressbook",
   "calendar",
-  "tasks",
-  "chat",
   "settings",
 ]);
 

@@ -18,7 +18,6 @@ DIRS += [
     "downloads",
     "enterprisepolicies",
     "extensions",
-    "im",
     "inappnotifications",
     "preferences",
     "prompts",

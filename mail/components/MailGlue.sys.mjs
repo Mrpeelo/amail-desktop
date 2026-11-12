@@ -33,7 +33,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
   BuiltInThemes: "resource:///modules/BuiltInThemes.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
-  ChatCore: "resource:///modules/chatHandler.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
   checkInstalledExtensions: "resource:///modules/ExtensionUtilities.sys.mjs",
   ExtensionsUI: "resource:///modules/ExtensionsUI.sys.mjs",
@@ -126,19 +125,6 @@ const JSPROCESSACTORS = {
 };
 
 const JSWINDOWACTORS = {
-  ChatAction: {
-    matches: ["chrome://chat/content/conv.html"],
-    parent: {
-      esModuleURI: "resource:///actors/ChatActionParent.sys.mjs",
-    },
-    child: {
-      esModuleURI: "resource:///actors/ChatActionChild.sys.mjs",
-      events: {
-        contextmenu: { mozSystemGroup: true },
-      },
-    },
-  },
-
   ContextMenu: {
     parent: {
       esModuleURI: "resource:///actors/ContextMenuParent.sys.mjs",
@@ -891,13 +877,6 @@ MailGlue.prototype = {
         },
       },
       {
-        condition: Services.prefs.getBoolPref("mail.chat.enabled"),
-        task() {
-          lazy.ChatCore.idleStart();
-          ChromeUtils.importESModule("resource:///modules/index_im.sys.mjs");
-        },
-      },
-      {
         condition: AppConstants.MOZ_UPDATER,
         task: () => {
           lazy.UpdateListener.maybeShowUnsupportedNotification();
@@ -1465,17 +1444,6 @@ class PreferenceTelemetry {
     "places.history.enabled",
     "privacy.donottrackheader.enabled",
     "privacy.globalprivacycontrol.enabled",
-
-    // Chat
-    "messenger.options.getAttentionOnNewMessages",
-    "messenger.status.reportIdle",
-    "messenger.status.awayWhenIdle",
-    "mail.chat.enabled",
-    "mail.chat.play_sound",
-    "mail.chat.show_desktop_notifications",
-    "purple.conversations.im.send_typing",
-    "purple.logging.log_chats",
-    "purple.logging.log_ims",
 
     // Notifications
     "mail.biff.alert.show_preview",

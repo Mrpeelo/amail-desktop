@@ -317,3 +317,7 @@ amail-compose-template-save =
 amail-compose-close =
     .title = Close this message (asks to save changes)
     .aria-label = Close this message
+
+amail-menu-events =
+    .label = Events
+    .accesskey = n

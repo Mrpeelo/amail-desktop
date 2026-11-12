@@ -235,15 +235,6 @@
 @BINPATH@/mozMapi32.dll
 #endif
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; instant messaging
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-@RESPATH@/@PREF_DIR@/chat-prefs.js
-@RESPATH@/chrome/chat@JAREXT@
-@RESPATH@/chrome/chat.manifest
-
-; Thunderbird specific
-@RESPATH@/@PREF_DIR@/all-im.js
 
 ; OTR libraries
 #ifdef TB_LIBOTR_PREBUILT

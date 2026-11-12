@@ -65,14 +65,6 @@ function openNewsgroupAccountWizard() {
   );
 }
 
-function AddIMAccount() {
-  window.browsingContext.topChromeWindow.openDialog(
-    "chrome://messenger/content/chat/imAccountWizard.xhtml",
-    "",
-    "chrome,modal,titlebar,centerscreen"
-  );
-}
-
 function AddFeedAccount() {
   window.browsingContext.topChromeWindow.openDialog(
     "chrome://messenger-newsblog/content/feedAccountWizard.xhtml",

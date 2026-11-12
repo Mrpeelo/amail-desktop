@@ -124,58 +124,6 @@ export const ShortcutsManager = {
       context: [],
     },
     {
-      id: "space-tasks",
-      name: "Open the Tasks space",
-      key: "4",
-      modifiers: {
-        win: {
-          metaKey: false,
-          ctrlKey: false,
-          shiftKey: false,
-          altKey: true,
-        },
-        macosx: {
-          metaKey: false,
-          ctrlKey: true,
-          shiftKey: false,
-          altKey: false,
-        },
-        linux: {
-          metaKey: false,
-          ctrlKey: true,
-          shiftKey: false,
-          altKey: false,
-        },
-      },
-      context: [],
-    },
-    {
-      id: "space-chat",
-      name: "Open the Chat space",
-      key: "5",
-      modifiers: {
-        win: {
-          metaKey: false,
-          ctrlKey: false,
-          shiftKey: false,
-          altKey: true,
-        },
-        macosx: {
-          metaKey: false,
-          ctrlKey: true,
-          shiftKey: false,
-          altKey: false,
-        },
-        linux: {
-          metaKey: false,
-          ctrlKey: true,
-          shiftKey: false,
-          altKey: false,
-        },
-      },
-      context: [],
-    },
-    {
       id: "space-toggle",
       name: "Toggle the Spaces Toolbar",
       key: null, // Disabled shortcut.

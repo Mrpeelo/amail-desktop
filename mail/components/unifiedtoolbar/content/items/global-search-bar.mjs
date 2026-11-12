@@ -9,7 +9,6 @@ const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   Gloda: "resource:///modules/gloda/GlodaPublic.sys.mjs",
   GlodaConstants: "resource:///modules/gloda/GlodaConstants.sys.mjs",
-  GlodaIMSearcher: "resource:///modules/GlodaIMSearcher.sys.mjs",
   GlodaMsgSearcher: "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs",
 });
 ChromeUtils.defineLazyGetter(
@@ -157,9 +156,6 @@ class GlobalSearchBar extends SearchBar {
       args = {
         searcher: new lazy.GlodaMsgSearcher(null, searchString),
       };
-      if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-        args.IMSearcher = new lazy.GlodaIMSearcher(null, searchString);
-      }
     }
     tabmail.openTab("glodaFacet", args);
     this.popup.closePopup();

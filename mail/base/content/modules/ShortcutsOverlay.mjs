@@ -21,8 +21,6 @@ async function setupShortcutStrings() {
     "space-mail": ["mailButton"],
     "space-addressbook": ["addressBookButton"],
     "space-calendar": ["calendarButton"],
-    "space-tasks": ["tasksButton"],
-    "space-chat": ["chatButton"],
   };
   for (const [string, ids] of Object.entries(buttons)) {
     const shortcut = await ShortcutsManager.getShortcutStrings(string);
@@ -51,8 +49,6 @@ async function setupShortcutStrings() {
     "space-mail": ["spacesPopupButtonMail"],
     "space-addressbook": ["spacesPopupButtonAddressBook"],
     "space-calendar": ["spacesPopupButtonCalendar", "calMenuSwitchToCalendar"],
-    "space-tasks": ["spacesPopupButtonTasks", "calMenuSwitchToTask"],
-    "space-chat": ["spacesPopupButtonChat", "menu_goChat"],
     // Tools.
     "search-messages": ["searchMailCmd", "appmenu_searchCmd"],
   };
@@ -114,9 +110,7 @@ function setupEventListener() {
         break;
       case "space-mail":
       case "space-addressbook":
-      case "space-calendar":
-      case "space-tasks":
-      case "space-chat": {
+      case "space-calendar": {
         const space = topWindow?.gSpacesToolbar.spaces.find(
           s => s.name == shortcut.id.replace("space-", "")
         );

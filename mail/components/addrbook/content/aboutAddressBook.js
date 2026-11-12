@@ -9,9 +9,6 @@ var { AddrBookDataAdapter } = ChromeUtils.importESModule(
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
-var { IMServices } = ChromeUtils.importESModule(
-  "resource:///modules/IMServices.sys.mjs"
-);
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
@@ -3464,16 +3461,9 @@ var detailsPane = {
         case "_JabberId":
           value = `xmpp:${value}`;
           break;
-        case "_IRC": {
-          // Guess host, in case we have an irc account configured.
-          const host =
-            IMServices.accounts
-              .getAccounts()
-              .find(a => a.protocol.normalizedName == "irc")
-              ?.name.split("@", 2)[1] || "irc.example.org";
-          value = `ircs://${host}/${value},isuser`;
+        case "_IRC":
+          value = `ircs://irc.example.org/${value},isuser`;
           break;
-        }
       }
       if (!existingIMPPValues.includes(value)) {
         card.vCardProperties.addEntry(

@@ -84,10 +84,6 @@ locales = [
     l10n = "{l}mail/**"
 
 [[paths]]
-    reference = "chat/locales/en-US/**"
-    l10n = "{l}chat/**"
-
-[[paths]]
     reference = "mail/branding/thunderbird/locales/en-US/**"
     l10n = "{l}mail/branding/thunderbird/**"
 

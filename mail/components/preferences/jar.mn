@@ -11,13 +11,11 @@ messenger.jar:
     content/messenger/preferences/dockoptions.js
 *   content/messenger/preferences/dockoptions.xhtml
 #endif
-    content/messenger/preferences/chat.js
 #ifdef MOZ_SERVICES_SYNC
     content/messenger/preferences/sync.js
 #endif
     content/messenger/preferences/appearance.mjs
     content/messenger/preferences/qrExport.mjs
-    content/messenger/preferences/messagestyle.js
     content/messenger/preferences/messengerLanguages.js
     content/messenger/preferences/messengerLanguages.xhtml
     content/messenger/preferences/compose.js

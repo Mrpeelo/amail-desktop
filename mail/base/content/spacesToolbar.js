@@ -256,31 +256,6 @@ var gSpacesToolbar = {
         },
       },
       {
-        name: "tasks",
-        button: document.getElementById("tasksButton"),
-        menuitem: document.getElementById("spacesPopupButtonTasks"),
-        tabInSpace(tabInfo) {
-          return tabInfo.mode.name == "tasks" ? 1 : 0;
-        },
-        open(where) {
-          return openTab("tasks", {}, where);
-        },
-      },
-      {
-        name: "chat",
-        button: document.getElementById("chatButton"),
-        menuitem: document.getElementById("spacesPopupButtonChat"),
-        tabInSpace(tabInfo) {
-          return tabInfo.mode.name == "chat" ? 1 : 0;
-        },
-        open(where) {
-          if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
-            return null;
-          }
-          return openTab("chat", {}, where);
-        },
-      },
-      {
         name: "settings",
         button: document.getElementById("settingsButton"),
         menuitem: document.getElementById("spacesPopupButtonSettings"),

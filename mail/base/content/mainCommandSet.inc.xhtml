@@ -140,7 +140,6 @@
     <command id="cmd_goForward" oncommand="goDoCommand('cmd_goForward')" disabled=""/>
     <command id="cmd_goBack" oncommand="goDoCommand('cmd_goBack')" disabled=""/>
     <command id="cmd_goFolder" oncommand="goDoCommand('cmd_goFolder', event)" disabled=""/>
-    <command id="cmd_chat" oncommand="goDoCommand('cmd_chat')" disabled=""/>
   </commandset>
 
   <commandset id="mailMessageMenuItems"
@@ -225,14 +224,6 @@
              valueMessageAccessKey="&filtersApplyToMessage.accesskey;"/>
     <command id="cmd_runJunkControls" oncommand="goDoCommand('cmd_runJunkControls');" disabled=""/>
     <command id="cmd_deleteJunk" oncommand="goDoCommand('cmd_deleteJunk');" disabled=""/>
-  </commandset>
-
-  <commandset id="mailChatMenuItems"
-              commandupdater="true"
-              events="create-menu-tag">
-       <command id="cmd_joinChat" oncommand="chatHandler.joinChat();" disabled=""/>
-       <command id="cmd_chatStatus" oncommand="chatHandler.setStatusMenupopupCommand(event);" disabled=""/>
-       <command id="cmd_addChatBuddy" oncommand="chatHandler.addBuddy();" disabled=""/>
   </commandset>
 
 #ifdef XP_MACOSX

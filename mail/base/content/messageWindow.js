@@ -414,7 +414,6 @@ var MessageWindowController = {
       case "cmd_viewAllHeader":
       case "cmd_viewNormalHeader":
       case "cmd_stop":
-      case "cmd_chat":
       case "cmd_newCard":
         return true;
       case "cmd_synchronizeOffline":
@@ -454,8 +453,6 @@ var MessageWindowController = {
       case "cmd_undo":
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
-      case "cmd_chat":
-        return Services.prefs.getBoolPref("mail.chat.enabled");
       default:
         return false;
     }
@@ -530,22 +527,6 @@ var MessageWindowController = {
       case "cmd_stop":
         messageBrowser.stop();
         break;
-      case "cmd_chat": {
-        const win = Services.wm.getMostRecentWindow("mail:3pane");
-        if (win) {
-          win.focus();
-          win.showChatTab();
-        } else {
-          window.openDialog(
-            "chrome://messenger/content/messenger.xhtml",
-            "_blank",
-            "chrome,extrachrome,menubar,resizable,scrollbars,status,toolbar",
-            null,
-            { tabType: "chat", tabParams: {} }
-          );
-        }
-        break;
-      }
       case "cmd_newCard":
         openNewCardDialog();
         break;

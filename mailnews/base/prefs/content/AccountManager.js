@@ -51,9 +51,6 @@ ChromeUtils.defineESModuleGetters(this, {
 var { cleanUpHostName, isLegalHostNameOrIP } = ChromeUtils.importESModule(
   "resource:///modules/hostnameUtils.sys.mjs"
 );
-const { ChatIcons } = ChromeUtils.importESModule(
-  "resource:///modules/chatIcons.sys.mjs"
-);
 
 let AccountManagerl10n;
 function getAccountManagerL10n() {
@@ -1902,16 +1899,6 @@ var gAccountTree = {
         treeitem.classList.add("serverType-" + server.type);
         if (server.isSecure) {
           treeitem.classList.add("isSecure");
-        }
-        // For IM accounts, we can try to fetch a protocol specific icon.
-        if (server.type == "im" && validAccount) {
-          treeitem.querySelector(".icon").style.backgroundImage =
-            "url(" +
-            ChatIcons.getProtocolIconURI(
-              server.wrappedJSObject.imAccount.protocol
-            ) +
-            ")";
-          treeitem.id = accountKey;
         }
       }
       treeItems.push(treeitem);

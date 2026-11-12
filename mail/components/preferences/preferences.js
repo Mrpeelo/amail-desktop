@@ -7,7 +7,6 @@
 /* import-globals-from compose.js */
 /* import-globals-from downloads.js */
 /* import-globals-from privacy.js */
-/* import-globals-from chat.js */
 /* import-globals-from sync.js */
 /* import-globals-from findInPage.js */
 /* globals gCalendarPane */
@@ -145,12 +144,6 @@ async function init() {
     register_module("paneSync", gSyncPane);
   }
   register_module("paneSearchResults", gSearchResultsPane);
-  if (Services.prefs.getBoolPref("mail.chat.enabled")) {
-    register_module("paneChat", gChatPane);
-  } else {
-    document.getElementById("paneChat").remove(); // Exclude from search.
-    document.getElementById("category-chat").remove(); // Remove tab.
-  }
   if (!calendarDeactivator.isCalendarActivated) {
     document.getElementById("paneCalendar").remove(); // Exclude from search.
     document.getElementById("category-calendar").remove(); // Remove tab.

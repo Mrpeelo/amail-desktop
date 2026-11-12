@@ -9,7 +9,6 @@ MOZ_SRC_FILES += [
     "content/aboutSupport.js",
     "content/accounts.js",
     "content/calendars.js",
-    "content/chat.js",
     "content/export.js",
     "content/libs.js",
 ]
