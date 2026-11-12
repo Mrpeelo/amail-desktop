@@ -298,3 +298,29 @@ textarea {
   gap: 12px;
   padding-block: 4px;
 }
+
+.choices {
+  min-inline-size: 220px;
+  margin: 0 0 8px;
+  padding: 0;
+  border: none;
+
+  & legend {
+    margin-block-end: 2px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  & .check {
+    margin: 4px 0;
+  }
+
+  & .indent {
+    margin-inline-start: 26px;
+  }
+
+  & input[type="number"] {
+    inline-size: 80px;
+  }
+}

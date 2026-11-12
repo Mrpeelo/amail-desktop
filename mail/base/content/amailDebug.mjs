@@ -20,6 +20,58 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
+   * Theme, colors and mark-as-read in Settings are radio buttons that work
+   * with a real click.
+   */
+  async "settings-theme"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const browser = top.document.getElementById("amailSettingsBrowser");
+    const { AddonManager } = ChromeUtils.importESModule(
+      "resource://gre/modules/AddonManager.sys.mjs"
+    );
+    const activeTheme = async () =>
+      (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id;
+    const original = await activeTheme();
+    const palette = Services.prefs.getCharPref("amail.theme.palette");
+    await wait(6000);
+    top.amailSettingsDialog.openSettings("general");
+    await wait(2500);
+    const page = browser.contentDocument;
+    const win = browser.contentWindow;
+    const click = input => {
+      const r = input.getBoundingClientRect();
+      for (const type of ["mousedown", "mouseup"]) {
+        win.synthesizeMouseEvent(type, r.x + r.width / 2, r.y + r.height / 2, {
+          button: 0,
+          clickCount: 1,
+        });
+      }
+    };
+    const checked = name => page.querySelector(`input[name=${name}]:checked`)?.value;
+    record({
+      label: "before",
+      original,
+      palette,
+      themeRadio: checked("themeMode"),
+      paletteRadio: checked("palette"),
+      markRead: checked("markRead"),
+      delayHidden: page.getElementById("markReadDelay").hidden,
+    });
+    click(page.querySelector("input[name=themeMode][value*=dark]"));
+    click(page.querySelector("input[name=palette][value=synthwave]"));
+    await wait(2500);
+    record({
+      label: "after clicking Dark + Synthwave",
+      activeTheme: await activeTheme(),
+      palette: Services.prefs.getCharPref("amail.theme.palette"),
+      themeRadio: checked("themeMode"),
+    });
+    await (await AddonManager.getAddonByID(original))?.enable();
+    Services.prefs.setCharPref("amail.theme.palette", palette);
+    record({ label: "restored", activeTheme: await activeTheme() });
+    top.amailSettingsDialog.close();
+  },
+  /**
    * The gear opens the aMail Settings page (tabs, no Thunderbird category
    * rail); every tab renders; All settings and back work.
    */

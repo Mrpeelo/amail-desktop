@@ -31,22 +31,18 @@
     <section id="general" role="tabpanel" hidden="hidden">
       <h2 data-l10n-id="amail-settings-appearance"></h2>
       <div class="row">
-        <label class="field">
-          <span data-l10n-id="amail-settings-theme-mode"></span>
-          <select id="themeMode">
-            <option value="thunderbird-compact-light@mozilla.org" data-l10n-id="amail-settings-theme-light"></option>
-            <option value="thunderbird-compact-dark@mozilla.org" data-l10n-id="amail-settings-theme-dark"></option>
-            <option value="default-theme@mozilla.org" data-l10n-id="amail-settings-theme-system"></option>
-          </select>
-        </label>
-        <label class="field">
-          <span data-l10n-id="amail-settings-palette"></span>
-          <select data-pref="amail.theme.palette">
-            <option value="amail" data-l10n-id="amail-settings-palette-amail"></option>
-            <option value="synthwave" data-l10n-id="amail-settings-palette-synthwave"></option>
-            <option value="thunderbird" data-l10n-id="amail-settings-palette-thunderbird"></option>
-          </select>
-        </label>
+      <fieldset class="choices">
+        <legend data-l10n-id="amail-settings-theme-mode"></legend>
+        <label class="check"><input type="radio" name="themeMode" value="thunderbird-compact-light@mozilla.org" /><span data-l10n-id="amail-settings-theme-light"></span></label>
+        <label class="check"><input type="radio" name="themeMode" value="thunderbird-compact-dark@mozilla.org" /><span data-l10n-id="amail-settings-theme-dark"></span></label>
+        <label class="check"><input type="radio" name="themeMode" value="default-theme@mozilla.org" /><span data-l10n-id="amail-settings-theme-system"></span></label>
+      </fieldset>
+      <fieldset class="choices">
+        <legend data-l10n-id="amail-settings-palette"></legend>
+        <label class="check"><input type="radio" name="palette" value="amail" /><span data-l10n-id="amail-settings-palette-amail"></span></label>
+        <label class="check"><input type="radio" name="palette" value="synthwave" /><span data-l10n-id="amail-settings-palette-synthwave"></span></label>
+        <label class="check"><input type="radio" name="palette" value="thunderbird" /><span data-l10n-id="amail-settings-palette-thunderbird"></span></label>
+      </fieldset>
       </div>
 
       <h2 data-l10n-id="amail-settings-new-mail"></h2>
@@ -57,20 +53,13 @@
 
       <h2 data-l10n-id="amail-settings-mark-read"></h2>
       <p class="dim" data-l10n-id="amail-settings-mark-read-intro"></p>
-      <div class="row">
-        <label class="field">
-          <span data-l10n-id="amail-settings-mark-read-mode"></span>
-          <select id="markReadMode">
-            <option value="now" data-l10n-id="amail-settings-mark-read-now"></option>
-            <option value="after" data-l10n-id="amail-settings-mark-read-after"></option>
-            <option value="never" data-l10n-id="amail-settings-mark-read-never"></option>
-          </select>
-        </label>
-        <label class="field narrow" id="markReadDelay">
-          <span data-l10n-id="amail-settings-mark-read-secs"></span>
-          <input type="number" min="1" max="600" data-pref="mailnews.mark_message_read.delay.interval" />
-        </label>
-      </div>
+      <fieldset class="choices">
+        <legend data-l10n-id="amail-settings-mark-read-mode"></legend>
+        <label class="check"><input type="radio" name="markRead" value="now" /><span data-l10n-id="amail-settings-mark-read-now"></span></label>
+        <label class="check"><input type="radio" name="markRead" value="after" /><span data-l10n-id="amail-settings-mark-read-after"></span></label>
+        <label class="check indent" id="markReadDelay"><input type="number" min="1" max="600" data-pref="mailnews.mark_message_read.delay.interval" /><span data-l10n-id="amail-settings-mark-read-secs"></span></label>
+        <label class="check"><input type="radio" name="markRead" value="never" /><span data-l10n-id="amail-settings-mark-read-never"></span></label>
+      </fieldset>
 
       <h2 data-l10n-id="amail-settings-junk"></h2>
       <p class="dim" data-l10n-id="amail-settings-junk-intro"></p>
