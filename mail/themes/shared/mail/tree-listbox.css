@@ -409,11 +409,6 @@ th[is="tree-view-table-header-cell"] {
     display: none;
   }
 
-  &[resize-from-start]:not(.column-dragging) hr[is="pane-splitter"] {
-    display: block;
-    inset-inline: -3px auto;
-  }
-
   @media (prefers-reduced-motion: no-preference) {
     &.column-moved-by-dragging {
       transition: transform 200ms ease;

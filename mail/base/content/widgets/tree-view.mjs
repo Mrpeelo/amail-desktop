@@ -45,10 +45,6 @@ const otherKeyName = AppConstants.platform == "macosx" ? "ctrlKey" : "metaKey";
  * @property {boolean} [picker=true] - If false, the column will be disabled
  *   in the column picker menu.
  * @property {boolean} [resizable=true] - Whether the column will be resizable.
- * @property {boolean} [flex=false] - This column takes the free width
- *   instead of the last resizable column.
- * @property {number} [defaultWidth] - Width in pixels used until the user
- *   resizes the column.
  * @property {boolean} [select=false] - Column handles bulk selection.
  * @property {boolean} [sortable=true] - Whether the column will be sortable.
  * @property {string} [sortKey] - Used for sorting about:3pane message list.
@@ -2180,10 +2176,6 @@ class TreeViewTable extends HTMLTableElement {
     const lastResizableColumn = this.columns.findLast(
       c => !c.hidden && (c.resizable ?? true)
     );
-    // The column that takes the free width: one marked `flex`, otherwise the
-    // last resizable column.
-    const flexColumn =
-      this.columns.find(c => !c.hidden && c.flex) ?? lastResizableColumn;
 
     for (const column of this.columns) {
       const headerCell = document.getElementById(column.id);
@@ -2196,19 +2188,13 @@ class TreeViewTable extends HTMLTableElement {
         continue;
       }
 
-      headerCell.resizable = this.isHorizontalScroll || column != flexColumn;
-      // Columns after the flex column grow towards it, so their drag handle
-      // sits on their start edge.
-      const resizeFromStart =
-        !this.isHorizontalScroll &&
-        this.columns.indexOf(column) > this.columns.indexOf(flexColumn);
-      headerCell.toggleAttribute("resize-from-start", resizeFromStart);
-      headerCell
-        .querySelector("hr")
-        ?.toggleAttribute("resize-from-start", resizeFromStart);
-      const width = column.width ?? column.defaultWidth;
-      if (width) {
-        headerCell.style.setProperty(`--${column.id}Splitter-width`, `${width}px`);
+      headerCell.resizable =
+        this.isHorizontalScroll || column != lastResizableColumn;
+      if (column.width) {
+        headerCell.style.setProperty(
+          `--${column.id}Splitter-width`,
+          `${column.width}px`
+        );
       }
     }
   }

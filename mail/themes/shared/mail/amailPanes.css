@@ -345,21 +345,66 @@
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5v-11Zm2.2-.4 6.8 5.1 6.8-5.1a1 1 0 0 0-.3-.1h-13a1 1 0 0 0-.3.1Z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 
-/* Column sizing: only Subject absorbs free width, so maximizing or resizing
-   the reading pane never changes the other columns. Columns right of Subject
-   resize from their left edge (tree-view.mjs) and every column has a
-   minimum width. */
-#threadTree {
+/* Column sizing (amailColumns.mjs): Subject takes the free width, the other
+   text columns have the pixel width set in --amail-col-width. Thunderbird's
+   own header splitters are replaced by .amail-col-grip handles. */
+#threadTree.amail-columns[rows="thread-row"] {
   & th#subjectCol {
     width: auto !important;
-    min-inline-size: 160px;
   }
 
-  & th#dateCol {
-    min-inline-size: 110px;
+  & th.amail-col-sized {
+    width: var(--amail-col-width) !important;
+    min-inline-size: 0;
   }
 
-  & th:is(#senderCol, #recipientCol, #correspondentCol) {
-    min-inline-size: 120px;
+  & thead hr[is="pane-splitter"] {
+    display: none !important;
+  }
+
+  & .amail-col-grip {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 7px;
+    z-index: 3;
+    cursor: col-resize;
+
+    &.amail-col-grip-start {
+      inset-inline-start: 0;
+    }
+
+    &.amail-col-grip-end {
+      inset-inline-end: 0;
+    }
+
+    /* The visible line, on the edge shared by the two cells. */
+    &::after {
+      content: "";
+      position: absolute;
+      inset-block: 4px;
+      inline-size: 2px;
+      border-radius: 1px;
+      background-color: transparent;
+    }
+
+    &.amail-col-grip-start::after {
+      inset-inline-start: 0;
+    }
+
+    &.amail-col-grip-end::after {
+      inset-inline-end: 0;
+    }
+  }
+
+  & th:has(> .amail-col-grip-start:is(:hover, .active)) > .amail-col-grip-start::after,
+  & th:has(+ th > .amail-col-grip-start:is(:hover, .active)) > .amail-col-grip-end::after,
+  & th:has(> .amail-col-grip-end:is(:hover, .active)) > .amail-col-grip-end::after,
+  & th:has(> .amail-col-grip-end:is(:hover, .active)) + th > .amail-col-grip-start::after {
+    background-color: var(--color-primary-default);
+  }
+
+  & thead.amail-col-resizing,
+  & thead.amail-col-resizing button {
+    cursor: col-resize;
   }
 }

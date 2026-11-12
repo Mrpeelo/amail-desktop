@@ -97,33 +97,45 @@ export async function runColumnsDebug() {
     if (!splitter || th.hidden) {
       continue;
     }
-    const start = th.getBoundingClientRect();
-    const handle = splitter.getBoundingClientRect();
-    const x = handle.left + handle.width / 2;
-    const y = handle.top + handle.height / 2;
-    const mouse = (target, type, clientX) =>
-      target.dispatchEvent(
-        new MouseEvent(type, { bubbles: true, buttons: 1, clientX, clientY: y })
-      );
-    mouse(splitter, "mousedown", x);
-    mouse(window, "mousemove", x - 60);
-    mouse(window, "mousemove", x - 120);
-    mouse(window, "mouseup", x - 120);
-    await wait(500);
-    const end = th.getBoundingClientRect();
-    out.push({
-      label: `${id} mouse drag 120px left`,
-      handleX: Math.round(x - start.left),
-      handleDisplay: getComputedStyle(splitter).display,
-      widthBefore: Math.round(start.width),
-      widthAfter: Math.round(end.width),
-      leftBefore: Math.round(start.left),
-      leftAfter: Math.round(end.left),
-      columns: [],
-    });
-    splitter._updateSize(start.width);
-    splitter.dispatchEvent(new CustomEvent("splitter-resized"));
-    await wait(300);
+    // Hit-test both sides of the column's left edge like a real pointer.
+    const savedWidths = Services.prefs.getStringPref("amail.columns.widths", "");
+    for (const offset of [-4, -1, 1, 4]) {
+      const start = th.getBoundingClientRect();
+      const x = start.left + offset;
+      const y = start.top + start.height / 2;
+      const hit = document.elementFromPoint(x, y);
+      const pointer = (target, type, clientX) =>
+        target.dispatchEvent(
+          new PointerEvent(type, {
+            bubbles: true,
+            button: 0,
+            buttons: 1,
+            pointerId: 1,
+            clientX,
+            clientY: y,
+          })
+        );
+      pointer(hit, "pointerdown", x);
+      pointer(hit, "pointermove", x - 60);
+      pointer(hit, "pointermove", x - 120);
+      pointer(hit, "pointerup", x - 120);
+      await wait(300);
+      const end = th.getBoundingClientRect();
+      out.push({
+        label: `${id} drag 120px left, pointer ${offset}px from its left edge`,
+        hit: `${hit?.localName}.${hit?.className} in ${hit?.closest("th")?.id}`,
+        widthBefore: Math.round(start.width),
+        widthAfter: Math.round(end.width),
+        leftBefore: Math.round(start.left),
+        leftAfter: Math.round(end.left),
+        columns: [],
+      });
+      if (savedWidths) {
+        Services.prefs.setStringPref("amail.columns.widths", savedWidths);
+      } else {
+        Services.prefs.clearUserPref("amail.columns.widths");
+      }
+    }
   }
 
   await IOUtils.writeJSON(

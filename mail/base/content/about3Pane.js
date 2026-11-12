@@ -183,6 +183,9 @@ window.addEventListener("DOMContentLoaded", async event => {
   await folderPane.init();
   await threadPane.init();
   threadPaneHeader.init();
+  import("chrome://messenger/content/amailColumns.mjs").then(module =>
+    module.initAmailColumns(threadTree)
+  );
   if (Services.env.get("AMAIL_DEBUG_COLUMNS")) {
     import("chrome://messenger/content/amailColumnsDebug.mjs").then(module =>
       module.runColumnsDebug()
