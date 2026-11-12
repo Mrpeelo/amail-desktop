@@ -173,6 +173,12 @@
     background-color: var(--color-surface-lower);
   }
 
+  /* The gaps between the cards separate the panes; no splitter lines. */
+  #folderPaneSplitter,
+  #messagePaneSplitter {
+    border-color: transparent;
+  }
+
   #threadPaneHeaderBar {
     min-block-size: 48px;
     padding: 8px 12px 8px 16px;

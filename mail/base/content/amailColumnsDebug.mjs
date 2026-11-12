@@ -89,8 +89,49 @@ export async function runColumnsDebug() {
       rowColor: getComputedStyle(row).color,
       subjectColor: subject && getComputedStyle(subject).color,
       unread: row.dataset.properties,
+      treeFocused: threadTree.contains(document.activeElement),
+      activeElement: document.activeElement?.localName,
+      topActive: top.document.activeElement?.id,
+      rowClass: row.className,
       columns: [],
     });
+  }
+
+  {
+    const popup = threadTree.querySelector(".menupopup-column-picker");
+    const shown = new Promise(resolve =>
+      popup.addEventListener("popupshown", resolve, { once: true })
+    );
+    document.getElementById("amailColumnsButton").click();
+    await Promise.race([shown, wait(2000)]);
+    const item = popup.querySelector("menuitem[name='toggle']:not([disabled])");
+    item?.setAttribute("_moz-menuactive", "true");
+    const other = item?.nextElementSibling;
+    const reader = document.getElementById("messageBrowser");
+    const card = reader?.contentDocument?.getElementById("messagepanebox");
+    const readerTop =
+      card && !reader.hidden
+        ? reader.getBoundingClientRect().top +
+          card.getBoundingClientRect().top
+        : null;
+    out.push({
+      label: "menu and panes",
+      menuBackground: getComputedStyle(popup).getPropertyValue(
+        "--panel-background-color"
+      ),
+      hoverBackground: item && getComputedStyle(item).backgroundColor,
+      hoverText: item && getComputedStyle(item).color,
+      normalBackground: other && getComputedStyle(other).backgroundColor,
+      listTop: document.getElementById("threadPane").getBoundingClientRect()
+        .top,
+      readerTop,
+      splitterBorder: getComputedStyle(
+        document.getElementById("messagePaneSplitter")
+      ).borderInlineStartColor,
+      columns: [],
+    });
+    item?.removeAttribute("_moz-menuactive");
+    popup.hidePopup();
   }
 
   const origW = top.outerWidth;

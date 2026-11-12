@@ -1,0 +1,37 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/*
+ * aMail menus: colours from the active palette instead of the Windows menu
+ * grey, rounded items and a clearly visible highlight.
+ */
+
+@media not (forced-colors) {
+  menupopup:not([type="arrow"]) {
+    /* !important: Thunderbird forces the translucent Windows 11 (Mica) menu
+       background. Windows still draws the shadow and rounded corners. */
+    --panel-background-color: var(--color-surface-base) !important;
+    --panel-text-color: var(--color-text-base);
+    --panel-border-color: var(--color-surface-border);
+    --panel-border-radius: 8px;
+    --menuitem-border-radius: 4px;
+    --menuitem-margin: 0 4px;
+    --amail-menu-hover: color-mix(in srgb, var(--color-primary-default) 14%, var(--color-surface-base));
+
+    & > :is(menu, menuitem) {
+      &[_moz-menuactive]:not([disabled]) {
+        background-color: var(--amail-menu-hover);
+        color: var(--color-text-base);
+      }
+
+      &[_moz-menuactive][disabled] {
+        background-color: transparent;
+      }
+    }
+
+    & > menuseparator::before {
+      border-color: var(--color-surface-border);
+    }
+  }
+}
