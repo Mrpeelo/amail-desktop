@@ -244,9 +244,16 @@
   }
 
   #threadTree .datecol-column {
+    text-align: end;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  /* The Received header lines up with the right-aligned dates. */
+  #threadTree th#dateCol button {
+    justify-content: flex-end;
+    text-align: end;
   }
 
   /* Header: the folder name gives way, the toggles never wrap. */

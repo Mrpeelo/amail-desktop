@@ -204,6 +204,10 @@ async function runChecks(out) {
     );
     out.push({
       label: "date font",
+      dateAlign: date && getComputedStyle(date).textAlign,
+      headerAlign: getComputedStyle(
+        document.querySelector("th#dateCol button")
+      ).textAlign,
       date: date && `${getComputedStyle(date).fontSize} ${getComputedStyle(date).color}`,
       sender:
         sender &&
