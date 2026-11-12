@@ -55,6 +55,38 @@ amail-import-settings-button =
 
 amail-list-sort = Sort
     .title = Sort order and grouping of the message list
+## Saved sort orders (Sort menu)
+
+amail-sort-save =
+    .label = Save current sort…
+amail-sort-saved =
+    .label = Saved sorts
+amail-sort-save-title = Save sort order
+amail-sort-save-message = Name for the current sort order (column, direction and grouping):
+amail-sort-apply-here =
+    .label = Apply to this folder
+amail-sort-apply-folders =
+    .label = Apply to folders…
+amail-sort-delete =
+    .label = Delete
+amail-sort-apply-title = Apply sort order
+# $name - name of the saved sort order
+amail-sort-apply-heading = Apply “{ $name }” to folders
+amail-sort-apply-intro = Choose the folders that should use this sort order.
+amail-sort-apply-filter =
+    .placeholder = Filter folders
+amail-sort-apply-select-all = Select all
+amail-sort-apply-select-none = Clear
+amail-sort-apply-button = Apply
+# $count - number of selected folders
+amail-sort-apply-count =
+    { $count ->
+        [one] 1 folder selected
+       *[other] { $count } folders selected
+    }
+
+## Message list header
+
 amail-list-columns = Select columns
     .title = Choose the columns shown in the message list
 amail-list-compact = Compact

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global displayFolder, gDBView, gFolder, MailServices, threadTree */
+/* global displayFolder, gDBView, gFolder, gViewWrapper, MailServices, threadTree */
 
 // Developer diagnostic for message list column sizing. Only runs when the
 // AMAIL_DEBUG_COLUMNS environment variable is set; writes
@@ -112,6 +112,92 @@ async function runChecks(out) {
       columns: [],
     });
     popup.hidePopup();
+    await wait(300);
+
+    // Saved sorts: apply a test sort from the menu, then restore.
+    const original = {
+      name: "zz original",
+      column: gViewWrapper.primarySortColumnId,
+      ascending: gViewWrapper.isSortedAscending,
+      mode: gViewWrapper.showGroupedBySort
+        ? "group"
+        : gViewWrapper.showThreaded
+          ? "threaded"
+          : "unthreaded",
+      viewFlags: gViewWrapper.dbView.viewFlags,
+      sortType: gViewWrapper.dbView.sortType,
+      sortOrder: gViewWrapper.dbView.sortOrder,
+    };
+    const savedPresets = Services.prefs.getStringPref("amail.sort.presets", "");
+    const test = {
+      ...original,
+      name: "aa test",
+      column: original.column == "subjectCol" ? "dateCol" : "subjectCol",
+      ascending: !original.ascending,
+    };
+    Services.prefs.setStringPref(
+      "amail.sort.presets",
+      JSON.stringify([test, original])
+    );
+    const applyFromMenu = async index => {
+      const opened = new Promise(resolve =>
+        popup.addEventListener("popupshown", resolve, { once: true })
+      );
+      button.click();
+      await Promise.race([opened, wait(2000)]);
+      const menu = document.getElementById("amailSortPresetsMenu");
+      const presetMenu = menu.querySelector("menupopup").children[index];
+      presetMenu.querySelector("menuitem").doCommand();
+      popup.hidePopup();
+      await wait(800);
+      return {
+        presetsMenuDisabled: menu.disabled,
+        presetLabels: [...menu.querySelector("menupopup").children].map(m =>
+          m.getAttribute("label")
+        ),
+        sortedBy: gViewWrapper.primarySortColumnId,
+        ascending: gViewWrapper.isSortedAscending,
+      };
+    };
+    out.push({
+      label: "saved sort applied",
+      wanted: `${test.column} ascending=${test.ascending}`,
+      ...(await applyFromMenu(0)),
+      saveItem: !!document.getElementById("amailSortSave"),
+      columns: [],
+    });
+    out.push({
+      label: "original sort restored",
+      wanted: `${original.column} ascending=${original.ascending}`,
+      ...(await applyFromMenu(1)),
+      columns: [],
+    });
+    if (savedPresets) {
+      Services.prefs.setStringPref("amail.sort.presets", savedPresets);
+    } else {
+      Services.prefs.clearUserPref("amail.sort.presets");
+    }
+
+    const dialog = window.browsingContext.topChromeWindow.openDialog(
+      "chrome://messenger/content/amailSortApply.xhtml",
+      "",
+      "chrome,centerscreen,resizable",
+      { presetName: "test", result: { uris: [] } }
+    );
+    await new Promise(resolve =>
+      dialog.addEventListener("load", resolve, { once: true })
+    );
+    await wait(1000);
+    out.push({
+      label: "apply dialog",
+      folders: dialog.document.querySelectorAll("label.folder").length,
+      accounts: dialog.document.querySelectorAll("#folderList h2").length,
+      heading: dialog.document.getElementById("heading").textContent,
+      size: `${dialog.outerWidth}x${dialog.outerHeight}`,
+      columns: [],
+    });
+    dialog.close();
+
     const date = threadTree.querySelector("tr.table-layout td.datecol-column");
     const sender = threadTree.querySelector(
       "tr.table-layout td.sendercol-column"

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      lightweightthemes="true"
+      scrolling="false">
+<head>
+  <title data-l10n-id="amail-sort-apply-title"></title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src chrome:; script-src chrome:; style-src chrome: 'unsafe-inline'" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailImport.css" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/amail.ftl" />
+  <script type="module" src="chrome://messenger/content/amailSortApply.mjs"></script>
+</head>
+<body>
+  <main id="importCard" class="amail-sort-apply">
+    <h1 id="heading"></h1>
+    <p data-l10n-id="amail-sort-apply-intro"></p>
+    <input type="search" id="filter" data-l10n-id="amail-sort-apply-filter" />
+    <div id="folderList" role="group"></div>
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+    <div class="actions">
+      <button type="button" id="selectAll" class="btn" data-l10n-id="amail-sort-apply-select-all"></button>
+      <button type="button" id="selectNone" class="btn" data-l10n-id="amail-sort-apply-select-none"></button>
+      <span class="spacer"></span>
+      <button type="button" id="cancel" class="btn" data-l10n-id="amail-import-cancel"></button>
+      <button type="button" id="apply" class="btn primary" data-l10n-id="amail-sort-apply-button" disabled="disabled"></button>
+    </div>
+  </main>
+</body>
+</html>
