@@ -383,6 +383,41 @@ const CHECKS = {
       }
     }
 
+    // Picking a folder while writing: saved to Drafts (stubbed here) and the
+    // folder shows.
+    {
+      top.goDoCommand("cmd_newMessage");
+      const fw = await waitCompose();
+      if (fw) {
+        fw.document.getElementById("msgSubject").value = "Folder switch test";
+        fw.gContentChanged = true;
+        let saves = 0;
+        fw.SaveAsDraft = () => {
+          saves++;
+          fw.SetContentAndBodyAsUnmodified();
+          fw.amailCloseCompose();
+        };
+        const before = window.gFolder?.URI;
+        const rows = [...document.querySelectorAll("#folderTree li")].filter(r => r.uri && r.checkVisibility());
+        const target = rows.find(r => r.uri != before && r.querySelector(".container"));
+        target?.querySelector(".container").click();
+        await wait(3000);
+        record({
+          label: "folder click while writing",
+          clicked: target?.uri,
+          nowShowing: window.gFolder?.URI,
+          saveToDrafts: saves,
+          composeClosed: !document.getElementById("amailComposeBrowser"),
+          listShown: document.getElementById("threadPane").checkVisibility(),
+        });
+        if (before) {
+          const back = rows.find(r => r.uri == before);
+          back?.querySelector(".container").click();
+          await wait(1500);
+        }
+      }
+    }
+
     // Settings tab.
     top.amailSettingsDialog.openSettings("signatures");
     await wait(2500);

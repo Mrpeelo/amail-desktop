@@ -8,7 +8,8 @@
  * separate window. The compose service asks with "amail-compose-open"
  * before it opens a window; if this is the mail tab in front, the compose UI
  * is loaded into #amailCompose. A message already being written there is
- * saved to Drafts first. Otherwise a normal compose window opens.
+ * saved to Drafts first. Otherwise a normal compose window opens. Picking a
+ * folder while writing saves the message to Drafts too and shows the folder.
  */
 
 const TOPIC = "amail-compose-open";
@@ -30,6 +31,8 @@ let queueTimer = null;
 let popOutPending = false;
 /** Lets one compose request through to a window. */
 let forceWindow = false;
+/** The current message closes (saved to Drafts) to show a folder. */
+let leaving = false;
 
 function isFrontMailTab() {
   if (!Services.prefs.getBoolPref("amail.compose.inline", true)) {
@@ -105,6 +108,7 @@ function close() {
   }
   const closing = browser;
   browser = null;
+  leaving = false;
   let draft = null;
   if (popOutPending) {
     popOutPending = false;
@@ -178,9 +182,21 @@ function replace(params) {
   saveAndClose();
 }
 
+/**
+ * A folder was picked while a message is being written: save it to Drafts (if
+ * it has changes) and close it, so the folder shows.
+ */
+function leave() {
+  if (!browser || queuedParams || popOutPending || leaving) {
+    return;
+  }
+  leaving = true;
+  saveAndClose();
+}
+
 function saveAndClose() {
   const cw = browser?.contentWindow;
-  if (!browser || !queuedParams) {
+  if (!browser || (!queuedParams && !leaving)) {
     return;
   }
   if (!cw?.gMsgCompose || cw.gWindowLocked) {
@@ -246,6 +262,18 @@ window.addEventListener("unload", () => {
 });
 
 document.getElementById("amailComposePopOut").addEventListener("click", popOut);
+
+const folderTree = document.getElementById("folderTree");
+folderTree.addEventListener("select", leave);
+folderTree.addEventListener("click", event => {
+  // Clicking the folder that is already selected also returns to it; the
+  // twisty only expands or collapses.
+  if (event.button == 0 && !event.target.closest(".twisty")) {
+    if (event.target.closest("li")) {
+      leave();
+    }
+  }
+});
 document.getElementById("amailComposeClose").addEventListener("click", () => {
   browser?.contentWindow.goDoCommand("cmd_close");
 });
