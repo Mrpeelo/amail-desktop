@@ -341,7 +341,6 @@ function amailComposeLayout() {
   signature.className = "toolbarbutton-1";
   signature.setAttribute("type", "menu");
   signature.setAttribute("skipintoolbarset", "true");
-  signature.setAttribute("wantdropmarker", "true");
   document.l10n.setAttributes(signature, "amail-compose-signature");
   const signaturePopup = document.createXULElement("menupopup");
   signaturePopup.id = "amail-signature-popup";
@@ -354,7 +353,6 @@ function amailComposeLayout() {
   templates.className = "toolbarbutton-1";
   templates.setAttribute("type", "menu");
   templates.setAttribute("skipintoolbarset", "true");
-  templates.setAttribute("wantdropmarker", "true");
   document.l10n.setAttributes(templates, "amail-compose-templates");
   const templatesPopup = document.createXULElement("menupopup");
   templatesPopup.id = "amail-templates-popup";

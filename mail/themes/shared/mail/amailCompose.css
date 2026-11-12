@@ -319,3 +319,35 @@
 :root:root #MsgHeadersToolbar {
   min-block-size: 0 !important;
 }
+
+/* Signature ▾ and Templates ▾: icon, label and a chevron after the label,
+   like the other menu buttons. Icons use the toolbar's light fill. */
+
+:root:root :is(#amail-signature-button, #amail-templates-button) {
+  -moz-context-properties: fill, stroke;
+  fill: color-mix(in srgb, currentColor 20%, transparent);
+  stroke: currentColor;
+
+  & > .toolbarbutton-menu-dropmarker,
+  & > dropmarker {
+    display: none;
+  }
+
+  &::after {
+    content: "";
+    flex: none;
+    inline-size: 12px;
+    block-size: 12px;
+    margin-inline-start: 6px;
+    background-color: currentColor;
+    mask: var(--icon-nav-down-sm) center / 12px no-repeat;
+  }
+}
+
+:root:root #amail-signature-button {
+  list-style-image: var(--icon-pencil);
+}
+
+:root:root #amail-templates-button {
+  list-style-image: var(--icon-template);
+}

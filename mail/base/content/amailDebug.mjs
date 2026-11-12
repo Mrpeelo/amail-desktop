@@ -16,11 +16,15 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 /**
  * Save a picture of the main window as amail-debug-<name>.png in the profile.
  */
-async function snapshot(name, win = window.browsingContext.topChromeWindow) {
+async function snapshot(
+  name,
+  win = window.browsingContext.topChromeWindow,
+  rect = null
+) {
   const top = win;
   const bitmap = await top.browsingContext.currentWindowGlobal.drawSnapshot(
-    null,
-    1,
+    rect,
+    rect ? 2 : 1,
     "white"
   );
   const canvas = new top.OffscreenCanvas(bitmap.width, bitmap.height);
@@ -319,6 +323,16 @@ const CHECKS = {
       });
     }
     await snapshot("compose-signature");
+    {
+      const outer = document.getElementById("amailComposeBrowser").getBoundingClientRect();
+      const frame = window.frameElement?.getBoundingClientRect() ?? { x: 0, y: 0 };
+      const bar = cw.document.getElementById("composeToolbar2").getBoundingClientRect();
+      await snapshot(
+        "compose-toolbar",
+        top,
+        new top.DOMRect(frame.x + outer.x, frame.y + outer.y + bar.y, Math.min(outer.width, 1300), bar.height)
+      );
+    }
     cw.gContentChanged = false;
     cw.gMsgCompose.bodyModified = false;
     cw.GetCurrentEditor().resetModificationCount();
