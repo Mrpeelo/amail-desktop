@@ -29,7 +29,6 @@ const CHECKS = {
     const modal = doc.getElementById("amailSettingsModal");
     const browser = doc.getElementById("amailSettingsBrowser");
     const tabsBefore = top.document.getElementById("tabmail").tabInfo.length;
-    top.amailSettingsCloseLog = [];
     const prefs = await Promise.race([
       top.openPreferencesTab("paneCompose"),
       wait(15000),
@@ -48,9 +47,6 @@ const CHECKS = {
         ...browser.contentDocument.querySelectorAll(".sidebar-footer-link"),
       ].map(a => a.id),
       card: `${Math.round(card.width)}x${Math.round(card.height)}`,
-      closeLog: top.amailSettingsCloseLog.map(s =>
-        s.split("\n").slice(0, 6).join(" < ")
-      ),
       tabsAdded: top.document.getElementById("tabmail").tabInfo.length - tabsBefore,
     });
     top.MsgAccountManager(null);
