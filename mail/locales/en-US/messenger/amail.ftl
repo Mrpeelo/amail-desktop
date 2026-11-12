@@ -53,6 +53,8 @@ amail-import-settings-button =
 
 ## Message list header
 
+amail-list-sort = Sort
+    .title = Sort order and grouping of the message list
 amail-list-columns = Select columns
     .title = Choose the columns shown in the message list
 amail-list-compact = Compact

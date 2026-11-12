@@ -94,6 +94,38 @@ async function runChecks(out) {
     });
   }
 
+  {
+    const button = document.getElementById("amailSortButton");
+    const popup = document.getElementById("menu_threadPaneSortPopup");
+    const shown = new Promise(resolve =>
+      popup.addEventListener("popupshown", resolve, { once: true })
+    );
+    button.click();
+    await Promise.race([shown, wait(2000)]);
+    out.push({
+      label: "sort button",
+      nextToColumns: button.nextElementSibling?.id == "amailColumnsButton",
+      popupState: popup.state,
+      checked: [...popup.querySelectorAll("menuitem[checked]")].map(
+        item => item.getAttribute("value")
+      ),
+      columns: [],
+    });
+    popup.hidePopup();
+    const date = threadTree.querySelector("tr.table-layout td.datecol-column");
+    const sender = threadTree.querySelector(
+      "tr.table-layout td.sendercol-column"
+    );
+    out.push({
+      label: "date font",
+      date: date && `${getComputedStyle(date).fontSize} ${getComputedStyle(date).color}`,
+      sender:
+        sender &&
+        `${getComputedStyle(sender).fontSize} ${getComputedStyle(sender).color}`,
+      columns: [],
+    });
+  }
+
   // Selecting marks the message read; remember and restore that state.
   const firstHdr = gDBView?.rowCount ? gDBView.getMsgHdrAt(0) : null;
   const wasRead = firstHdr?.isRead;

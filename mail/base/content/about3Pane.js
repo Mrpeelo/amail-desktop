@@ -4741,6 +4741,20 @@ var threadPaneHeader = {
         }
         this.updateAmailToggles();
       });
+    // The Sort button opens Thunderbird's sort menu on its own; the display
+    // menu that used to hold it is not shown in aMail.
+    document
+      .getElementById("amailSortButton")
+      .addEventListener("click", event => {
+        const popup = document.getElementById("menu_threadPaneSortPopup");
+        if (popup.parentNode.localName == "menu") {
+          popup.parentNode.closest("popupset").append(popup);
+        }
+        popup.openPopup(event.currentTarget, {
+          position: "after_start",
+          triggerEvent: event,
+        });
+      });
     document
       .getElementById("amailColumnsButton")
       .addEventListener("click", event => {

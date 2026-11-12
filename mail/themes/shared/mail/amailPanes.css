@@ -244,8 +244,6 @@
   }
 
   #threadTree .datecol-column {
-    font-size: 12px;
-    color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
