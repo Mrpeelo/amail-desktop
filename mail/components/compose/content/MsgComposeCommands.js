@@ -55,6 +55,9 @@ var { MailServices } = ChromeUtils.importESModule(
 var { AmailUndoSend } = ChromeUtils.importESModule(
   "resource:///modules/AmailUndoSend.sys.mjs"
 );
+var { AmailSignatures } = ChromeUtils.importESModule(
+  "resource:///modules/AmailSignatures.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -133,6 +136,8 @@ var gAutoSaving;
 // aMail undo send: the message is queued and the main window sends it after
 // the delay unless it is cancelled (AmailUndoSend.sys.mjs).
 var gAmailUndoSend = false;
+// aMail: a save to Drafts is in progress, for "Draft saved <time>".
+var gAmailSavingDraft = false;
 var gAutoSavingInProgress;
 var gCurrentIdentity;
 var defaultSaveOperation;
@@ -294,14 +299,30 @@ var gAmailInlineHost =
   window.browsingContext.embedderElement?.amailComposeHost ?? null;
 
 /**
- * aMail: From (with the Cc / Bcc toggles) sits on the same row as Send, as in
- * Outlook, below the row with the other buttons. The toolbar ignores the
- * added items when it is customized.
+ * aMail compose layout (Outlook style, amailCompose.css):
+ * - From (with the Cc / Bcc toggles) sits on the same row as Send, below the
+ *   row with the other buttons. The toolbar ignores the added items when it
+ *   is customized.
+ * - "Draft saved <time>" at the end of the subject line.
+ * - The menu bar shows with Alt, as in the main window.
+ * - In a window, the format bar sits on top, above the message card.
  */
-function amailMoveFromToToolbar() {
+function amailComposeLayout() {
   const toolbar = document.getElementById("composeToolbar2");
   if (!toolbar || document.getElementById("amail-from")) {
     return;
+  }
+  document
+    .getElementById("compose-toolbar-menubar2")
+    .setAttribute("autohide", "true");
+  const draftSaved = document.createElement("span");
+  draftSaved.id = "amailDraftSaved";
+  draftSaved.setAttribute("role", "status");
+  document.getElementById("msgSubjectContainer").append(draftSaved);
+  if (!gAmailInlineHost) {
+    document
+      .getElementById("compose-toolbox")
+      .before(document.getElementById("FormatToolbox"));
   }
   const item = document.createXULElement("toolbaritem");
   item.id = "amail-from";
@@ -314,12 +335,372 @@ function amailMoveFromToToolbar() {
   } else {
     toolbar.prepend(item);
   }
+  // Signature menu, after the other buttons.
+  const signature = document.createXULElement("toolbarbutton");
+  signature.id = "amail-signature-button";
+  signature.className = "toolbarbutton-1";
+  signature.setAttribute("type", "menu");
+  signature.setAttribute("skipintoolbarset", "true");
+  signature.setAttribute("wantdropmarker", "true");
+  document.l10n.setAttributes(signature, "amail-compose-signature");
+  const signaturePopup = document.createXULElement("menupopup");
+  signaturePopup.id = "amail-signature-popup";
+  signaturePopup.addEventListener("popupshowing", amailFillSignatureMenu);
+  signature.append(signaturePopup);
+
+  // Templates menu.
+  const templates = document.createXULElement("toolbarbutton");
+  templates.id = "amail-templates-button";
+  templates.className = "toolbarbutton-1";
+  templates.setAttribute("type", "menu");
+  templates.setAttribute("skipintoolbarset", "true");
+  templates.setAttribute("wantdropmarker", "true");
+  document.l10n.setAttributes(templates, "amail-compose-templates");
+  const templatesPopup = document.createXULElement("menupopup");
+  templatesPopup.id = "amail-templates-popup";
+  templatesPopup.addEventListener("popupshowing", amailFillTemplatesMenu);
+  templates.append(templatesPopup);
+  const attach = toolbar.querySelector("#button-attach");
+  if (attach) {
+    attach.after(signature, templates);
+  } else {
+    toolbar.append(signature, templates);
+  }
+
+  window.addEventListener("compose-from-changed", () =>
+    amailApplyDefaultSignature()
+  );
+
   // Send and From wrap to their own row, below the other buttons
   // (amailCompose.css).
   const rowBreak = document.createXULElement("toolbaritem");
   rowBreak.id = "amail-row-break";
   rowBreak.setAttribute("skipintoolbarset", "true");
   toolbar.append(rowBreak);
+}
+
+/**
+ * The signature block of the message itself, not one in a quote.
+ *
+ * @returns {?Element}
+ */
+function amailFindSignature() {
+  const body = getBrowser()?.contentDocument?.body;
+  if (!body) {
+    return null;
+  }
+  return (
+    [...body.querySelectorAll(".moz-signature")].find(
+      node => !node.closest("blockquote, .moz-forward-container")
+    ) ?? null
+  );
+}
+
+/**
+ * Put a signature into the message, replacing the current one, or remove it.
+ *
+ * @param {?object} signature - An AmailSignatures signature, or null for none.
+ */
+function amailSetSignature(signature) {
+  const doc = getBrowser()?.contentDocument;
+  if (!doc?.body) {
+    return;
+  }
+  const current = amailFindSignature();
+  if (!signature) {
+    current?.remove();
+    return;
+  }
+  const block = doc.createElement("div");
+  block.className = "moz-signature";
+  const separator = gCurrentIdentity.suppressSigSep ? "" : "-- <br>";
+  if (gMsgCompose.composeHTML) {
+    block.innerHTML = separator + AmailSignatures.toHTML(signature.text);
+  } else {
+    const scratch = doc.createElement("div");
+    scratch.innerHTML = AmailSignatures.toHTML(signature.text).replace(
+      /<br\s*\/?>/gi,
+      "\n"
+    );
+    block.style.whiteSpace = "pre-wrap";
+    block.textContent = (separator ? "-- \n" : "") + scratch.textContent;
+  }
+  if (current) {
+    current.replaceWith(block);
+    return;
+  }
+  // Above the quoted or forwarded message, otherwise at the end.
+  const quote = doc.body.querySelector(
+    ".moz-cite-prefix, blockquote[type='cite'], .moz-forward-container"
+  );
+  if (quote) {
+    quote.before(block);
+  } else {
+    doc.body.append(block);
+  }
+}
+
+/**
+ * Use the default signature of the sender for this kind of message: the one
+ * for new messages, or the one for replies and forwards. Drafts and
+ * templates keep what they have.
+ */
+function amailApplyDefaultSignature() {
+  const T = Ci.nsIMsgCompType;
+  const reply = [
+    T.Reply,
+    T.ReplyAll,
+    T.ReplyToSender,
+    T.ReplyToGroup,
+    T.ReplyToSenderAndGroup,
+    T.ReplyToList,
+    T.ForwardInline,
+    T.ForwardAsAttachment,
+  ].includes(gComposeType);
+  const fresh = [T.New, T.NewsPost, T.MailToUrl].includes(gComposeType);
+  if (!gCurrentIdentity || (!reply && !fresh)) {
+    return;
+  }
+  if (!AmailSignatures.isManaged(gCurrentIdentity)) {
+    return;
+  }
+  const { newId, replyId } = AmailSignatures.defaults(gCurrentIdentity);
+  const editor = GetCurrentEditor();
+  const unchanged = !gContentChanged && editor?.getModificationCount() == 0;
+  amailSetSignature(
+    AmailSignatures.get(gCurrentIdentity, reply ? replyId : newId)
+  );
+  if (unchanged) {
+    editor?.resetModificationCount();
+  }
+}
+
+/** Fill the Signature menu: the sender's signatures, none, manage. */
+function amailFillSignatureMenu(event) {
+  const popup = event.target;
+  if (popup.id != "amail-signature-popup") {
+    return;
+  }
+  popup.replaceChildren();
+  for (const signature of AmailSignatures.list(gCurrentIdentity)) {
+    const item = document.createXULElement("menuitem");
+    item.setAttribute("label", signature.name);
+    item.addEventListener("command", () => {
+      amailSetSignature(signature);
+      gContentChanged = true;
+    });
+    popup.append(item);
+  }
+  const none = document.createXULElement("menuitem");
+  document.l10n.setAttributes(none, "amail-compose-signature-none");
+  none.addEventListener("command", () => {
+    amailSetSignature(null);
+    gContentChanged = true;
+  });
+  const manage = document.createXULElement("menuitem");
+  document.l10n.setAttributes(manage, "amail-compose-signature-manage");
+  manage.addEventListener("command", () => {
+    const win = Services.wm.getMostRecentWindow("mail:3pane");
+    win?.focus();
+    win?.amailSettingsDialog?.openSettings("signatures");
+  });
+  if (popup.childElementCount) {
+    popup.append(document.createXULElement("menuseparator"));
+  }
+  popup.append(none, document.createXULElement("menuseparator"), manage);
+}
+
+/**
+ * The templates of the sender (messages in its Templates folder).
+ *
+ * @returns {{folder: nsIMsgFolder, hdr: nsIMsgDBHdr}[]}
+ */
+function amailListTemplates() {
+  const uri = gCurrentIdentity?.templatesFolderURI;
+  const folder = uri && MailServices.folderLookup.getFolderForURL(uri);
+  if (!folder) {
+    return [];
+  }
+  try {
+    return [...folder.messages].map(hdr => ({ folder, hdr }));
+  } catch (e) {
+    // No database yet: the folder has never been opened.
+    return [];
+  }
+}
+
+/**
+ * Read a stored message: subject, To, Cc and the body as HTML.
+ *
+ * @param {string} uri - The message URI.
+ * @returns {Promise<{subject: string, to: string, cc: string, html: string}>}
+ */
+async function amailReadTemplate(uri) {
+  const raw = await new Promise((resolve, reject) => {
+    let data = "";
+    MailServices.messageServiceFromURI(uri).streamMessage(
+      uri,
+      {
+        QueryInterface: ChromeUtils.generateQI(["nsIStreamListener"]),
+        onStartRequest() {},
+        onDataAvailable(request, stream, offset, count) {
+          const input = Cc["@mozilla.org/binaryinputstream;1"].createInstance(
+            Ci.nsIBinaryInputStream
+          );
+          input.setInputStream(stream);
+          data += input.readBytes(count);
+        },
+        onStopRequest(request, status) {
+          if (Components.isSuccessCode(status)) {
+            resolve(data);
+          } else {
+            reject(new Components.Exception("Reading the template failed", status));
+          }
+        },
+      },
+      null,
+      null,
+      false,
+      "",
+      false
+    );
+  });
+  const addresses = list =>
+    (list ?? [])
+      .filter(a => a.email)
+      .map(a => MailServices.headerParser.makeMimeAddress(a.name, a.email))
+      .join(", ");
+  const result = { subject: "", to: "", cc: "", html: null, text: null };
+  const types = new Map();
+  MimeParser.parseSync(
+    raw,
+    {
+      startPart(partNum, headers) {
+        if (partNum == "") {
+          result.subject = headers.get("subject") ?? "";
+          result.to = addresses(headers.get("to"));
+          result.cc = addresses(headers.get("cc"));
+        }
+        const disposition = headers.get("content-disposition") ?? "";
+        types.set(
+          partNum,
+          /^attachment/i.test(disposition) ? "" : headers.contentType?.mediaType
+        );
+      },
+      deliverPartData(partNum, data) {
+        const type = types.get(partNum);
+        if (type == "text/html") {
+          result.html = (result.html ?? "") + data;
+        } else if (type == "text/plain") {
+          result.text = (result.text ?? "") + data;
+        }
+      },
+    },
+    { bodyformat: "decode", strformat: "unicode" }
+  );
+  let html = "";
+  if (result.html != null) {
+    html = new DOMParser().parseFromString(result.html, "text/html").body
+      .innerHTML;
+  } else if (result.text != null) {
+    html = AmailSignatures.toHTML(result.text.replace(/\r?\n$/, ""));
+  }
+  return { subject: result.subject, to: result.to, cc: result.cc, html };
+}
+
+/**
+ * Use a template in this message: it fills an empty subject and empty
+ * recipient rows and its text goes to the top of the message.
+ *
+ * @param {string} uri - The template's message URI.
+ */
+async function amailUseTemplate(uri) {
+  let template;
+  try {
+    template = await amailReadTemplate(uri);
+  } catch (e) {
+    console.error(e);
+    return;
+  }
+  const subject = document.getElementById("msgSubject");
+  if (!subject.value.trim() && template.subject) {
+    subject.value = template.subject;
+    msgSubjectOnInput();
+  }
+  for (const [row, value] of [
+    ["To", template.to],
+    ["Cc", template.cc],
+  ]) {
+    const container = document.getElementById(`${row.toLowerCase()}AddrContainer`);
+    if (!value || container.querySelector("mail-address-pill")) {
+      continue;
+    }
+    if (row == "Cc") {
+      showAndFocusAddressRow("addressRowCc");
+    }
+    const input = document.getElementById(`${row.toLowerCase()}AddrInput`);
+    input.value = value;
+    recipientAddPills(input);
+  }
+  if (template.html) {
+    const editor = GetCurrentEditor();
+    editor.beginningOfDocument();
+    if (gMsgCompose.composeHTML) {
+      editor.insertHTML(template.html);
+    } else {
+      const scratch = document.createElement("div");
+      scratch.innerHTML = template.html.replace(/<br\s*\/?>/gi, "\n");
+      editor.QueryInterface(Ci.nsIEditorMailSupport).insertTextWithQuotations(
+        scratch.textContent
+      );
+    }
+  }
+  gContentChanged = true;
+  updateSendCommands(true);
+}
+
+/** Fill the Templates menu: the sender's templates, then save as template. */
+function amailFillTemplatesMenu(event) {
+  const popup = event.target;
+  if (popup.id != "amail-templates-popup") {
+    return;
+  }
+  popup.replaceChildren();
+  for (const { folder, hdr } of amailListTemplates()) {
+    const item = document.createXULElement("menuitem");
+    if (hdr.mime2DecodedSubject) {
+      document.l10n.setAttributes(item, "amail-compose-template-use", {
+        name: hdr.mime2DecodedSubject,
+      });
+    } else {
+      document.l10n.setAttributes(item, "amail-compose-template-use-untitled");
+    }
+    const uri = folder.getUriForMsg(hdr);
+    item.addEventListener("command", () => amailUseTemplate(uri));
+    popup.append(item);
+  }
+  if (!popup.childElementCount) {
+    const empty = document.createXULElement("menuitem");
+    empty.setAttribute("disabled", "true");
+    document.l10n.setAttributes(empty, "amail-compose-templates-none");
+    popup.append(empty);
+  }
+  const save = document.createXULElement("menuitem");
+  document.l10n.setAttributes(save, "amail-compose-template-save");
+  save.addEventListener("command", () => goDoCommand("cmd_saveAsTemplate"));
+  popup.append(document.createXULElement("menuseparator"), save);
+}
+
+/** Show when the message was last saved to Drafts. */
+function amailShowDraftSaved() {
+  const label = document.getElementById("amailDraftSaved");
+  if (!label) {
+    return;
+  }
+  const time = new Services.intl.DateTimeFormat(undefined, {
+    timeStyle: "short",
+  }).format(new Date());
+  document.l10n.setAttributes(label, "amail-compose-draft-saved", { time });
 }
 
 /** Close the compose window, or the inline compose view. */
@@ -718,6 +1099,7 @@ var stateListener = {
       editor.enableUndo(true);
       editor.resetModificationCount();
     }
+    amailApplyDefaultSignature();
     if (gMsgCompose.composeHTML) {
       const doc = getBrowser().contentDocument;
       if (
@@ -868,10 +1250,15 @@ var stateListener = {
 
   ComposeProcessDone(aResult) {
     ToggleWindowLock(false);
+    const savedDraft = gAmailSavingDraft;
+    gAmailSavingDraft = false;
 
     if (aResult == Cr.NS_OK) {
       if (!gAutoSaving) {
         SetContentAndBodyAsUnmodified();
+      }
+      if (savedDraft) {
+        amailShowDraftSaved();
       }
 
       if (gCloseWindowAfterSave) {
@@ -4676,13 +5063,7 @@ async function ComposeStartup() {
     document.getElementById("msgSubject"),
     "amail-compose-subject"
   );
-  amailMoveFromToToolbar();
-  if (gAmailInlineHost) {
-    // The menu bar shows with Alt, as in the main window.
-    document
-      .getElementById("compose-toolbar-menubar2")
-      .setAttribute("autohide", "true");
-  }
+  amailComposeLayout();
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
     const replaceButton = document.createXULElement("toolbarbutton");
@@ -6649,6 +7030,9 @@ async function CompleteGenericSendMessage(msgType, undoSend = false) {
         msgType == Ci.nsIMsgCompDeliverMode.SaveAsTemplate
       ) {
         gSaveOperationInProgress = true;
+        gAmailSavingDraft =
+          msgType == Ci.nsIMsgCompDeliverMode.SaveAsDraft ||
+          msgType == Ci.nsIMsgCompDeliverMode.AutoSaveAsDraft;
       } else {
         gSendOperationInProgress = true;
       }

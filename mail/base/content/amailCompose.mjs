@@ -26,6 +26,10 @@ let browser = null;
 /** A compose request that waits for the current message to close. */
 let queuedParams = null;
 let queueTimer = null;
+/** The current message moves to a window once it is saved and closed. */
+let popOutPending = false;
+/** Lets one compose request through to a window. */
+let forceWindow = false;
 
 function isFrontMailTab() {
   if (!Services.prefs.getBoolPref("amail.compose.inline", true)) {
@@ -43,15 +47,81 @@ function openInWindow(params) {
   MailServices.compose.OpenComposeWindowWithParams(COMPOSE_URL, params);
 }
 
+/**
+ * Open a saved draft in a compose window.
+ *
+ * @param {string} draftURI
+ * @param {nsIMsgIdentity} identity
+ */
+function openDraftInWindow(draftURI, identity) {
+  const hdr = MailServices.messageServiceFromURI(draftURI).messageURIToMsgHdr(
+    draftURI
+  );
+  forceWindow = true;
+  try {
+    MailServices.compose.OpenComposeWindow(
+      null,
+      hdr,
+      draftURI,
+      Ci.nsIMsgCompType.Draft,
+      Ci.nsIMsgCompFormat.Default,
+      identity,
+      null,
+      topWindow.msgWindow
+    );
+  } finally {
+    forceWindow = false;
+  }
+}
+
+/**
+ * Move the message being written to its own window: save it to Drafts and
+ * open that draft in a window. An untouched message just reopens there.
+ */
+function popOut() {
+  const cw = browser?.contentWindow;
+  if (!cw?.gMsgCompose || cw.gWindowLocked || popOutPending) {
+    return;
+  }
+  const changed =
+    cw.gContentChanged ||
+    cw.gMsgCompose.bodyModified ||
+    cw.gAutoSaveKickedIn ||
+    !!cw.gMsgCompose.compFields.draftId;
+  if (!changed) {
+    const [params] = browser.amailComposeHost.args;
+    close();
+    openInWindow(params);
+    return;
+  }
+  popOutPending = true;
+  cw.gCloseWindowAfterSave = true;
+  cw.SaveAsDraft();
+}
+
 function close() {
   if (!browser) {
     return;
   }
   const closing = browser;
   browser = null;
+  let draft = null;
+  if (popOutPending) {
+    popOutPending = false;
+    const cw = closing.contentWindow;
+    draft = {
+      uri: cw?.gMsgCompose?.compFields.draftId,
+      identity: cw?.gCurrentIdentity,
+    };
+  }
   // Called from the compose scripts: let them finish before they unload.
   setTimeout(() => {
     closing.remove();
+    if (draft?.uri) {
+      openDraftInWindow(draft.uri, draft.identity);
+    } else if (draft) {
+      console.error("aMail compose: the saved draft was not found");
+    }
     clearTimeout(queueTimer);
     const next = queuedParams;
     queuedParams = null;
@@ -147,7 +217,7 @@ const observer = {
       return;
     }
     const wrapper = subject.QueryInterface(Ci.nsISupportsInterfacePointer);
-    if (!wrapper.data || !isFrontMailTab()) {
+    if (!wrapper.data || forceWindow || !isFrontMailTab()) {
       return;
     }
     const params = wrapper.data.QueryInterface(Ci.nsIMsgComposeParams);
@@ -175,6 +245,7 @@ window.addEventListener("unload", () => {
   topWindow.removeEventListener("close", onWindowClose, true);
 });
 
+document.getElementById("amailComposePopOut").addEventListener("click", popOut);
 document.getElementById("amailComposeClose").addEventListener("click", () => {
   browser?.contentWindow.goDoCommand("cmd_close");
 });

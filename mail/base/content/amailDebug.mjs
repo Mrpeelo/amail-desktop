@@ -16,8 +16,8 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 /**
  * Save a picture of the main window as amail-debug-<name>.png in the profile.
  */
-async function snapshot(name) {
-  const top = window.browsingContext.topChromeWindow;
+async function snapshot(name, win = window.browsingContext.topChromeWindow) {
+  const top = win;
   const bitmap = await top.browsingContext.currentWindowGlobal.drawSnapshot(
     null,
     1,
@@ -146,7 +146,86 @@ const CHECKS = {
       secondGone: !second.isConnected,
       newSubject: third?.contentWindow?.document.getElementById("msgSubject")?.value,
     });
-    third?.contentWindow?.gAmailInlineHost.close();
+    const cw3 = third?.contentWindow;
+    if (cw3) {
+      cw3.amailShowDraftSaved();
+      await wait(800);
+      const doc3 = cw3.document;
+      record({
+        label: "band below subject",
+        parts: [
+          "MsgHeadersToolbar",
+          "recipientsContainer",
+          "subject-box",
+          "msgSubjectContainer",
+          "FormatToolbox",
+          "FormatToolbar",
+          "headersSplitter",
+          "messageArea",
+        ].map(id => `${id} ${rect(doc3.getElementById(id))}`),
+        headersRows: cw3.getComputedStyle(doc3.getElementById("MsgHeadersToolbar"))
+          .gridTemplateRows,
+        contentRows: cw3.getComputedStyle(doc3.getElementById("composeContentBox"))
+          .gridTemplateRows,
+        headersBox: (() => {
+          const cs = cw3.getComputedStyle(doc3.getElementById("MsgHeadersToolbar"));
+          return `pad ${cs.paddingTop}/${cs.paddingBottom} min ${cs.minHeight} h ${cs.height} align ${cs.alignContent} display ${cs.display}`;
+        })(),
+        subjectBox: (() => {
+          const cs = cw3.getComputedStyle(doc3.getElementById("subject-box"));
+          return `margin ${cs.marginTop}/${cs.marginBottom} min ${cs.minHeight}`;
+        })(),
+        headersChildren: [...doc3.getElementById("MsgHeadersToolbar").children].map(
+          c => `${c.id || c.localName} ${rect(c)}`
+        ),
+        draftSaved: doc3.getElementById("amailDraftSaved")?.textContent,
+      });
+      await snapshot("inline-compose-draft-saved");
+
+      // Pop out the untouched message into a window.
+      const opened = new Promise(resolve => {
+        const listener = {
+          observe(win, topic) {
+            if (topic == "domwindowopened") {
+              win.addEventListener(
+                "compose-editor-ready",
+                () => {
+                  Services.ww.unregisterNotification(listener);
+                  resolve(win);
+                },
+                { once: true }
+              );
+            }
+          },
+        };
+        Services.ww.registerNotification(listener);
+      });
+      document.getElementById("amailComposePopOut").click();
+      const popped = await Promise.race([opened, wait(10000)]);
+      await wait(2000);
+      record({
+        label: "pop out",
+        windowOpened: !!popped,
+        inlineClosed: !document.getElementById("amailComposeBrowser"),
+        listBack: document.getElementById("threadPane").checkVisibility(),
+        formatOnTop: popped
+          ? popped.document.getElementById("FormatToolbox").getBoundingClientRect().top <
+            popped.document.getElementById("composeToolbar2").getBoundingClientRect().top
+          : null,
+        menubarHidden: popped
+          ? !popped.document.getElementById("compose-toolbar-menubar2").checkVisibility()
+          : null,
+      });
+      if (popped) {
+        popped.resizeTo(1400, 900);
+        await wait(1500);
+        await snapshot("compose-window", popped);
+        popped.gContentChanged = false;
+        popped.gMsgCompose.bodyModified = false;
+        popped.close();
+        await wait(1000);
+      }
+    }
     await wait(2500);
     record({
       label: "closed",
@@ -157,57 +236,153 @@ const CHECKS = {
     });
   },
   /**
-   * Subject row inside the message card without a close button, light
-   * header buttons, larger date; no offline status button; chat disabled.
+   * Named signatures (new / reply defaults, Signature menu), Templates menu,
+   * Settings signatures tab.
    */
-  async "reader-card"(record) {
-    const about3Pane = window;
-    const top = about3Pane.browsingContext.topChromeWindow;
-    const { threadTree } = about3Pane;
+  async "compose-signatures"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const { AmailSignatures } = ChromeUtils.importESModule(
+      "resource:///modules/AmailSignatures.sys.mjs"
+    );
+    const identity = MailServices.accounts.defaultAccount.defaultIdentity;
+    AmailSignatures.save(
+      identity,
+      [
+        { id: "work", name: "Work", text: "Best regards\nWork Signature" },
+        { id: "short", name: "Short", text: "<b>Thanks!</b>" },
+      ],
+      "work",
+      "short"
+    );
+    await wait(5000);
+    const sigText = cw =>
+      [...cw.getBrowser().contentDocument.body.querySelectorAll(".moz-signature")]
+        .filter(n => !n.closest("blockquote, .moz-forward-container"))
+        .map(n => n.innerHTML.replace(/\s+/g, " "));
+    const waitCompose = async () => {
+      for (let i = 0; i < 80; i++) {
+        await wait(250);
+        const cw = document.getElementById("amailComposeBrowser")?.contentWindow;
+        if (cw?.gMsgCompose && cw.getBrowser()?.contentDocument?.body) {
+          await wait(1500);
+          return cw;
+        }
+      }
+      return null;
+    };
+
+    top.goDoCommand("cmd_newMessage");
+    const cw = await waitCompose();
     record({
-      label: "status bar + chat",
-      offlineButton: !!top.document.getElementById("offline-status"),
-      chatEnabled: Services.prefs.getBoolPref("mail.chat.enabled"),
-      chatLocked: Services.prefs.prefIsLocked("mail.chat.enabled"),
-      goChatHidden: top.document.getElementById("menu_goChat")?.hidden,
-      cmdChatEnabled: top.goUpdateCommand
-        ? !top.document.getElementById("cmd_chat").hasAttribute("disabled")
-        : "n/a",
+      label: "new message",
+      signatures: cw ? sigText(cw) : null,
+      buttons: cw
+        ? ["amail-signature-button", "amail-templates-button"].map(id =>
+            cw.document.getElementById(id)?.checkVisibility()
+          )
+        : null,
+      modified: cw ? cw.gContentChanged || cw.GetCurrentEditor().getModificationCount() : null,
     });
-    if (!about3Pane.gDBView?.rowCount) {
-      record({ label: "no messages in the open folder" });
+    if (!cw) {
       return;
     }
-    const before = threadTree.selectedIndices;
-    const hdr = about3Pane.gDBView.getMsgHdrAt(0);
-    const wasRead = hdr.isRead;
-    threadTree.selectedIndex = 0;
-    await wait(1500);
-    const rdoc = about3Pane.document.getElementById("messageBrowser")
-      .contentDocument;
-    const bar = rdoc.getElementById("amailSubjectBar");
-    const box = rdoc.getElementById("messagepanebox");
-    const reply = rdoc.getElementById("hdrReplyButton").checkVisibility()
-      ? rdoc.getElementById("hdrReplyButton")
-      : rdoc.getElementById("hdrReplyToSenderButton");
-    const cs = rdoc.defaultView.getComputedStyle(reply);
+    const popup = cw.document.getElementById("amail-signature-popup");
+    popup.dispatchEvent(new cw.Event("popupshowing"));
     record({
-      label: "reader card",
-      closeButton: !!rdoc.getElementById("amailCloseMessage"),
-      barInsideCard: box.contains(bar),
-      barTop: Math.round(bar.getBoundingClientRect().top),
-      cardTop: Math.round(box.getBoundingClientRect().top),
-      subject: rdoc.getElementById("expandedsubjectBox").textContent.slice(0, 60),
-      replyBg: cs.backgroundColor,
-      replyBorder: `${cs.borderTopWidth} ${cs.borderTopColor}`,
-      dateFont: rdoc.defaultView.getComputedStyle(
-        rdoc.querySelector(".message-header-datetime")
-      ).fontSize,
+      label: "signature menu",
+      items: [...popup.children].map(i => i.label || i.getAttribute("data-l10n-id") || i.localName),
     });
-    threadTree.selectedIndices = before;
-    if (!wasRead) {
-      hdr.folder.markMessagesRead([hdr], false);
+    cw.amailSetSignature(AmailSignatures.get(identity, "short"));
+    const afterShort = sigText(cw);
+    cw.amailSetSignature(null);
+    record({ label: "switch + none", afterShort, afterNone: sigText(cw) });
+
+    const tplPopup = cw.document.getElementById("amail-templates-popup");
+    tplPopup.dispatchEvent(new cw.Event("popupshowing"));
+    const templates = cw.amailListTemplates();
+    record({
+      label: "templates menu",
+      templates: templates.length,
+      items: [...tplPopup.children].map(i => i.getAttribute("data-l10n-id") || i.localName),
+    });
+    if (templates.length) {
+      const { folder, hdr } = templates[0];
+      await cw.amailUseTemplate(folder.getUriForMsg(hdr));
+      await wait(1000);
+      record({
+        label: "used template",
+        subject: cw.document.getElementById("msgSubject").value,
+        bodyStart: cw.getBrowser().contentDocument.body.textContent.trim().slice(0, 80),
+      });
     }
+    await snapshot("compose-signature");
+    cw.gContentChanged = false;
+    cw.gMsgCompose.bodyModified = false;
+    cw.GetCurrentEditor().resetModificationCount();
+    cw.gAmailInlineHost.close();
+    await wait(1500);
+
+    // Reply: the reply signature goes above the quote.
+    const { threadTree, gDBView } = window;
+    if (gDBView?.rowCount) {
+      const hdr = gDBView.getMsgHdrAt(0);
+      const wasRead = hdr.isRead;
+      threadTree.selectedIndex = 0;
+      await wait(1500);
+      const windowsBeforeReply = [...Services.wm.getEnumerator(null)].length;
+      top.goDoCommand("cmd_reply");
+      const rw = await waitCompose();
+      record({
+        label: "reply attempt",
+        selected: window.gDBView.numSelected,
+        replyEnabled: top.document.getElementById("cmd_reply")?.getAttribute("disabled"),
+        newWindows: [...Services.wm.getEnumerator(null)]
+          .slice(windowsBeforeReply)
+          .map(w => w.document.documentURI.replace(/.*\//, "")),
+        frontWindow: Services.wm.getMostRecentWindow(null)?.document.documentURI.replace(/.*\//, ""),
+        currentTabIsThis: top.document.getElementById("tabmail").currentAbout3Pane == window,
+      });
+      if (rw) {
+        const body = rw.getBrowser().contentDocument.body;
+        const sig = [...body.querySelectorAll(".moz-signature")].find(
+          n => !n.closest("blockquote")
+        );
+        const quote = body.querySelector("blockquote[type='cite'], .moz-cite-prefix");
+        record({
+          label: "reply",
+          signatures: sigText(rw),
+          aboveQuote: !!(sig && quote && sig.compareDocumentPosition(quote) & Node.DOCUMENT_POSITION_FOLLOWING),
+        });
+        rw.gContentChanged = false;
+        rw.gMsgCompose.bodyModified = false;
+        rw.GetCurrentEditor().resetModificationCount();
+        rw.gAmailInlineHost.close();
+        await wait(1500);
+      } else {
+        record({ label: "reply did not open inline" });
+      }
+      if (!wasRead) {
+        hdr.folder.markMessagesRead([hdr], false);
+      }
+    }
+
+    // Settings tab.
+    top.amailSettingsDialog.openSettings("signatures");
+    await wait(2500);
+    const page = top.document.getElementById("amailSettingsBrowser").contentDocument;
+    record({
+      label: "settings tab",
+      blocks: page.querySelectorAll(".signature").length,
+      itemsFirst: page.querySelector(".signature")?.querySelectorAll(".signature-item").length,
+      selects: [...(page.querySelector(".signature")?.querySelectorAll("select") ?? [])].map(
+        s => `${s.value} (${s.options.length})`
+      ),
+    });
+    await snapshot("settings-signatures");
+    top.amailSettingsDialog.close();
   },
 };
 

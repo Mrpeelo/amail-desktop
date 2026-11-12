@@ -226,13 +226,21 @@ amail-settings-account-default = Default
 ## Settings: Signatures & templates
 
 amail-settings-signatures = Signatures
-amail-settings-signatures-intro = Added to new messages from each address. Changes are saved as you type.
-amail-settings-signature-html = Use HTML
-amail-settings-signature-replies = Add to replies and forwards too
+amail-settings-signatures-intro = Each address can have several signatures: pick one for new messages and one for replies and forwards. Plain text keeps its line breaks; HTML also works. Changes are saved as you type.
+amail-settings-signatures-none = No signatures yet.
+amail-settings-signature-name =
+    .placeholder = Name, e.g. Work
+    .aria-label = Signature name
+amail-settings-signature-add = Add signature
+# $n - the number of the new signature, e.g. 2
+amail-settings-signature-default-name = Signature { $n }
+amail-settings-signature-none = No signature
+amail-settings-signature-for-new = For new messages
+amail-settings-signature-for-replies = For replies and forwards
 # $path - the file the signature is read from
 amail-settings-signature-file = This address uses a signature file instead: { $path }
 amail-settings-templates = Templates
-amail-settings-templates-intro = Save a message as a template from the compose window (File ▸ Save as ▸ Template).
+amail-settings-templates-intro = Save a message as a template from the compose window: Templates ▾ ▸ Save this message as a template.
 amail-settings-templates-none = No templates yet.
 amail-settings-no-subject = (no subject)
 
@@ -282,6 +290,30 @@ amail-undo-send-cancel = Cancel sending
 
 amail-compose-subject =
     .placeholder = Add a subject
+# $time - when the draft was saved, e.g. 21.01
+amail-compose-draft-saved = Draft saved { $time }
+amail-compose-popout =
+    .title = Open in a separate window
+    .aria-label = Open in a separate window
+amail-compose-signature =
+    .label = Signature
+    .tooltiptext = Insert or change the signature
+amail-compose-signature-none =
+    .label = No signature
+amail-compose-signature-manage =
+    .label = Manage signatures…
+amail-compose-templates =
+    .label = Templates
+    .tooltiptext = Use a template, or save this message as one
+# $name - the template's subject
+amail-compose-template-use =
+    .label = Use “{ $name }”
+amail-compose-template-use-untitled =
+    .label = Use template (no subject)
+amail-compose-templates-none =
+    .label = No templates yet
+amail-compose-template-save =
+    .label = Save this message as a template…
 amail-compose-close =
     .title = Close this message (asks to save changes)
     .aria-label = Close this message

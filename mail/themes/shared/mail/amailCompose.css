@@ -32,7 +32,7 @@
 }
 
 :root[amail-inline] #composeToolbar2 {
-  padding-inline-end: 48px;
+  padding-inline-end: 84px;
 }
 
 :root:root #composeToolbar2 .toolbarbutton-1 {
@@ -152,7 +152,7 @@
 /* Subject: no label, a larger line with a placeholder. */
 
 :root:root #subject-box {
-  margin-block: 6px 10px;
+  margin-block: 6px 4px;
 }
 
 :root:root #subjectLabel-box {
@@ -249,4 +249,73 @@
 
 :root:root #addr_replyShowAddressRowMenuItem {
   display: none;
+}
+
+/* "Draft saved <time>" at the end of the subject line. */
+
+:root:root #amailDraftSaved {
+  flex: none;
+  padding-inline: 12px 4px;
+  color: var(--color-text-secondary, GrayText);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Compose window: the format bar on top, the message in a card below. */
+
+:root:not([amail-inline]) {
+  --amail-compose-window: color-mix(in srgb, var(--color-text-base, CanvasText) 4%, var(--amail-compose-surface));
+
+  & body {
+    background-color: var(--amail-compose-window);
+  }
+
+  & #FormatToolbox,
+  & #FormatToolbar {
+    background-color: var(--amail-compose-window);
+  }
+
+  & #FormatToolbar {
+    margin: 6px 12px;
+    padding: 4px 10px;
+    border: 1px solid var(--amail-compose-line);
+    border-radius: 8px;
+    background-color: var(--amail-compose-surface);
+  }
+
+  & #compose-toolbox {
+    margin: 0 12px;
+    background-color: var(--amail-compose-window);
+  }
+
+  & #composeToolbar2 {
+    border: 1px solid var(--amail-compose-line);
+    border-block-end-color: var(--amail-compose-line);
+    border-radius: 8px 8px 0 0;
+  }
+
+  & #composeContentBox {
+    margin: 0 12px 12px;
+    padding-inline: 0;
+    border: 1px solid var(--amail-compose-line);
+    border-block-start: none;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+  }
+}
+
+/* The header area always fits its rows: no drag-to-resize height (a stored
+   height left an empty band under the subject). */
+:root:root #composeContentBox {
+  --headersSplitter-height: min-content !important;
+}
+
+:root:root #headersSplitter {
+  display: none;
+}
+
+/* Thunderbird sets a minimum height at load, measured while From was still
+   in this area. */
+:root:root #MsgHeadersToolbar {
+  min-block-size: 0 !important;
 }

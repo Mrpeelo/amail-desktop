@@ -298,3 +298,33 @@ textarea {
   gap: 12px;
   padding-block: 4px;
 }
+
+.signature-item {
+  margin-block: 10px;
+}
+
+.signature-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  & input {
+    flex: 0 1 260px;
+    block-size: 30px;
+    box-sizing: border-box;
+    margin: 0;
+    padding-inline: 8px;
+    border: 1px solid var(--color-surface-border);
+    border-block-end-color: var(--color-surface-border-intense);
+    border-radius: 4px;
+    background-color: var(--color-surface-base);
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+  }
+}
+
+.signature-defaults {
+  align-items: flex-end;
+  margin-block-start: 8px;
+}

@@ -12,6 +12,9 @@
 const { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+const { AmailSignatures } = ChromeUtils.importESModule(
+  "resource:///modules/AmailSignatures.sys.mjs"
+);
 const { AddonManager } = ChromeUtils.importESModule(
   "resource://gre/modules/AddonManager.sys.mjs"
 );
@@ -208,63 +211,128 @@ function removeAccount(account) {
 // Signatures & templates
 
 function renderSignatures() {
-  const list = $("signatureList");
-  list.replaceChildren();
+  const container = $("signatureList");
+  container.replaceChildren();
   for (const identity of MailServices.accounts.allIdentities) {
-    if (!identity.email) {
-      continue;
+    if (identity.email) {
+      container.append(signatureBlock(identity));
     }
+  }
+  renderTemplates();
+}
+
+/**
+ * The signatures of one address: each with a name and text, plus which one
+ * new messages and replies get. Saved as you type.
+ *
+ * @param {nsIMsgIdentity} identity
+ * @returns {HTMLElement}
+ */
+function signatureBlock(identity) {
+  const list = structuredClone(AmailSignatures.list(identity));
+  let { newId, replyId } = AmailSignatures.defaults(identity);
+  const block = el("div.signature");
+  let saveTimer;
+
+  const save = () => {
+    clearTimeout(saveTimer);
+    AmailSignatures.save(identity, list, newId, replyId);
+  };
+  const saveSoon = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 400);
+  };
+
+  const defaultSelect = (l10n, value, onChange) => {
+    const select = el("select");
+    select.append(el("option", { value: "", l10n: "amail-settings-signature-none" }));
+    for (const sig of list) {
+      select.append(el("option", { value: sig.id, text: sig.name }));
+    }
+    select.value = list.some(s => s.id == value) ? value : "";
+    select.addEventListener("change", () => {
+      onChange(select.value);
+      save();
+    });
+    return el("label.field", {}, el("span", { l10n }), select);
+  };
+
+  const draw = () => {
     const heading = el("h3", {}, identity.fullName || identity.email);
     if (identity.fullName) {
       heading.append(" ", el("span.dim", { text: identity.email }));
     }
-    const text = el("textarea", {
-      rows: 4,
-      value: identity.htmlSigText,
-      spellcheck: false,
-    });
-    text.setAttribute("aria-label", identity.email);
-    let saveTimer;
-    text.addEventListener("input", () => {
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => (identity.htmlSigText = text.value), 300);
-    });
-    text.addEventListener("change", () => {
-      clearTimeout(saveTimer);
-      identity.htmlSigText = text.value;
-    });
-
-    const html = el("input", { type: "checkbox", checked: identity.htmlSigFormat });
-    html.addEventListener("change", () => (identity.htmlSigFormat = html.checked));
-    const replies = el("input", {
-      type: "checkbox",
-      checked: identity.sigOnReply && identity.sigOnForward,
-    });
-    replies.addEventListener("change", () => {
-      identity.sigOnReply = replies.checked;
-      identity.sigOnForward = replies.checked;
-    });
-
-    const item = el("div.signature", {}, heading);
-    if (identity.attachSignature && identity.signature) {
-      item.append(
+    block.replaceChildren(heading);
+    if (identity.attachSignature && identity.signature && !AmailSignatures.isManaged(identity)) {
+      block.append(
         el("p.note", {
           l10n: ["amail-settings-signature-file", { path: identity.signature.path }],
         })
       );
     }
-    item.append(
-      text,
+    for (const sig of list) {
+      const name = el("input", { type: "text", value: sig.name });
+      document.l10n.setAttributes(name, "amail-settings-signature-name");
+      name.addEventListener("input", () => {
+        sig.name = name.value.trim() || sig.name;
+        saveSoon();
+      });
+      name.addEventListener("change", draw);
+      const text = el("textarea", { rows: 4, value: sig.text, spellcheck: false });
+      text.setAttribute("aria-label", sig.name);
+      text.addEventListener("input", () => {
+        sig.text = text.value;
+        saveSoon();
+      });
+      const remove = button(
+        "amail-settings-delete",
+        () => {
+          list.splice(list.indexOf(sig), 1);
+          if (newId == sig.id) {
+            newId = "";
+          }
+          if (replyId == sig.id) {
+            replyId = "";
+          }
+          save();
+          draw();
+        },
+        "danger"
+      );
+      block.append(el("div.signature-item", {}, el("div.signature-name", {}, name, remove), text));
+    }
+    if (!list.length) {
+      block.append(el("p.dim", { l10n: "amail-settings-signatures-none" }));
+    }
+    block.append(
       el(
-        "div.inline",
+        "div.row.signature-defaults",
         {},
-        el("label.check", {}, html, el("span", { l10n: "amail-settings-signature-html" })),
-        el("label.check", {}, replies, el("span", { l10n: "amail-settings-signature-replies" }))
+        button("amail-settings-signature-add", async () => {
+          const id = `sig${Date.now().toString(36)}`;
+          const n = list.length + 1;
+          const name = await document.l10n.formatValue(
+            "amail-settings-signature-default-name",
+            { n }
+          );
+          list.push({ id, name, text: "" });
+          if (!newId) {
+            newId = id;
+          }
+          if (!replyId && list.length == 1) {
+            replyId = id;
+          }
+          save();
+          draw();
+          block.querySelector(".signature-item:last-of-type textarea")?.focus();
+        }),
+        defaultSelect("amail-settings-signature-for-new", newId, v => (newId = v)),
+        defaultSelect("amail-settings-signature-for-replies", replyId, v => (replyId = v))
       )
     );
-    list.append(item);
-  }
-  renderTemplates();
+  };
+  draw();
+  return block;
 }
 
 function renderTemplates() {
