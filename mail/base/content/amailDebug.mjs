@@ -14,6 +14,20 @@
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
+ * Ask scratchpad screen-watch.ps1 (run next to the test) for a capture of the
+ * whole screen, which includes open menus.
+ */
+async function screenShot(name) {
+  const dir = PathUtils.profileDir;
+  const done = PathUtils.join(dir, "amail-shot-done");
+  await IOUtils.remove(done, { ignoreAbsent: true });
+  await IOUtils.writeUTF8(PathUtils.join(dir, "amail-shot-request"), name);
+  for (let i = 0; i < 25 && !(await IOUtils.exists(done)); i++) {
+    await wait(200);
+  }
+}
+
+/**
  * Save a picture of the main window as amail-debug-<name>.png in the profile.
  */
 async function snapshot(
@@ -432,6 +446,177 @@ const CHECKS = {
     });
     await snapshot("settings-signatures");
     top.amailSettingsDialog.close();
+  },
+  /**
+   * Signature button in a new inline message, driven like a user: real click
+   * opens the menu, each item changes the body, No signature, From switch,
+   * Manage signatures.
+   */
+  async "signature-menu"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const { AmailSignatures } = ChromeUtils.importESModule(
+      "resource:///modules/AmailSignatures.sys.mjs"
+    );
+    // Every address gets its own test signatures (profile prefs are
+    // restored after the run).
+    const identities = MailServices.accounts.allIdentities.filter(i => i.email);
+    identities.forEach((identity, n) =>
+      AmailSignatures.save(
+        identity,
+        [
+          { id: "work", name: `Work ${n}`, text: `Best regards
+Work ${n}` },
+          { id: "short", name: `Short ${n}`, text: `<b>Thanks ${n}!</b>` },
+        ],
+        "work",
+        "short"
+      )
+    );
+    await wait(5000);
+
+    const waitCompose = async () => {
+      for (let i = 0; i < 80; i++) {
+        await wait(250);
+        const cw = document.getElementById("amailComposeBrowser")?.contentWindow;
+        if (cw?.gMsgCompose && cw.getBrowser()?.contentDocument?.body) {
+          await wait(1500);
+          return cw;
+        }
+      }
+      return null;
+    };
+    const ownSignatures = cw =>
+      [...cw.getBrowser().contentDocument.body.querySelectorAll(".moz-signature")]
+        .filter(n => !n.closest("blockquote, .moz-forward-container"))
+        .map(n => n.textContent.replace(/\s+/g, " ").trim());
+
+    top.goDoCommand("cmd_newMessage");
+    const cw = await waitCompose();
+    if (!cw) {
+      record({ label: "ERROR new message did not open inline" });
+      return;
+    }
+    const button = cw.document.getElementById("amail-signature-button");
+    const popup = cw.document.getElementById("amail-signature-popup");
+    const r = button.getBoundingClientRect();
+    record({
+      label: "start",
+      from: cw.gCurrentIdentity.email,
+      body: ownSignatures(cw),
+      buttonVisible: button.checkVisibility(),
+      buttonRect: `${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}`,
+    });
+
+    // Real mouse click on the button.
+    const shown = new Promise(resolve =>
+      popup.addEventListener("popupshown", resolve, { once: true })
+    );
+    for (const type of ["mousedown", "mouseup"]) {
+      cw.synthesizeMouseEvent(type, r.x + r.width / 2, r.y + r.height / 2, {
+        button: 0,
+        clickCount: 1,
+      });
+    }
+    const opened = await Promise.race([shown.then(() => true), wait(3000).then(() => false)]);
+    const pr = popup.getOuterScreenRect();
+    const br = button.getBoundingClientRect();
+    await screenShot("signature-menu-open");
+    record({
+      label: "click opens menu",
+      opened,
+      state: popup.state,
+      items: [...popup.children].map(i =>
+        i.localName == "menuseparator" ? "---" : i.label || i.getAttribute("label")
+      ),
+      menuSize: `${Math.round(pr.width)}x${Math.round(pr.height)}`,
+      menuBelowButton: pr.top >= cw.mozInnerScreenY + br.bottom - 2,
+    });
+
+    const pick = async label => {
+      if (popup.state != "open") {
+        const again = new Promise(resolve =>
+          popup.addEventListener("popupshown", resolve, { once: true })
+        );
+        button.open = true;
+        await Promise.race([again, wait(2000)]);
+      }
+      const item = [...popup.children].find(i => i.label == label);
+      if (!item) {
+        return `no item ${label}`;
+      }
+      const hidden = new Promise(resolve =>
+        popup.addEventListener("popuphidden", resolve, { once: true })
+      );
+      popup.activateItem(item);
+      await Promise.race([hidden, wait(2000)]);
+      await wait(300);
+      return ownSignatures(cw);
+    };
+
+    const n = identities.indexOf(cw.gCurrentIdentity);
+    record({ label: "pick Short", body: await pick(`Short ${n}`), changed: cw.gContentChanged });
+    record({ label: "pick Work", body: await pick(`Work ${n}`) });
+    record({ label: "pick No signature", body: await pick("No signature") });
+    record({ label: "pick Short again", body: await pick(`Short ${n}`) });
+    record({ label: "pick Short twice", body: await pick(`Short ${n}`) });
+    if (popup.state == "open") {
+      popup.hidePopup();
+      await wait(300);
+    }
+
+    const second = identities.find(i => i != cw.gCurrentIdentity);
+    if (second) {
+      const list = cw.document.getElementById("msgIdentity");
+      const item = list.getElementsByAttribute("identitykey", second.key)[0];
+      list.selectedItem = item;
+      cw.LoadIdentity(false);
+      await wait(1500);
+      const reopened = new Promise(resolve =>
+        popup.addEventListener("popupshown", resolve, { once: true })
+      );
+      const rr = button.getBoundingClientRect();
+      for (const type of ["mousedown", "mouseup"]) {
+        cw.synthesizeMouseEvent(type, rr.x + rr.width / 2, rr.y + rr.height / 2, {
+          button: 0,
+          clickCount: 1,
+        });
+      }
+      await Promise.race([reopened, wait(2000)]);
+      record({
+        label: "From switched",
+        from: cw.gCurrentIdentity.email,
+        body: ownSignatures(cw),
+        items: [...popup.children].map(i =>
+          i.localName == "menuseparator" ? "---" : i.label || i.getAttribute("label")
+        ),
+      });
+      popup.hidePopup();
+      await wait(300);
+    }
+
+    // Manage signatures opens Settings on the Signatures tab.
+    button.open = true;
+    await wait(800);
+    const manage = [...popup.children].find(i => i.label == "Manage signatures…");
+    popup.activateItem(manage);
+    await wait(3000);
+    const settings = top.document.getElementById("amailSettingsBrowser");
+    record({
+      label: "Manage signatures",
+      settingsShown: !top.document.getElementById("amailSettingsModal").hidden,
+      url: settings.currentURI?.spec,
+      composeStillOpen: !!document.getElementById("amailComposeBrowser"),
+    });
+    top.amailSettingsDialog.close();
+    await wait(500);
+
+    cw.gContentChanged = false;
+    cw.gMsgCompose.bodyModified = false;
+    cw.GetCurrentEditor().resetModificationCount();
+    cw.gAmailInlineHost.close();
   },
 };
 
