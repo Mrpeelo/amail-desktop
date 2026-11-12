@@ -372,6 +372,13 @@
 #include templates/messagePaneTemplate.inc.xhtml
   <message-pane id="messagePane" class="collapsed-by-splitter"></message-pane>
   <xul:browser id="accountCentralBrowser" hidden="hidden"/>
+  <div id="amailCompose" hidden="hidden">
+    <div id="amailComposeHeader">
+      <button id="amailComposeClose"
+              class="amail-compose-icon"
+              data-l10n-id="amail-compose-close"></button>
+    </div>
+  </div>
 #include templates/conversationViewTemplate.inc.xhtml
 </body>
 <popupset xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

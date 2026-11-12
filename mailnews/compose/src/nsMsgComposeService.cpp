@@ -42,6 +42,8 @@
 #include "nsFrameLoader.h"
 #include "nsSmtpUrl.h"
 #include "mozilla/Components.h"
+#include "mozilla/Services.h"
+#include "nsIObserverService.h"
 #include "mozilla/NullPrincipal.h"
 #include "mozilla/Preferences.h"
 
@@ -108,6 +110,21 @@ nsMsgComposeService::OpenComposeWindowWithParams(const char* chrome,
 
   msgParamsWrapper->SetData(params);
   msgParamsWrapper->SetDataIID(&NS_GET_IID(nsIMsgComposeParams));
+
+  // aMail: the main window may show the compose UI inline instead of in a
+  // new window (amailCompose.mjs). It takes the params out of the wrapper
+  // when it does.
+  if (!chrome || !*chrome) {
+    nsCOMPtr<nsIObserverService> obs = mozilla::services::GetObserverService();
+    if (obs) {
+      obs->NotifyObservers(msgParamsWrapper, "amail-compose-open", nullptr);
+      nsCOMPtr<nsISupports> remaining;
+      msgParamsWrapper->GetData(getter_AddRefs(remaining));
+      if (!remaining) {
+        return NS_OK;
+      }
+    }
+  }
 
   nsCOMPtr<mozIDOMWindowProxy> newWindow;
   nsAutoCString chromeURL;

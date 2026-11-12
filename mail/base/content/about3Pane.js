@@ -186,6 +186,7 @@ window.addEventListener("DOMContentLoaded", async event => {
   import("chrome://messenger/content/amailColumns.mjs").then(module =>
     module.initAmailColumns(threadTree)
   );
+  import("chrome://messenger/content/amailCompose.mjs");
   import("chrome://messenger/content/amailLayout.mjs").then(module =>
     module.initAmailLayout()
   );

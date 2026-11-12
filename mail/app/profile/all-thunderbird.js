@@ -1601,6 +1601,10 @@ pref("app.shield.optoutstudies.enabled", false);
 // aMail color palette: "amail", "synthwave" or "thunderbird" (stock).
 pref("amail.theme.palette", "amail");
 
+// aMail: write and reply inline, in place of the message list and reader,
+// instead of in a separate window.
+pref("amail.compose.inline", true);
+
 // aMail undo send: seconds a sent message waits so it can be cancelled
 // (0 = off). Pending sends are kept in amail.undo_send.pending.
 pref("amail.undo_send.seconds", 60);

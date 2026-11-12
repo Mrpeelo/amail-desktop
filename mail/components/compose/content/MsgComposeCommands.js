@@ -283,6 +283,25 @@ var gSpellCheckingEnabled;
 
 var kComposeAttachDirPrefName = "mail.compose.attach.dir";
 
+/**
+ * aMail: set when the compose UI is shown inline in the main window instead
+ * of in its own window (amailCompose.mjs). It supplies the arguments a
+ * window would get and closes the inline view.
+ *
+ * @type {?{args: Array, close: function(): void}}
+ */
+var gAmailInlineHost =
+  window.browsingContext.embedderElement?.amailComposeHost ?? null;
+
+/** Close the compose window, or the inline compose view. */
+function amailCloseCompose() {
+  if (gAmailInlineHost) {
+    gAmailInlineHost.close();
+  } else {
+    window.close();
+  }
+}
+
 window.addEventListener("unload", () => {
   ComposeUnload();
 });
@@ -831,7 +850,7 @@ var stateListener = {
         if (gMsgCompose) {
           gMsgCompose.onSendNotPerformed(null, Cr.NS_ERROR_ABORT);
         }
-        window.close();
+        amailCloseCompose();
       }
     } else if (gAutoSaving) {
       // If we failed to save, and we're autosaving, need to re-mark the editor
@@ -1143,7 +1162,7 @@ var defaultController = {
       },
       doCommand() {
         if (ComposeCanClose()) {
-          window.close();
+          amailCloseCompose();
         }
       },
     },
@@ -4622,6 +4641,8 @@ function onPasteOrDrop(e) {
 
 /* eslint-disable complexity */
 async function ComposeStartup() {
+  const windowArguments = gAmailInlineHost?.args ?? window.arguments;
+  document.documentElement.toggleAttribute("amail-inline", !!gAmailInlineHost);
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
     const replaceButton = document.createXULElement("toolbarbutton");
@@ -4659,14 +4680,14 @@ async function ComposeStartup() {
   var args = null; // old way, parameters are passed as a string
   gBodyFromArgs = false;
 
-  if (window.arguments && window.arguments[0]) {
+  if (windowArguments && windowArguments[0]) {
     try {
-      if (window.arguments[0] instanceof Ci.nsIMsgComposeParams) {
-        params = window.arguments[0];
+      if (windowArguments[0] instanceof Ci.nsIMsgComposeParams) {
+        params = windowArguments[0];
         gBodyFromArgs = params.composeFields && params.composeFields.body;
-      } else if (window.arguments[0].toLowerCase().startsWith("mailto:")) {
+      } else if (windowArguments[0].toLowerCase().startsWith("mailto:")) {
         params = MailServices.compose.getParamsForMailto(
-          Services.io.newURI(window.arguments[0])
+          Services.io.newURI(windowArguments[0])
         );
       }
     } catch (ex) {
@@ -4676,7 +4697,7 @@ async function ComposeStartup() {
     // if still no dice, try and see if the params is an old fashioned list of string attributes
     // XXX can we get rid of this yet?
     if (!params) {
-      args = GetArgs(window.arguments[0]);
+      args = GetArgs(windowArguments[0]);
     }
   }
 
@@ -4771,7 +4792,7 @@ async function ComposeStartup() {
       if (args.subject) {
         composeFields.subject = args.subject;
       }
-      if (args.attachment && window.arguments[1] instanceof Ci.nsICommandLine) {
+      if (args.attachment && windowArguments[1] instanceof Ci.nsICommandLine) {
         // Workaround to support 'file:' URIs for attachments with commas in
         // their paths.
         // Note: Per RFC 3986, commas are 'sub-delimiters' and are technically
@@ -4786,7 +4807,7 @@ async function ComposeStartup() {
         for (const attachmentName of attachmentList) {
           // resolveURI does all the magic around working out what the
           // attachment is, including web pages, and generating the correct uri.
-          const uri = window.arguments[1].resolveURI(attachmentName);
+          const uri = windowArguments[1].resolveURI(attachmentName);
           let attachment = Cc[
             "@mozilla.org/messengercompose/attachment;1"
           ].createInstance(Ci.nsIMsgAttachment);
@@ -5631,7 +5652,7 @@ async function ComposeLoad() {
       getComposeBundle().getString("initErrorDlgMessage")
     );
 
-    window.close();
+    amailCloseCompose();
     return;
   }
 
@@ -5902,7 +5923,7 @@ function ComposeUnload() {
     }
   }
 
-  window.close();
+  amailCloseCompose();
 }
 
 function onEncryptionChoice(value) {
@@ -6662,7 +6683,7 @@ async function CompleteGenericSendMessage(msgType, undoSend = false) {
     if (undoSend) {
       AmailUndoSend.queued(gMsgCompose.compFields.messageId, gMsgCompose.compFields.subject);
     }
-    window.close();
+    amailCloseCompose();
   }
 }
 

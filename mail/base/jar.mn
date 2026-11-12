@@ -83,6 +83,7 @@ messenger.jar:
     content/messenger/amailImport.xhtml             (content/amailImport.xhtml)
     content/messenger/amailImport.mjs               (content/amailImport.mjs)
     content/messenger/amailColumns.mjs              (content/amailColumns.mjs)
+    content/messenger/amailCompose.mjs              (content/amailCompose.mjs)
     content/messenger/amailDates.mjs                (content/amailDates.mjs)
     content/messenger/amailSettings.mjs             (content/amailSettings.mjs)
     content/messenger/amailUndoSend.mjs             (content/amailUndoSend.mjs)

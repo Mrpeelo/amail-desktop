@@ -1568,3 +1568,8 @@ dialog .key-info-block {
 .comma-separated a:not(:last-child)::after {
   content: ", ";
 }
+
+/* aMail inline compose (amailCompose.mjs): no window title bar. */
+:root[amail-inline] #titlebar {
+  display: none;
+}

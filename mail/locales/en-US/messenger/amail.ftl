@@ -277,3 +277,9 @@ amail-settings-undo-send-seconds = { $seconds ->
 # $seconds - seconds left, e.g. 57
 amail-undo-send-countdown = Sending in { $seconds } s
 amail-undo-send-cancel = Cancel sending
+
+## Inline compose
+
+amail-compose-close =
+    .title = Close this message (asks to save changes)
+    .aria-label = Close this message
