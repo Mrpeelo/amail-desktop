@@ -162,3 +162,103 @@ amail-settings-close =
 amail-settings-filters = Message filters
 amail-settings-trusted-senders = Trusted senders
 amail-settings-about = About { -brand-short-name }
+amail-settings-all-title = All settings
+amail-settings-all =
+    .title = Every { -brand-short-name } option, by category
+
+## Settings page tabs
+
+amail-settings-tab-general = General
+amail-settings-tab-accounts = Accounts
+amail-settings-tab-signatures = Signatures & templates
+amail-settings-tab-trusted = Trusted senders
+amail-settings-tab-filters = Filters
+amail-settings-tab-about = About
+amail-settings-all-link = All settings
+
+## Settings: General
+
+amail-settings-appearance = Appearance
+amail-settings-theme-mode = Theme
+amail-settings-theme-light =
+    .label = Light
+amail-settings-theme-dark =
+    .label = Dark
+amail-settings-theme-system =
+    .label = Follow Windows
+amail-settings-palette = Colors
+amail-settings-palette-amail =
+    .label = aMail (white and blue)
+amail-settings-palette-synthwave =
+    .label = Synthwave
+amail-settings-palette-thunderbird =
+    .label = Thunderbird
+amail-settings-new-mail = New mail
+amail-settings-new-mail-alert = Show a notification
+amail-settings-new-mail-sound = Play a sound
+amail-settings-new-mail-badge = Show the unread count on the taskbar button
+amail-settings-new-mail-tray = Show an icon in the notification area
+amail-settings-mark-read = Mark as read
+amail-settings-mark-read-intro = When a message you open in the reading pane is marked as read.
+amail-settings-mark-read-mode = Mark the selected message as read
+amail-settings-mark-read-now =
+    .label = Immediately
+amail-settings-mark-read-after =
+    .label = After a delay
+amail-settings-mark-read-never =
+    .label = Never (only by hand)
+amail-settings-mark-read-secs = Seconds
+amail-settings-junk = Junk
+amail-settings-junk-marks-read = Mark messages as read when I mark them as junk
+amail-settings-junk-intro = The junk filter learns from you every time you use Junk or Not junk. Junk folders and filtering are set per account.
+amail-settings-junk-accounts = Junk settings per account…
+
+## Settings: Accounts
+
+amail-settings-accounts-none = No accounts yet.
+amail-settings-edit = Edit
+amail-settings-remove = Remove
+amail-settings-delete = Delete
+amail-settings-add-account = Add account
+amail-settings-import = Import from Thunderbird / Betterbird…
+amail-settings-account-default = Default
+
+## Settings: Signatures & templates
+
+amail-settings-signatures = Signatures
+amail-settings-signatures-intro = Added to new messages from each address. Changes are saved as you type.
+amail-settings-signature-html = Use HTML
+amail-settings-signature-replies = Add to replies and forwards too
+# $path - the file the signature is read from
+amail-settings-signature-file = This address uses a signature file instead: { $path }
+amail-settings-templates = Templates
+amail-settings-templates-intro = Save a message as a template from the compose window (File ▸ Save as ▸ Template).
+amail-settings-templates-none = No templates yet.
+amail-settings-no-subject = (no subject)
+
+## Settings: Trusted senders
+
+amail-settings-trusted-intro = Remote images load automatically for these senders; image sites load in any message. Use the image banner on a message to add one.
+amail-settings-trusted-none = Nothing trusted yet.
+amail-settings-trusted-sender = Sender
+amail-settings-trusted-site = Image site
+amail-settings-trusted-more = Blocked senders and sites…
+
+## Settings: Filters
+
+amail-settings-filters-intro = Filters sort new mail as it arrives, in the order listed.
+amail-settings-filters-none = No filters yet.
+amail-settings-new-filter = New filter
+amail-settings-filters-manager = Filter manager (order, run now, log)…
+# $name - the filter's name
+amail-settings-filter-delete-confirm = Delete the filter “{ $name }”?
+amail-settings-filter-enabled =
+    .aria-label = Enabled
+
+## Settings: About
+
+# $version - the application version, e.g. 153.7.1
+amail-settings-about-version = { -brand-short-name } { $version }, built on Thunderbird
+amail-settings-about-data = Everything { -brand-short-name } stores (accounts, mail, settings) is in:
+amail-settings-about-open-folder = Open folder
+amail-settings-about-details = More about { -brand-short-name }…

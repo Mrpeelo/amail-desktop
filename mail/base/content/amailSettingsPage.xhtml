@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title data-l10n-id="amail-settings-title"></title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src chrome:; script-src chrome:; style-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: data:" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailSettingsPage.css" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/amail.ftl" />
+  <script type="module" src="chrome://messenger/content/amailSettingsPage.mjs"></script>
+</head>
+<body>
+  <nav id="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="general" data-l10n-id="amail-settings-tab-general"></button>
+    <button type="button" role="tab" data-tab="accounts" data-l10n-id="amail-settings-tab-accounts"></button>
+    <button type="button" role="tab" data-tab="signatures" data-l10n-id="amail-settings-tab-signatures"></button>
+    <button type="button" role="tab" data-tab="trusted" data-l10n-id="amail-settings-tab-trusted"></button>
+    <button type="button" role="tab" data-tab="filters" data-l10n-id="amail-settings-tab-filters"></button>
+    <button type="button" role="tab" data-tab="about" data-l10n-id="amail-settings-tab-about"></button>
+    <button type="button" id="allSettings" class="link" data-l10n-id="amail-settings-all-link"></button>
+  </nav>
+
+  <main>
+    <section id="general" role="tabpanel" hidden="hidden">
+      <h2 data-l10n-id="amail-settings-appearance"></h2>
+      <div class="row">
+        <label class="field">
+          <span data-l10n-id="amail-settings-theme-mode"></span>
+          <select id="themeMode">
+            <option value="thunderbird-compact-light@mozilla.org" data-l10n-id="amail-settings-theme-light"></option>
+            <option value="thunderbird-compact-dark@mozilla.org" data-l10n-id="amail-settings-theme-dark"></option>
+            <option value="default-theme@mozilla.org" data-l10n-id="amail-settings-theme-system"></option>
+          </select>
+        </label>
+        <label class="field">
+          <span data-l10n-id="amail-settings-palette"></span>
+          <select data-pref="amail.theme.palette">
+            <option value="amail" data-l10n-id="amail-settings-palette-amail"></option>
+            <option value="synthwave" data-l10n-id="amail-settings-palette-synthwave"></option>
+            <option value="thunderbird" data-l10n-id="amail-settings-palette-thunderbird"></option>
+          </select>
+        </label>
+      </div>
+
+      <h2 data-l10n-id="amail-settings-new-mail"></h2>
+      <label class="check"><input type="checkbox" data-pref="mail.biff.show_alert" /><span data-l10n-id="amail-settings-new-mail-alert"></span></label>
+      <label class="check"><input type="checkbox" data-pref="mail.biff.play_sound" /><span data-l10n-id="amail-settings-new-mail-sound"></span></label>
+      <label class="check"><input type="checkbox" data-pref="mail.biff.show_badge" /><span data-l10n-id="amail-settings-new-mail-badge"></span></label>
+      <label class="check"><input type="checkbox" data-pref="mail.biff.show_tray_icon" /><span data-l10n-id="amail-settings-new-mail-tray"></span></label>
+
+      <h2 data-l10n-id="amail-settings-mark-read"></h2>
+      <p class="dim" data-l10n-id="amail-settings-mark-read-intro"></p>
+      <div class="row">
+        <label class="field">
+          <span data-l10n-id="amail-settings-mark-read-mode"></span>
+          <select id="markReadMode">
+            <option value="now" data-l10n-id="amail-settings-mark-read-now"></option>
+            <option value="after" data-l10n-id="amail-settings-mark-read-after"></option>
+            <option value="never" data-l10n-id="amail-settings-mark-read-never"></option>
+          </select>
+        </label>
+        <label class="field narrow" id="markReadDelay">
+          <span data-l10n-id="amail-settings-mark-read-secs"></span>
+          <input type="number" min="1" max="600" data-pref="mailnews.mark_message_read.delay.interval" />
+        </label>
+      </div>
+
+      <h2 data-l10n-id="amail-settings-junk"></h2>
+      <p class="dim" data-l10n-id="amail-settings-junk-intro"></p>
+      <label class="check"><input type="checkbox" data-pref="mailnews.ui.junk.manualMarkAsJunkMarksRead" /><span data-l10n-id="amail-settings-junk-marks-read"></span></label>
+      <button type="button" id="junkAccounts" class="btn" data-l10n-id="amail-settings-junk-accounts"></button>
+    </section>
+
+    <section id="accounts" role="tabpanel" hidden="hidden">
+      <table class="table" id="accountList"></table>
+      <div class="actions">
+        <button type="button" id="addAccount" class="btn primary" data-l10n-id="amail-settings-add-account"></button>
+        <button type="button" id="importProfile" class="btn" data-l10n-id="amail-settings-import"></button>
+      </div>
+    </section>
+
+    <section id="signatures" role="tabpanel" hidden="hidden">
+      <h2 data-l10n-id="amail-settings-signatures"></h2>
+      <p class="dim" data-l10n-id="amail-settings-signatures-intro"></p>
+      <div id="signatureList"></div>
+      <h2 data-l10n-id="amail-settings-templates"></h2>
+      <p class="dim" data-l10n-id="amail-settings-templates-intro"></p>
+      <table class="table" id="templateList"></table>
+    </section>
+
+    <section id="trusted" role="tabpanel" hidden="hidden">
+      <p class="dim" data-l10n-id="amail-settings-trusted-intro"></p>
+      <table class="table" id="trustedList"></table>
+      <div class="actions">
+        <button type="button" id="trustedMore" class="btn" data-l10n-id="amail-settings-trusted-more"></button>
+      </div>
+    </section>
+
+    <section id="filters" role="tabpanel" hidden="hidden">
+      <p class="dim" data-l10n-id="amail-settings-filters-intro"></p>
+      <div id="filterList"></div>
+      <div class="actions">
+        <button type="button" id="filterManager" class="btn" data-l10n-id="amail-settings-filters-manager"></button>
+      </div>
+    </section>
+
+    <section id="about" role="tabpanel" hidden="hidden">
+      <p><strong id="aboutVersion"></strong></p>
+      <p class="dim" data-l10n-id="amail-settings-about-data"></p>
+      <p><code id="aboutDataDir"></code></p>
+      <div class="actions">
+        <button type="button" id="openDataDir" class="btn" data-l10n-id="amail-settings-about-open-folder"></button>
+        <button type="button" id="aboutDetails" class="btn" data-l10n-id="amail-settings-about-details"></button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

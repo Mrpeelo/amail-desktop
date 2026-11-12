@@ -393,13 +393,17 @@ unified-toolbar {
 #amailSettingsCard {
   display: flex;
   flex-direction: column;
-  inline-size: min(1120px, calc(100% - 48px));
+  inline-size: min(820px, calc(100% - 48px));
   block-size: calc(100% - 48px);
   overflow: hidden;
   border-radius: 8px;
   background-color: var(--color-surface-base);
   color: var(--color-text-base);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+}
+
+#amailSettingsCard.amail-settings-wide {
+  inline-size: min(1120px, calc(100% - 48px));
 }
 
 #amailSettingsHeader {

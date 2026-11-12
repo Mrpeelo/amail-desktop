@@ -20,95 +20,78 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
  */
 const CHECKS = {
   /**
-   * The gear button opens Settings in the dialog and it stays open.
+   * The gear opens the aMail Settings page (tabs, no Thunderbird category
+   * rail); every tab renders; All settings and back work.
    */
-  async "settings-gear"(record) {
+  async "settings-page"(record) {
     const top = window.browsingContext.topChromeWindow;
     const doc = top.document;
     const modal = doc.getElementById("amailSettingsModal");
     const browser = doc.getElementById("amailSettingsBrowser");
     await wait(8000);
     const since = Date.now();
-    record({
-      label: "before click",
-      dialogGlobal: typeof top.amailSettingsDialog?.open,
-      oldGlobalName: String(top.amailSettings),
-      gearId: doc.getElementById("amailSettings")?.localName,
-    });
     doc.getElementById("amailSettings").click();
-    for (const ms of [300, 2000, 6000]) {
-      await wait(ms);
+    await wait(2500);
+    const page = () => browser.contentDocument;
+    const card = doc.getElementById("amailSettingsCard").getBoundingClientRect();
+    record({
+      label: "gear",
+      modalShown: !modal.hidden,
+      url: browser.currentURI?.spec,
+      title: doc.getElementById("amailSettingsTitle").textContent,
+      backHidden: doc.getElementById("amailSettingsBack").hidden,
+      card: `${Math.round(card.width)}x${Math.round(card.height)}`,
+      tabs: [...page().querySelectorAll("[role=tab]")].map(t => t.textContent),
+      selected: page().querySelector("[aria-selected=true]")?.dataset.tab,
+      hash: page().location.hash,
+    });
+    for (const tab of ["general", "accounts", "signatures", "trusted", "filters", "about"]) {
+      page().querySelector(`[data-tab=${tab}]`).click();
+      await wait(tab == "about" ? 2000 : 600);
+      const panel = page().getElementById(tab);
       record({
-        label: `after click +${ms}`,
-        modalShown: !modal.hidden,
-        url: browser.currentURI?.spec,
-        modalRect: (() => {
-          const r = modal.getBoundingClientRect();
-          return `${Math.round(r.top)},${Math.round(r.width)}x${Math.round(r.height)}`;
-        })(),
+        label: `tab ${tab}`,
+        shown: !panel.hidden,
+        rows: panel.querySelectorAll("tr").length,
+        textareas: panel.querySelectorAll("textarea").length,
+        text: panel.innerText.replace(/\s+/g, " ").slice(0, 160),
       });
     }
+    const strong = page().getElementById("aboutVersion");
+    record({
+      label: "about version",
+      id: strong.getAttribute("data-l10n-id"),
+      args: strong.getAttribute("data-l10n-args"),
+      text: strong.textContent,
+      formatted: await page().l10n.formatValue("amail-settings-about-version", {
+        version: "1",
+      }),
+      tabFormatted: await page().l10n.formatValue("amail-settings-tab-about"),
+    });
+    page().getElementById("allSettings").click();
+    await wait(3000);
+    record({
+      label: "all settings",
+      titleId: doc.getElementById("amailSettingsTitle").getAttribute("data-l10n-id"),
+      titleFormatted: await doc.l10n.formatValue("amail-settings-all-title"),
+      url: browser.currentURI?.spec,
+      title: doc.getElementById("amailSettingsTitle").textContent,
+      backHidden: doc.getElementById("amailSettingsBack").hidden,
+    });
+    doc.getElementById("amailSettingsBack").click();
+    await wait(2000);
+    record({
+      label: "back",
+      url: browser.currentURI?.spec,
+      selected: page().querySelector("[aria-selected=true]")?.dataset.tab,
+    });
     const errors = Services.console
       .getMessageArray()
       .filter(m => m instanceof Ci.nsIScriptError && m.timeStamp >= since)
       .map(m => `${m.errorMessage} @ ${m.sourceName}:${m.lineNumber}`)
       .slice(0, 15);
     record({ label: "console errors", errors });
-    top.amailSettingsDialog?.close();
-  },
-  /**
-   * Settings open in the dialog over the app (a pane, account settings,
-   * back, close), not in a tab.
-   */
-  async "settings-modal"(record) {
-    const top = window.browsingContext.topChromeWindow;
-    const doc = top.document;
-    const modal = doc.getElementById("amailSettingsModal");
-    const browser = doc.getElementById("amailSettingsBrowser");
-    const tabsBefore = top.document.getElementById("tabmail").tabInfo.length;
-    const prefs = await Promise.race([
-      top.openPreferencesTab("paneCompose"),
-      wait(15000),
-    ]);
-    await wait(500);
-    const card = doc.getElementById("amailSettingsCard").getBoundingClientRect();
-    record({
-      label: "settings",
-      modalShown: !modal.hidden,
-      url: browser.currentURI?.spec,
-      resolved: !!prefs,
-      pane: browser.contentDocument
-        .querySelector("#categories > .category[selected]")
-        ?.getAttribute("value"),
-      footerLinks: [
-        ...browser.contentDocument.querySelectorAll(".sidebar-footer-link"),
-      ].map(a => a.id),
-      card: `${Math.round(card.width)}x${Math.round(card.height)}`,
-      tabsAdded: top.document.getElementById("tabmail").tabInfo.length - tabsBefore,
-    });
-    top.MsgAccountManager(null);
-    await wait(3000);
-    record({
-      label: "accounts",
-      url: browser.currentURI?.spec,
-      backShown: !doc.getElementById("amailSettingsBack").hidden,
-      title: doc.getElementById("amailSettingsTitle").textContent,
-      accounts: browser.contentDocument.getElementById("accounttree")?.rowCount ??
-        browser.contentDocument.querySelectorAll("#accounttree li").length,
-    });
-    doc.getElementById("amailSettingsBack").click();
-    await wait(3000);
-    record({ label: "back", url: browser.currentURI?.spec });
-    modal.dispatchEvent(
-      new top.KeyboardEvent("keydown", { key: "Escape", bubbles: true })
-    );
-    await wait(500);
-    record({
-      label: "closed by Esc",
-      hidden: modal.hidden,
-      url: browser.currentURI?.spec,
-      tabsAdded: top.document.getElementById("tabmail").tabInfo.length - tabsBefore,
-    });
+    top.amailSettingsDialog.close();
   },
   /**
    * Subject row inside the message card without a close button, light

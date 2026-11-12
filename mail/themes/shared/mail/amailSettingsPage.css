@@ -1,0 +1,300 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* aMail Settings page (amailSettingsPage.xhtml): tabs that stay visible,
+   a scrolling body. */
+
+:root {
+  accent-color: var(--color-primary-default);
+}
+
+html,
+body {
+  block-size: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  overflow: hidden;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+  font: 14px/1.4 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+
+#tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  flex: none;
+  padding-inline: 20px;
+  border-block-end: 1px solid var(--color-surface-border);
+
+  & [role="tab"] {
+    appearance: none;
+    margin: 0;
+    padding: 10px 12px 8px;
+    border: none;
+    border-block-end: 2px solid transparent;
+    background: none;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-text-base);
+    }
+
+    &[aria-selected="true"] {
+      border-block-end-color: var(--color-primary-default);
+      color: var(--color-text-base);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-default);
+      outline-offset: -2px;
+    }
+  }
+}
+
+.link {
+  appearance: none;
+  margin: 0;
+  margin-inline-start: auto;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: var(--color-primary-default);
+  font: inherit;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-default);
+    outline-offset: 2px;
+  }
+}
+
+main {
+  flex: 1;
+  min-block-size: 0;
+  overflow: auto;
+  padding: 16px 24px 32px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+h2 {
+  margin: 24px 0 6px;
+  font-size: 16px;
+  font-weight: 600;
+
+  section > &:first-child {
+    margin-block-start: 4px;
+  }
+}
+
+h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+.dim {
+  color: var(--color-text-secondary);
+}
+
+.note {
+  margin: 4px 0;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+code {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-block-end: 8px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  inline-size: 260px;
+
+  &.narrow {
+    inline-size: 120px;
+  }
+
+  & > span {
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+select,
+input[type="number"],
+textarea {
+  box-sizing: border-box;
+  margin: 0;
+  border: 1px solid var(--color-surface-border);
+  border-block-end-color: var(--color-surface-border-intense);
+  border-radius: 4px;
+  background-color: var(--color-surface-base);
+  color: inherit;
+  font: inherit;
+
+  &:focus-visible {
+    outline: none;
+    border-block-end: 2px solid var(--color-primary-default);
+  }
+}
+
+select,
+input[type="number"] {
+  block-size: 32px;
+  padding-inline: 8px;
+}
+
+textarea {
+  display: block;
+  inline-size: 100%;
+  margin-block: 6px;
+  padding: 6px 8px;
+  resize: vertical;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+  inline-size: fit-content;
+
+  & input {
+    margin: 0;
+  }
+}
+
+.inline {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 24px;
+}
+
+.btn {
+  appearance: none;
+  block-size: 32px;
+  margin: 0;
+  padding: 0 16px;
+  border: 1px solid var(--color-surface-border-intense);
+  border-radius: 4px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary-default);
+    outline-offset: 1px;
+  }
+
+  &.primary {
+    border-color: var(--color-primary-default);
+    background-color: var(--color-primary-default);
+    color: var(--color-white);
+
+    &:hover {
+      background-color: var(--color-primary-hover);
+    }
+  }
+
+  &.danger {
+    color: var(--color-red-60, #c42b1c);
+  }
+
+  td & {
+    block-size: 28px;
+    padding-inline: 10px;
+    font-size: 13px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+
+  & td {
+    padding: 8px 6px;
+    border-block-end: 1px solid var(--color-surface-border);
+    vertical-align: middle;
+  }
+
+  & .end {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  & .toggle {
+    inline-size: 1px;
+  }
+}
+
+.badge {
+  padding: 1px 6px;
+  border-radius: 8px;
+  background-color: color-mix(in srgb, var(--color-primary-default) 14%, transparent);
+  color: var(--color-primary-default);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.signature {
+  padding-block: 10px;
+  border-block-end: 1px solid var(--color-surface-border);
+}
+
+.group {
+  margin-block-end: 20px;
+}
+
+.group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 4px;
+}
