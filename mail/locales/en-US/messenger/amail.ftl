@@ -277,4 +277,3 @@ amail-settings-undo-send-seconds = { $seconds ->
 # $seconds - seconds left, e.g. 57
 amail-undo-send-countdown = Sending in { $seconds } s
 amail-undo-send-cancel = Cancel sending
-amail-undo-send-now = Send now

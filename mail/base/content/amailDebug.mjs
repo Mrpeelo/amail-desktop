@@ -145,6 +145,18 @@ const CHECKS = {
       composeClosed: cw.closed,
       barShown: !bar.hidden,
       barText: bar.textContent,
+      layout: (() => {
+        const t = bar.querySelector(".amail-undo-send-text")?.getBoundingClientRect();
+        const c = bar.querySelector(".amail-undo-send-cancel")?.getBoundingClientRect();
+        return t && c
+          ? {
+              cancelBelowText: c.top >= t.bottom,
+              cancelSize: `${Math.round(c.width)}x${Math.round(c.height)}`,
+              cancelFont: top.getComputedStyle(bar.querySelector(".amail-undo-send-cancel")).fontSize,
+              centred: Math.abs((c.left + c.right) / 2 - (t.left + t.right) / 2) < 2,
+            }
+          : null;
+      })(),
       secondsLeft: item ? Math.round((item.sendAt - Date.now()) / 1000) : null,
       inOutbox: !!hdr,
       queuedFlag: hdr ? !!(hdr.flags & Ci.nsMsgMessageFlags.Queued) : null,

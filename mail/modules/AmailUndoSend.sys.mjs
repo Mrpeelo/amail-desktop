@@ -183,15 +183,6 @@ export const AmailUndoSend = {
       );
     }
   },
-
-  /** @param {string} messageId */
-  sendNow(messageId) {
-    const item = pending.find(p => p.messageId == messageId);
-    if (item) {
-      item.sendAt = Date.now();
-      changed();
-    }
-  },
 };
 
 load();

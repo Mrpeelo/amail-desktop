@@ -504,10 +504,11 @@ unified-toolbar {
 
 .amail-undo-send {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   max-inline-size: min(720px, calc(100vw - 48px));
-  padding: 10px 12px 10px 18px;
+  padding: 12px 20px 14px;
   border-radius: 8px;
   background-color: #242424;
   color: #ffffff;
@@ -520,6 +521,7 @@ unified-toolbar {
   display: flex;
   gap: 6px;
   min-inline-size: 0;
+  max-inline-size: 100%;
   white-space: nowrap;
 }
 
@@ -538,13 +540,14 @@ unified-toolbar {
   appearance: none;
   flex: none;
   margin: 0;
-  min-block-size: 36px;
-  padding: 0 20px;
+  min-block-size: 42px;
+  padding: 0 28px;
   border: none;
   border-radius: 4px;
   background-color: var(--color-primary-default);
   color: #ffffff;
   font: inherit;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
 
@@ -553,27 +556,7 @@ unified-toolbar {
   }
 }
 
-.amail-undo-send-now {
-  appearance: none;
-  flex: none;
-  margin: 0;
-  padding: 0 4px;
-  border: none;
-  background: none;
-  color: #b4d6fa;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.amail-undo-send-cancel,
-.amail-undo-send-now {
-  &:focus-visible {
-    outline: 2px solid #ffffff;
-    outline-offset: 2px;
-  }
+.amail-undo-send-cancel:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }

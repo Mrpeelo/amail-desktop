@@ -4,7 +4,7 @@
 
 /**
  * The undo send bar at the bottom centre of the main window: one row per
- * pending send with a countdown, "Cancel sending" and "Send now".
+ * pending send with a countdown and "Cancel sending".
  */
 
 const { AmailUndoSend } = ChromeUtils.importESModule(
@@ -39,12 +39,7 @@ function row(item) {
     AmailUndoSend.cancel(item.messageId, window)
   );
 
-  const now = document.createElement("button");
-  now.className = "amail-undo-send-now";
-  document.l10n.setAttributes(now, "amail-undo-send-now");
-  now.addEventListener("click", () => AmailUndoSend.sendNow(item.messageId));
-
-  node.append(text, cancel, now);
+  node.append(text, cancel);
   return node;
 }
 
