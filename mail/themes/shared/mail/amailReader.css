@@ -232,24 +232,34 @@ body {
   transform: scaleX(-1);
 }
 
-/* Mailing list row: readable list name with an Unsubscribe link. */
+/* Mailing list row: readable list name with an Unsubscribe button under it. */
+#expandedlist-idBox {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .amail-list-unsubscribe {
   appearance: none;
-  margin: 0 0 0 12px;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--color-primary-default);
+  margin: 4px 0 0;
+  padding: 3px 12px;
+  border: 1px solid var(--color-surface-border);
+  border-radius: 4px;
+  background-color: color-mix(in srgb, var(--color-text-base) 3%, var(--color-surface-base));
+  color: var(--color-text-base);
   font: inherit;
+  font-size: 13px;
   cursor: pointer;
 
   &:hover {
-    text-decoration: underline;
+    background-color: color-mix(in srgb, var(--color-primary-default) 10%, var(--color-surface-base));
+  }
+
+  &:hover:active {
+    background-color: color-mix(in srgb, var(--color-primary-default) 18%, var(--color-surface-base));
   }
 
   &:focus-visible {
     outline: 2px solid var(--color-primary-default);
     outline-offset: 1px;
-    border-radius: 2px;
   }
 }
