@@ -253,6 +253,34 @@ async function runChecks(out) {
       dialog.addEventListener("load", resolve, { once: true })
     );
     await wait(1000);
+    // Subfolders toggle: check a folder that has subfolders.
+    const ddoc = dialog.document;
+    const labels = [...ddoc.querySelectorAll("label.folder")];
+    const parent = labels.find(
+      (l, i) =>
+        Number(labels[i + 1]?.dataset.depth) > Number(l.dataset.depth)
+    );
+    const toggle = ddoc.getElementById("subfolders");
+    toggle.click();
+    parent?.querySelector("input").click();
+    await wait(300);
+    const children = [];
+    for (
+      let next = parent?.nextElementSibling;
+      next?.matches("label.folder") &&
+      Number(next.dataset.depth) > Number(parent.dataset.depth);
+      next = next.nextElementSibling
+    ) {
+      children.push(next.querySelector("input").checked);
+    }
+    out.push({
+      label: "apply dialog subfolders",
+      toggleOn: toggle.checked,
+      parent: parent?.textContent,
+      childrenChecked: `${children.filter(Boolean).length}/${children.length}`,
+      status: ddoc.getElementById("status").textContent,
+      columns: [],
+    });
     out.push({
       label: "apply dialog",
       folders: dialog.document.querySelectorAll("label.folder").length,

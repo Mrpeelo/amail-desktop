@@ -92,6 +92,7 @@ amail-sort-apply-heading = Apply “{ $name }” to folders
 amail-sort-apply-intro = Choose the folders that should use this sort order.
 amail-sort-apply-filter =
     .placeholder = Filter folders
+amail-sort-apply-subfolders = Include subfolders
 amail-sort-apply-select-all = Select all
 amail-sort-apply-select-none = Clear
 amail-sort-apply-button = Apply

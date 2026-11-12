@@ -11,6 +11,7 @@ const list = document.getElementById("folderList");
 const filter = document.getElementById("filter");
 const applyButton = document.getElementById("apply");
 const status = document.getElementById("status");
+const subfolders = document.getElementById("subfolders");
 
 document.l10n.setAttributes(
   document.getElementById("heading"),
@@ -24,6 +25,24 @@ function updateState() {
   const count = checkboxes().filter(box => box.checked).length;
   applyButton.disabled = !count;
   document.l10n.setAttributes(status, "amail-sort-apply-count", { count });
+}
+
+/**
+ * Check or uncheck the folders below a folder: the labels that follow it
+ * with a greater depth.
+ *
+ * @param {HTMLLabelElement} label
+ * @param {boolean} checked
+ */
+function setSubfolders(label, checked) {
+  const depth = Number(label.dataset.depth);
+  for (
+    let next = label.nextElementSibling;
+    next?.matches("label.folder") && Number(next.dataset.depth) > depth;
+    next = next.nextElementSibling
+  ) {
+    next.querySelector("input").checked = checked;
+  }
 }
 
 function depthOf(folder) {
@@ -46,11 +65,18 @@ for (const account of MailServices.accounts.accounts) {
   for (const folder of root.descendants) {
     const label = document.createElement("label");
     label.className = "folder";
-    label.style.paddingInlineStart = `${depthOf(folder) * 20}px`;
+    const depth = depthOf(folder);
+    label.dataset.depth = depth;
+    label.style.paddingInlineStart = `${depth * 20}px`;
     const box = document.createElement("input");
     box.type = "checkbox";
     box.value = folder.URI;
-    box.addEventListener("change", updateState);
+    box.addEventListener("change", () => {
+      if (subfolders.checked) {
+        setSubfolders(label, box.checked);
+      }
+      updateState();
+    });
     const name = document.createElement("span");
     name.textContent = folder.localizedName;
     label.append(box, name);
@@ -84,10 +110,33 @@ document
 document
   .getElementById("cancel")
   .addEventListener("click", () => window.close());
+// Turning the toggle on also selects the subfolders of folders already
+// chosen; turning it off leaves the selection as it is.
+subfolders.addEventListener("change", () => {
+  if (subfolders.checked) {
+    for (const box of checkboxes().filter(b => b.checked)) {
+      setSubfolders(box.closest("label"), true);
+    }
+  }
+  updateState();
+});
+
 applyButton.addEventListener("click", () => {
-  result.uris = checkboxes()
-    .filter(box => box.checked)
-    .map(box => box.value);
+  const uris = new Set(
+    checkboxes()
+      .filter(box => box.checked)
+      .map(box => box.value)
+  );
+  // Include subfolders hidden by the filter too.
+  if (subfolders.checked) {
+    for (const uri of [...uris]) {
+      const folder = MailServices.folderLookup.getFolderForURL(uri);
+      for (const child of folder?.descendants ?? []) {
+        uris.add(child.URI);
+      }
+    }
+  }
+  result.uris = [...uris];
   window.close();
 });
 

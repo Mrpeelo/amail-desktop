@@ -159,6 +159,64 @@ progress {
   & .actions .spacer {
     flex: 1;
   }
+
+  & .sort-apply-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    & input[type="search"] {
+      flex: 1;
+    }
+  }
+
+  & .subfolders-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  /* Switch look for the toggle. */
+  & input[role="switch"] {
+    appearance: none;
+    position: relative;
+    inline-size: 36px;
+    block-size: 20px;
+    margin: 0;
+    border: 1px solid var(--color-text-secondary);
+    border-radius: 10px;
+    background-color: var(--color-surface-base);
+    cursor: pointer;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset-block-start: 3px;
+      inset-inline-start: 3px;
+      inline-size: 12px;
+      block-size: 12px;
+      border-radius: 50%;
+      background-color: var(--color-text-secondary);
+      transition: inset-inline-start 120ms;
+    }
+
+    &:checked {
+      border-color: var(--color-primary-default);
+      background-color: var(--color-primary-default);
+
+      &::before {
+        inset-inline-start: 19px;
+        background-color: var(--color-white);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary-default);
+      outline-offset: 2px;
+    }
+  }
 }
 
 #folderList {

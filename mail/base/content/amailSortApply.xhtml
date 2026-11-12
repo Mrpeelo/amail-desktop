@@ -22,7 +22,13 @@
   <main id="importCard" class="amail-sort-apply">
     <h1 id="heading"></h1>
     <p data-l10n-id="amail-sort-apply-intro"></p>
-    <input type="search" id="filter" data-l10n-id="amail-sort-apply-filter" />
+    <div class="sort-apply-options">
+      <input type="search" id="filter" data-l10n-id="amail-sort-apply-filter" />
+      <label class="subfolders-toggle">
+        <input type="checkbox" id="subfolders" role="switch" />
+        <span data-l10n-id="amail-sort-apply-subfolders"></span>
+      </label>
+    </div>
     <div id="folderList" role="group"></div>
     <p id="status" class="status" role="status" aria-live="polite"></p>
     <div class="actions">
