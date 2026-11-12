@@ -168,41 +168,62 @@ function onKeyDown(event) {
 }
 modal.addEventListener("keydown", onKeyDown);
 
-const tabmail = document.getElementById("tabmail");
+/**
+ * Hook into tabmail once it is set up: its connectedCallback waits for the
+ * document to finish parsing, which can be after this module runs.
+ */
+function hookTabmail() {
+  const tabmail = document.getElementById("tabmail");
 
-// Settings never open in a tab: anything that asks for a Settings or account
-// settings tab gets the dialog.
-const openTab = tabmail.openTab;
-tabmail.openTab = function (mode, args = {}, ...rest) {
-  if (mode == "preferencesTab") {
-    open(args.paneID, args.scrollPaneTo, args.otherArgs);
-    return null;
-  }
-  if (mode == "contentTab" && args.url == ACCOUNTS) {
-    openAccounts();
-    return null;
-  }
-  if (mode == "contentTab" && args.url?.startsWith(PREFERENCES)) {
-    open("paneGeneral");
-    return null;
-  }
-  return openTab.call(this, mode, args, ...rest);
-};
-
-tabmail.registerTabMonitor({
-  monitorName: "amailSettings",
-  onTabTitleChanged() {},
-  onTabSwitched(tab, oldTab) {
-    if (tab != oldTab) {
-      close();
+  // Settings never open in a tab: anything that asks for a Settings or account
+  // settings tab gets the dialog.
+  const openTab = tabmail.openTab;
+  tabmail.openTab = function (mode, args = {}, ...rest) {
+    if (mode == "preferencesTab") {
+      open(args.paneID, args.scrollPaneTo, args.otherArgs);
+      return null;
     }
-  },
-  onTabOpened() {},
-  onTabClosing() {},
-  onTabPersist() {
-    return null;
-  },
-  onTabRestored() {},
-});
+    if (mode == "contentTab" && args.url == ACCOUNTS) {
+      openAccounts();
+      return null;
+    }
+    if (mode == "contentTab" && args.url?.startsWith(PREFERENCES)) {
+      open("paneGeneral");
+      return null;
+    }
+    return openTab.call(this, mode, args, ...rest);
+  };
+
+  tabmail.registerTabMonitor({
+    monitorName: "amailSettings",
+    onTabTitleChanged() {},
+    onTabSwitched(tab, oldTab) {
+      if (tab != oldTab) {
+        close();
+      }
+    },
+    onTabOpened() {},
+    onTabClosing() {},
+    onTabPersist() {
+      return null;
+    },
+    onTabRestored() {},
+  });
+}
+
+function hookTabmailWhenReady(nextEvent) {
+  if (document.getElementById("tabmail").tabMonitors) {
+    hookTabmail();
+  } else if (nextEvent) {
+    window.addEventListener(
+      nextEvent,
+      () => hookTabmailWhenReady(nextEvent == "DOMContentLoaded" ? "load" : null),
+      { once: true }
+    );
+  } else {
+    console.error("aMail settings: tabmail was never set up");
+  }
+}
+hookTabmailWhenReady("DOMContentLoaded");
 
 window.amailSettingsDialog = { open, openSettings, openAccounts, close };
