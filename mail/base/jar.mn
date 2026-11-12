@@ -83,6 +83,7 @@ messenger.jar:
     content/messenger/amailImport.xhtml             (content/amailImport.xhtml)
     content/messenger/amailImport.mjs               (content/amailImport.mjs)
     content/messenger/amailColumns.mjs              (content/amailColumns.mjs)
+    content/messenger/amailLayout.mjs               (content/amailLayout.mjs)
     content/messenger/amailColumnsDebug.mjs         (content/amailColumnsDebug.mjs)
     content/messenger/specialTabs.js                (content/specialTabs.js)
 #ifdef MOZ_SERVICES_SYNC

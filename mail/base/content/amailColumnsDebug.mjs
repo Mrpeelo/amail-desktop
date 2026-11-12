@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gDBView, threadTree */
+/* global displayFolder, gDBView, gFolder, MailServices, threadTree */
 
 // Developer diagnostic for message list column sizing. Only runs when the
 // AMAIL_DEBUG_COLUMNS environment variable is set; writes
@@ -41,8 +41,31 @@ function snapshot(label) {
 
 export async function runColumnsDebug() {
   const out = [];
+  try {
+    await runChecks(out);
+  } catch (error) {
+    out.push({ label: `ERROR ${error}`, stack: error.stack, columns: [] });
+  }
+  await IOUtils.writeJSON(
+    PathUtils.join(PathUtils.profileDir, "amail-columns-debug.json"),
+    out
+  );
+  Services.startup.quit(Ci.nsIAppStartup.eForceQuit);
+}
+
+async function runChecks(out) {
   const top = window.browsingContext.topChromeWindow;
   await wait(4000);
+  // Needs a message list: leave Account Central for the default Inbox.
+  if (!gFolder || gFolder.isServer) {
+    const inbox =
+      MailServices.accounts.defaultAccount?.incomingServer.rootFolder.getFolderWithFlags(
+        Ci.nsMsgFolderFlags.Inbox
+      );
+    out.push({ label: `opened inbox (was account central)`, columns: [] });
+    displayFolder(inbox.URI);
+    await wait(3000);
+  }
   out.push(snapshot("start"));
   {
     const button = document.getElementById("amailColumnsButton");
@@ -136,6 +159,20 @@ export async function runColumnsDebug() {
 
   const origW = top.outerWidth;
   const origH = top.outerHeight;
+  const panes = label => ({
+    label,
+    list: Math.round(document.getElementById("threadPane").getBoundingClientRect().width),
+    reader: Math.round(document.getElementById("messagePane").getBoundingClientRect().width),
+    window: top.outerWidth,
+    columns: [],
+  });
+  out.push(panes("panes at start"));
+  top.resizeTo(Math.max(1000, origW - 300), origH);
+  await wait(1500);
+  out.push(panes("panes, window narrower by 300"));
+  top.resizeTo(origW, origH);
+  await wait(1500);
+  out.push(panes("panes, window restored"));
   top.resizeTo(Math.max(1000, origW - 600), origH);
   await wait(1500);
   out.push(snapshot("window narrower by 600"));
@@ -234,9 +271,4 @@ export async function runColumnsDebug() {
     Services.prefs.clearUserPref("amail.columns.lockedColumns");
   }
 
-  await IOUtils.writeJSON(
-    PathUtils.join(PathUtils.profileDir, "amail-columns-debug.json"),
-    out
-  );
-  Services.startup.quit(Ci.nsIAppStartup.eForceQuit);
 }

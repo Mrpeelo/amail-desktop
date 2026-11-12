@@ -270,7 +270,7 @@
   /* Vertical layout: the reading pane keeps its dragged width but never
      squeezes the message list below 440px; shrinking the window takes space
      from the reading pane first. */
-  body.layout-vertical {
+  body.layout-vertical:not(.account-central) {
     grid-template:
       "folders folderPaneSplitter threads messagePaneSplitter message" auto
       / minmax(auto, var(--folderPaneSplitter-width)) min-content minmax(440px, 1fr) min-content
