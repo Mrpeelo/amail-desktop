@@ -695,6 +695,27 @@ nsMsgSendLater::SendUnsentMessages(nsIMsgIdentity* aIdentity) {
   return InternalSendMessages(true, aIdentity);
 }
 
+NS_IMETHODIMP
+nsMsgSendLater::SendUnsentMessage(nsIMsgDBHdr* aMessage) {
+  NS_ENSURE_ARG_POINTER(aMessage);
+  if (mSendingMessages) {
+    return NS_ERROR_FAILURE;
+  }
+  nsCString messageId;
+  nsresult rv = aMessage->GetMessageId(messageId);
+  NS_ENSURE_SUCCESS(rv, rv);
+  if (messageId.IsEmpty()) {
+    return NS_ERROR_INVALID_ARG;
+  }
+  mOnlyMessageId = messageId;
+  rv = InternalSendMessages(true, nullptr);
+  // While the folder is reparsed, sending continues once that is done.
+  if (NS_FAILED(rv) && rv != NS_MSG_ERROR_FOLDER_SUMMARY_OUT_OF_DATE) {
+    mOnlyMessageId.Truncate();
+  }
+  return rv;
+}
+
 // Returns NS_OK if the db is OK, an error otherwise, e.g., we had to reparse.
 nsresult nsMsgSendLater::ReparseDBIfNeeded(nsIUrlListener* aListener) {
   // This will kick off a reparse, if needed. So the next time we check if
@@ -748,7 +769,13 @@ nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
     nsCOMPtr<nsIMsgDBHdr> messageHeader;
     rv = enumerator->GetNext(getter_AddRefs(messageHeader));
     if (NS_SUCCEEDED(rv)) {
-      if (aUserInitiated) {
+      if (!mOnlyMessageId.IsEmpty()) {
+        nsCString messageId;
+        messageHeader->GetMessageId(messageId);
+        if (messageId == mOnlyMessageId) {
+          mMessagesToSend.AppendObject(messageHeader);
+        }
+      } else if (aUserInitiated) {
         // If the user initiated the send, add all messages
         mMessagesToSend.AppendObject(messageHeader);
       } else {
@@ -760,6 +787,8 @@ nsresult nsMsgSendLater::InternalSendMessages(bool aUserInitiated,
       }
     }
   }
+
+  mOnlyMessageId.Truncate();
 
   // We're now sending messages so its time to signal that and reset our counts.
   mSendingMessages = true;

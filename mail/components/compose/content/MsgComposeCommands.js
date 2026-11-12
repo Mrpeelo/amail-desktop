@@ -52,6 +52,9 @@ var { MimeParser } = ChromeUtils.importESModule(
 var { MailServices } = ChromeUtils.importESModule(
   "resource:///modules/MailServices.sys.mjs"
 );
+var { AmailUndoSend } = ChromeUtils.importESModule(
+  "resource:///modules/AmailUndoSend.sys.mjs"
+);
 var { AppConstants } = ChromeUtils.importESModule(
   "resource://gre/modules/AppConstants.sys.mjs"
 );
@@ -127,6 +130,9 @@ var gSendLocked;
 var gContentChanged;
 var gSubjectChanged;
 var gAutoSaving;
+// aMail undo send: the message is queued and the main window sends it after
+// the delay unless it is cancelled (AmailUndoSend.sys.mjs).
+var gAmailUndoSend = false;
 var gAutoSavingInProgress;
 var gCurrentIdentity;
 var defaultSaveOperation;
@@ -6205,6 +6211,8 @@ async function GenericSendMessage(msgType) {
     msgType == Ci.nsIMsgCompDeliverMode.Now ||
     msgType == Ci.nsIMsgCompDeliverMode.Later ||
     msgType == Ci.nsIMsgCompDeliverMode.Background;
+  const undoSend = gAmailUndoSend && msgType == Ci.nsIMsgCompDeliverMode.Later;
+  gAmailUndoSend = false;
 
   // Notify about a new message being prepared for sending.
   window.dispatchEvent(
@@ -6466,7 +6474,7 @@ async function GenericSendMessage(msgType) {
       }
     }
 
-    await CompleteGenericSendMessage(msgType);
+    await CompleteGenericSendMessage(msgType, undoSend);
     window.dispatchEvent(new CustomEvent("compose-prepare-message-completed"));
   } catch (ex) {
     console.warn(`Send FAILED; ${ex.message}`, ex);
@@ -6484,8 +6492,10 @@ async function GenericSendMessage(msgType) {
  * in tests.
  *
  * @param {nsIMsgCompDeliverMode} msgType - The delivery mode of the operation.
+ * @param {boolean} [undoSend] - aMail undo send: queue with a known
+ *   Message-ID and hand the message to AmailUndoSend.
  */
-async function CompleteGenericSendMessage(msgType) {
+async function CompleteGenericSendMessage(msgType, undoSend = false) {
   // hook for extra compose pre-processing
   Services.obs.notifyObservers(window, "mail:composeOnSend");
 
@@ -6584,6 +6594,14 @@ async function CompleteGenericSendMessage(msgType) {
     }
     window.browsingContext.docShell.allowAuth = true;
     progress.msgWindow = msgWindow;
+    if (undoSend && !gMsgCompose.compFields.messageId) {
+      const hostname = MailServices.headerParser
+        .parseEncodedHeaderW(gMsgCompose.compFields.from)[0]
+        ?.email.replace(/.*@/, "");
+      gMsgCompose.compFields.messageId = Cc["@mozilla.org/messengercompose/computils;1"]
+        .createInstance(Ci.nsIMsgCompUtils)
+        .msgGenerateMessageId(gCurrentIdentity, hostname);
+    }
     await gMsgCompose.sendMsg(
       msgType,
       gCurrentIdentity,
@@ -6641,6 +6659,9 @@ async function CompleteGenericSendMessage(msgType) {
   ) {
     // We keep the compose window open so the recovery dialog can be shown if copying fails.
     await progressListener.waitForStop();
+    if (undoSend) {
+      AmailUndoSend.queued(gMsgCompose.compFields.messageId, gMsgCompose.compFields.subject);
+    }
     window.close();
   }
 }
@@ -7131,8 +7152,27 @@ async function checkEncryptedBccRecipients() {
   );
 }
 
+/**
+ * aMail undo send: use the delayed queue for this send if it is turned on.
+ *
+ * @returns {boolean} true if the message should be queued with
+ *   nsIMsgCompDeliverMode.Later and sent after the delay.
+ */
+function amailUseUndoSend() {
+  gAmailUndoSend =
+    AmailUndoSend.delaySeconds > 0 &&
+    !Services.io.offline &&
+    !gMsgCompose.compFields.newsgroups;
+  return gAmailUndoSend;
+}
+
 async function SendMessage() {
   await pillifyRecipients();
+  if (amailUseUndoSend()) {
+    await GenericSendMessage(Ci.nsIMsgCompDeliverMode.Later);
+    ExitFullscreenMode();
+    return;
+  }
   let sendInBackground = Services.prefs.getBoolPref(
     "mailnews.sendInBackground"
   );
@@ -7183,7 +7223,7 @@ async function SendMessageWithCheck() {
   );
 
   let mode;
-  if (Services.io.offline) {
+  if (Services.io.offline || amailUseUndoSend()) {
     mode = Ci.nsIMsgCompDeliverMode.Later;
   } else {
     mode = sendInBackground

@@ -270,6 +270,7 @@
   <script type="module" defer="defer" src="chrome://messenger/content/unifiedtoolbar/global-search-bar.mjs"></script>
   <script type="module" defer="defer" src="chrome://messenger/content/amailTopbar.mjs"></script>
   <script type="module" defer="defer" src="chrome://messenger/content/amailSettings.mjs"></script>
+  <script type="module" defer="defer" src="chrome://messenger/content/amailUndoSend.mjs"></script>
 
   <script>
     window.onload = gMailInit.onLoad.bind(gMailInit);
@@ -730,6 +731,7 @@
 </vbox><!-- Closing #messengerBody. -->
 
 <!-- aMail: Settings and account settings in a dialog over the app. -->
+<html:div id="amailUndoSendBar" role="status" aria-live="polite" hidden="hidden"></html:div>
 <html:div id="amailSettingsModal" hidden="hidden">
   <html:div id="amailSettingsCard"
             role="dialog"

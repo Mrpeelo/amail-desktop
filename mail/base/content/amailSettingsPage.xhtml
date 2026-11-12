@@ -72,6 +72,24 @@
         </label>
       </div>
 
+      <h2 data-l10n-id="amail-settings-undo-send"></h2>
+      <p class="dim" data-l10n-id="amail-settings-undo-send-intro"></p>
+      <div class="row">
+        <label class="field">
+          <span data-l10n-id="amail-settings-undo-send-delay"></span>
+          <select data-pref="amail.undo_send.seconds" data-type="int">
+            <option value="0" data-l10n-id="amail-settings-undo-send-off"></option>
+            <option value="5" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":5}'></option>
+            <option value="10" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":10}'></option>
+            <option value="20" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":20}'></option>
+            <option value="30" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":30}'></option>
+            <option value="60" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":60}'></option>
+            <option value="120" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":120}'></option>
+            <option value="300" data-l10n-id="amail-settings-undo-send-seconds" data-l10n-args='{"seconds":300}'></option>
+          </select>
+        </label>
+      </div>
+
       <h2 data-l10n-id="amail-settings-junk"></h2>
       <p class="dim" data-l10n-id="amail-settings-junk-intro"></p>
       <label class="check"><input type="checkbox" data-pref="mailnews.ui.junk.manualMarkAsJunkMarksRead" /><span data-l10n-id="amail-settings-junk-marks-read"></span></label>

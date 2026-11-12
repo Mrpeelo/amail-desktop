@@ -1601,5 +1601,10 @@ pref("app.shield.optoutstudies.enabled", false);
 // aMail color palette: "amail", "synthwave" or "thunderbird" (stock).
 pref("amail.theme.palette", "amail");
 
+// aMail undo send: seconds a sent message waits so it can be cancelled
+// (0 = off). Pending sends are kept in amail.undo_send.pending.
+pref("amail.undo_send.seconds", 60);
+pref("amail.undo_send.pending", "[]");
+
 // aMail: no Thundermail (Thunderbird's own mail service) sign-in in account setup.
 pref("mail.accounthub.thundermail.enabled", false);

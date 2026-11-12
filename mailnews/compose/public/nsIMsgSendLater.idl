@@ -7,6 +7,7 @@
 interface nsIMsgIdentity;
 interface nsIMsgSendLaterListener;
 interface nsIMsgFolder;
+interface nsIMsgDBHdr;
 
 /**
  * nsIMsgSendLater is a service used for sending messages in the background.
@@ -26,6 +27,14 @@ interface nsIMsgSendLater : nsIStreamListener
    * @param aIdentity   The identity to send messages for.
    */
   void sendUnsentMessages(in nsIMsgIdentity aIdentity);
+
+  /**
+   * Sends one message from the unsent messages folder, even if it is marked
+   * as queued, and leaves the others there (aMail undo send).
+   *
+   * @param aMessage   The message to send.
+   */
+  void sendUnsentMessage(in nsIMsgDBHdr aMessage);
 
   /**
    * Adds an listener to the service to receive notifications.

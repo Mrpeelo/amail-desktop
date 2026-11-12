@@ -262,3 +262,19 @@ amail-settings-about-version = { -brand-short-name } { $version }, built on Thun
 amail-settings-about-data = Everything { -brand-short-name } stores (accounts, mail, settings) is in:
 amail-settings-about-open-folder = Open folder
 amail-settings-about-details = More about { -brand-short-name }…
+
+## Undo send
+
+amail-settings-undo-send = Undo send
+amail-settings-undo-send-intro = Sent messages wait this long before they go out, so you can still cancel them. A countdown with “Cancel sending” appears at the bottom of the window.
+amail-settings-undo-send-delay = Wait before sending
+amail-settings-undo-send-off = Off (send right away)
+# $seconds - the delay, e.g. 60
+amail-settings-undo-send-seconds = { $seconds ->
+    [one] { $seconds } second
+   *[other] { $seconds } seconds
+}
+# $seconds - seconds left, e.g. 57
+amail-undo-send-countdown = Sending in { $seconds } s
+amail-undo-send-cancel = Cancel sending
+amail-undo-send-now = Send now

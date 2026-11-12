@@ -89,6 +89,11 @@ function bindPrefs() {
       input.addEventListener("change", () =>
         Services.prefs.setBoolPref(pref, input.checked)
       );
+    } else if (input.dataset.type == "int") {
+      input.value = String(Services.prefs.getIntPref(pref, 0));
+      input.addEventListener("change", () =>
+        Services.prefs.setIntPref(pref, Number(input.value))
+      );
     } else if (input.type == "number") {
       input.value = Services.prefs.getIntPref(pref, 0);
       input.addEventListener("change", () => {

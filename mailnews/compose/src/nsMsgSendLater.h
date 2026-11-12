@@ -134,6 +134,9 @@ class nsMsgSendLater : public nsIMsgSendLater,
 
   bool mSendingMessages;
   bool mUserInitiated;
+  // When set, InternalSendMessages only sends the message with this
+  // Message-ID.
+  nsCString mOnlyMessageId;
   nsCOMPtr<nsIMsgIdentity> mIdentity;
 };
 
