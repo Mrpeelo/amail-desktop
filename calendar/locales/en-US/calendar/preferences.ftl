@@ -132,7 +132,7 @@ agenda-days =
     .value = The agenda shows:
     .accesskey = g
 
-event-task-legend = Events and Tasks
+event-task-legend = Events
 
 default-length-label =
     .value = Default Event and Task Length:

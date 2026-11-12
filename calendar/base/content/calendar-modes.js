@@ -5,7 +5,7 @@
 /* globals TodayPane, switchToView, gLastShownCalendarView */
 /* import-globals-from calendar-unifinder.js */
 
-/* exported calSwitchToCalendarMode, calSwitchToMode, calSwitchToTaskMode,
+/* exported calSwitchToCalendarMode, calSwitchToMode,
  *          changeMode
  */
 
@@ -84,9 +84,7 @@ function calSwitchToCalendarMode() {
 
     // display the calendar panel on the display deck
     document.getElementById("calendar-view-box").collapsed = false;
-    document.getElementById("calendar-task-box").collapsed = true;
     document.getElementById("sidePanelNewEvent").hidden = false;
-    document.getElementById("sidePanelNewTask").hidden = true;
 
     // show the last displayed type of calendar view
     switchToView(gLastShownCalendarView.get());
@@ -104,25 +102,3 @@ function calSwitchToCalendarMode() {
   }
 }
 
-/**
- * Switches to the task mode.
- */
-function calSwitchToTaskMode() {
-  if (gCurrentMode != "task") {
-    changeMode("task");
-
-    // display the task panel on the display deck
-    document.getElementById("calendar-view-box").collapsed = true;
-    document.getElementById("calendar-task-box").collapsed = false;
-    document.getElementById("sidePanelNewEvent").hidden = true;
-    document.getElementById("sidePanelNewTask").hidden = false;
-
-    document.getElementById("calMinimonth").setAttribute("freebusy", "true");
-
-    const tree = document.getElementById("calendar-task-tree");
-    tree.ensureInitialized();
-
-    document.commandDispatcher.updateCommands("calendar_commands");
-    window.setCursor("auto");
-  }
-}

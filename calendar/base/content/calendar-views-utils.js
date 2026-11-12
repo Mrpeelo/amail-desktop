@@ -338,8 +338,7 @@ function toggleWorkdaysOnly() {
  * Toggle the tasks in view checkbox and refresh the current view
  */
 function toggleTasksInView() {
-  const cmd = document.getElementById("calendar_toggle_tasks_in_view_command");
-  const newValue = cmd.toggleAttribute("checked");
+  const newValue = false;
 
   for (const view of getViewBox().children) {
     view.tasksInView = newValue;

@@ -33,11 +33,7 @@ var TodayPane = {
   async onLoad() {
     this.isLoaded = true;
 
-    TodayPane.paneViews = [
-      TodayPane.l10n.formatValueSync("events-and-tasks"),
-      TodayPane.l10n.formatValueSync("tasks-only"),
-      TodayPane.l10n.formatValueSync("events-only"),
-    ];
+    TodayPane.paneViews = [TodayPane.l10n.formatValueSync("events-only")];
 
     this.agenda = document.getElementById("agenda");
 
@@ -70,51 +66,20 @@ var TodayPane = {
   },
 
   /**
-   * Sets up the label for the switcher that allows switching between today pane
-   * views. (event+task, task only, event only)
+   * Sets up the today pane: the agenda (aMail has no tasks).
    */
   updateDisplay() {
     if (!this.isLoaded) {
       return;
     }
-    let agendaIsVisible = document.getElementById("agenda-panel").isVisible(gCurrentMode);
-    const todoIsVisible = document.getElementById("todo-tab-panel").isVisible(gCurrentMode);
-    let index = 2;
-    if (agendaIsVisible && todoIsVisible) {
-      index = 0;
-    } else if (!agendaIsVisible && todoIsVisible) {
-      index = 1;
-    } else if (agendaIsVisible && !todoIsVisible) {
-      index = 2;
-    } else {
-      // agendaIsVisible == false && todoIsVisible == false:
-      // In this case something must have gone wrong
-      // - probably in the previous session - and no pane is displayed.
-      // We set a default by only displaying agenda-pane.
-      agendaIsVisible = true;
-      document.getElementById("agenda-panel").setVisible(agendaIsVisible);
-      index = 2;
+    const agendaIsVisible = true;
+    const agendaPanel = document.getElementById("agenda-panel");
+    if (!agendaPanel.isVisible(gCurrentMode)) {
+      agendaPanel.setVisible(true);
     }
     const todayHeader = document.getElementById("today-pane-header");
-    todayHeader.setAttribute("index", index);
-    todayHeader.setAttribute("value", this.paneViews[index]);
+    todayHeader.setAttribute("value", this.paneViews[0]);
 
-    const strings = [
-      "calendar-today-pane-show-events-and-tasks",
-      "calendar-today-pane-show-tasks-only",
-      "calendar-today-pane-show-events-only",
-    ];
-    document.l10n.setAttributes(
-      document.getElementById("today-pane-cycler-prev"),
-      strings[(index + 2) % 3]
-    );
-    document.l10n.setAttributes(
-      document.getElementById("today-pane-cycler-next"),
-      strings[(index + 1) % 3]
-    );
-
-    const todayPaneSplitter = document.getElementById("today-pane-splitter");
-    todayPaneSplitter.hidden = index != 0;
     const todayIsVisible = document.getElementById("today-pane-panel").isVisible();
 
     // Disable or enable the today pane menuitems that have an attribute
@@ -137,13 +102,6 @@ var TodayPane = {
           document.getElementById("today-minimonth").setAttribute("freebusy", "true");
         }
       }
-      if (todoIsVisible) {
-        // Add listener to update the date filters.
-        getViewBox().addEventListener("dayselect", () => {
-          this.updateCalendarToDoUnifinder();
-        });
-        this.updateCalendarToDoUnifinder();
-      }
     }
 
     if (agendaIsVisible) {
@@ -151,41 +109,6 @@ var TodayPane = {
     }
 
     window.dispatchEvent(new CustomEvent("viewresize"));
-  },
-
-  /**
-   * Updates the applied filter and show completed view of the unifinder todo.
-   *
-   * @param {string} [filter] - The filter name to set.
-   */
-  updateCalendarToDoUnifinder(filter) {
-    const tree = document.getElementById("unifinder-todo-tree");
-    tree.ensureInitialized();
-
-    // Set up hiding completed tasks for the unifinder-todo tree
-    filter = filter || tree.getAttribute("filterValue") || "throughcurrent";
-    tree.setAttribute("filterValue", filter);
-
-    document
-      .querySelectorAll("#task-context-menu-filter-todaypane-popup > menuitem")
-      .forEach(item => {
-        item.toggleAttribute("checked", item.getAttribute("value") == filter);
-      });
-
-    const showCompleted = document.getElementById("show-completed-checkbox").checked;
-    if (!showCompleted) {
-      const filterProps = tree.mFilter.getDefinedFilterProperties(filter);
-      if (filterProps) {
-        filterProps.status =
-          (filterProps.status || filterProps.FILTER_STATUS_ALL) &
-          (filterProps.FILTER_STATUS_INCOMPLETE | filterProps.FILTER_STATUS_IN_PROGRESS);
-        filter = filterProps;
-      }
-    }
-
-    // update the filter
-    tree.showCompleted = showCompleted;
-    tree.updateFilter(filter);
   },
 
   /**
@@ -349,33 +272,6 @@ var TodayPane = {
   },
 
   /**
-   * Cycle the view shown in the today pane (event+task, event, task).
-   *
-   * @param {boolean} aCycleForward - If true, the views are cycled in the
-   *   forward direction, otherwise in the opposite direction.
-   */
-  cyclePaneView(aCycleForward) {
-    if (this.paneViews == null) {
-      return;
-    }
-    let index = parseInt(document.getElementById("today-pane-header").getAttribute("index"), 10);
-    index = index + aCycleForward;
-    const nViewLen = this.paneViews.length;
-    if (index >= nViewLen) {
-      index = 0;
-    } else if (index == -1) {
-      index = nViewLen - 1;
-    }
-    const agendaPanel = document.getElementById("agenda-panel");
-    const todoPanel = document.getElementById("todo-tab-panel");
-    const isTodoPanelVisible = index != 2 && todoPanel.isVisibleInMode(gCurrentMode);
-    const isAgendaPanelVisible = index != 1 && agendaPanel.isVisibleInMode(gCurrentMode);
-    todoPanel.setVisible(isTodoPanelVisible);
-    agendaPanel.setVisible(isAgendaPanelVisible);
-    this.updateDisplay();
-  },
-
-  /**
    * Sets the shown date from a JSDate.
    *
    * @param {Date} aNewDate - The date to show.
@@ -466,9 +362,6 @@ var TodayPane = {
    */
   updatePeriod() {
     this.agenda.update(this.start);
-    if (document.getElementById("todo-tab-panel").isVisible()) {
-      this.updateCalendarToDoUnifinder();
-    }
   },
 
   /**

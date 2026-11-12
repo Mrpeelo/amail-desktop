@@ -49,9 +49,6 @@ var calendarTabMonitor = {
       case "calendar":
         calSwitchToCalendarMode();
         break;
-      case "tasks":
-        calSwitchToTaskMode();
-        break;
       case "chat":
       case "calendarEvent":
       case "calendarTask":
@@ -111,39 +108,6 @@ var calendarTabType = {
       doCommand: aCommand => calendarController2.doCommand(aCommand),
       onEvent: aEvent => calendarController2.onEvent(aEvent),
     },
-
-    tasks: {
-      type: "tasks",
-      maxTabs: 1,
-      openTab(tab) {
-        tab.tabNode.setIcon("chrome://messenger/skin/icons/new/compact/tasks.svg");
-        tab.title = cal.l10n.getLtnString("tabTitleTasks");
-      },
-      showTab() {},
-      closeTab() {},
-
-      persistTab(tab) {
-        const tabmail = document.getElementById("tabmail");
-        return {
-          // Since we do strange tab switching logic in calSwitchToTaskMode,
-          // we should store the current tab state ourselves.
-          background: tab != tabmail.currentTabInfo,
-        };
-      },
-
-      restoreTab(tabmail, state) {
-        tabmail.openTab("tasks", state);
-      },
-
-      onTitleChanged(tab) {
-        tab.title = cal.l10n.getLtnString("tabTitleTasks");
-      },
-
-      supportsCommand: aCommand => calendarController2.supportsCommand(aCommand),
-      isCommandEnabled: aCommand => calendarController2.isCommandEnabled(aCommand),
-      doCommand: aCommand => calendarController2.doCommand(aCommand),
-      onEvent: aEvent => calendarController2.onEvent(aEvent),
-    },
   },
 
   saveTabState() {},
@@ -152,12 +116,6 @@ var calendarTabType = {
 ChromeUtils.defineLazyGetter(calendarTabType.modes.calendar, "notificationbox", () => {
   return new MozElements.NotificationBox(element => {
     document.getElementById("calendar-deactivated-notification-location-events").append(element);
-  });
-});
-
-ChromeUtils.defineLazyGetter(calendarTabType.modes.tasks, "notificationbox", () => {
-  return new MozElements.NotificationBox(element => {
-    document.getElementById("calendar-deactivated-notification-location-tasks").append(element);
   });
 });
 

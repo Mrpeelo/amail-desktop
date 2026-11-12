@@ -18,16 +18,6 @@
   <box class="sidebar-header" align="center">
     <label id="today-pane-header"/>
     <spacer flex="1"/>
-    <calendar-modebox mode="mail,calendar,chat,calendarEvent,calendarTask">
-      <toolbarbutton id="today-pane-cycler-prev"
-                     dir="prev"
-                     class="today-pane-cycler"
-                     oncommand="TodayPane.cyclePaneView(-1);"/>
-      <toolbarbutton id="today-pane-cycler-next"
-                     dir="next"
-                     class="today-pane-cycler"
-                     oncommand="TodayPane.cyclePaneView(1);"/>
-    </calendar-modebox>
     <spacer id="buttonspacer"/>
     <toolbarbutton id="today-closer"
                    class="today-closebutton close-icon"
@@ -145,35 +135,6 @@
             <img class="agenda-listitem-overlap" />
           </div>
         </template>
-      </vbox>
-    </calendar-modevbox>
-    <splitter id="today-pane-splitter" persist="hidden" orient="vertical"/>
-    <calendar-modevbox id="todo-tab-panel"
-                       mode="mail,calendar,chat,calendarEvent,calendarTask"
-                       collapsedinmodes="mail,task,chat,calendarEvent,calendarTask"
-                       persist="height collapsedinmodes"
-                       ondragover="calendarTaskButtonDNDObserver.onDragOver(event);"
-                       ondrop="calendarTaskButtonDNDObserver.onDrop(event);">
-      <box id="show-completed-checkbox-box" align="center">
-        <checkbox id="show-completed-checkbox"
-                  data-l10n-id="calendar-unifinder-show-completed-todos"
-                  flex="1"
-                  crop="end"
-                  oncommand="TodayPane.updateCalendarToDoUnifinder()"
-                  persist="checked"
-                  autocheck="false"/>
-      </box>
-      <vbox id="calendar-task-tree-detail" flex="1">
-        <tree is="calendar-task-tree-todaypane" id="unifinder-todo-tree"
-              flex="1"
-              visible-columns="completed priority title"
-              persist="visible-columns ordinals widths sort-active sort-direction filterValue"
-              context="taskitem-context-menu"/>
-        <html:input id="unifinder-task-edit-field"
-                    class="task-edit-field themeableSearchBox"
-                    onfocus="taskEdit.onFocus(event)"
-                    onblur="taskEdit.onBlur(event)"
-                    onkeypress="taskEdit.onKeyPress(event)"/>
       </vbox>
     </calendar-modevbox>
   </vbox>

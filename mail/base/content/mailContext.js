@@ -688,12 +688,6 @@ var mailContextMenu = {
           true
         );
         break;
-      case "mailContext-calendar-convert-task-menuitem":
-        top.calendarExtract.extractFromEmail(
-          gDBView.hdrForFirstSelectedMessage,
-          false
-        );
-        break;
       case "mailContext-copyMessageLink":
         navigator.clipboard.writeText(
           `mid:${gDBView.hdrForFirstSelectedMessage?.messageId}`

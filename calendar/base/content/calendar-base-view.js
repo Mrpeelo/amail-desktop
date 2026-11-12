@@ -249,7 +249,7 @@
       const isChecked = id => document.getElementById(id).hasAttribute("checked");
 
       this.workdaysOnly = isChecked("calendar_toggle_workdays_only_command");
-      this.tasksInView = isChecked("calendar_toggle_tasks_in_view_command");
+      this.tasksInView = false;
       this.rotated = isChecked("calendar_toggle_orientation_command");
       this.showCompleted = isChecked("calendar_toggle_show_completed_in_view_command");
 

@@ -801,7 +801,8 @@ function calendarUpdateNewItemsCommand() {
     .filter(cal.acl.userCanAddItemsToCalendar);
 
   CalendarNewEventsCommandEnabled = calendars.some(cal.item.isEventCalendar);
-  CalendarNewTasksCommandEnabled = calendars.some(cal.item.isTaskCalendar);
+  // aMail has no tasks.
+  CalendarNewTasksCommandEnabled = false;
 
   [
     "calendar_new_event_command",
@@ -814,7 +815,6 @@ function calendarUpdateNewItemsCommand() {
   ].forEach(goUpdateCommand);
 
   document.getElementById("sidePanelNewEvent").disabled = !CalendarNewEventsCommandEnabled;
-  document.getElementById("sidePanelNewTask").disabled = !CalendarNewTasksCommandEnabled;
 }
 
 function calendarUpdateDeleteCommand(selectedItems) {
@@ -850,15 +850,6 @@ async function printCalendar() {
 
   await PrintUtils.loadPrintBrowser("chrome://calendar/content/printing-template.html");
   PrintUtils.startPrintWindow(PrintUtils.printBrowser.browsingContext, {});
-}
-
-/**
- * Toggle the visibility of the task filters list.
- *
- * @param {Event} event - The click DOMEvent.
- */
-function toggleTaskFilterPane(event) {
-  document.getElementById("task-filtertree-pane").togglePane(event);
 }
 
 /**

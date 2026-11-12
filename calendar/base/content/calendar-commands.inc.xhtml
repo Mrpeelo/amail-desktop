@@ -10,12 +10,8 @@
   <command id="agenda_edit_event_command" oncommand="TodayPane.agenda.editSelectedItem();"/>
   <command id="switch2calendar"
            oncommand="document.getElementById('tabmail').openTab('calendar')"/>
-  <command id="switch2task"
-           oncommand="document.getElementById('tabmail').openTab('tasks')"/>
   <command id="new_calendar_tab"
            oncommand="document.getElementById('tabmail').openTab('calendar')"/>
-  <command id="new_task_tab"
-           oncommand="document.getElementById('tabmail').openTab('tasks')"/>
   <command id="calendar_go_to_today_command"
            observes="calendar_mode_calendar"
            oncommand="document.getElementById('tabmail').openTab('calendar'); goToDate(cal.dtz.now())"/>
@@ -80,7 +76,6 @@
   <command id="calendar_toggle_calendarsidebar_command" oncommand="togglePaneSplitter('calsidebar_splitter')"/>
   <command id="calendar_toggle_minimonthpane_command" oncommand="document.getElementById('minimonth-pane').togglePane(event)"/>
   <command id="calendar_toggle_calendarlist_command" oncommand="document.getElementById('calendar-list-pane').togglePane(event)"/>
-  <command id="calendar_toggle_filter_command" oncommand="document.getElementById('task-filter-pane').togglePane(event)"/>
   <command id="calendar_view_next_command" oncommand="goDoCommand('calendar_view_next_command')"/>
   <command id="calendar_view_today_command" oncommand="currentView().moveView()"/>
   <command id="calendar_view_prev_command" oncommand="goDoCommand('calendar_view_prev_command')"/>

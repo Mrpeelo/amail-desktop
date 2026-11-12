@@ -7,7 +7,7 @@
 /* globals loadCalendarManager, injectCalendarCommandController, getViewBox,
    observeViewDaySelect, getViewBox, calendarController, calendarUpdateNewItemsCommand,
    TodayPane, setUpInvitationsManager, changeMode,
-   prepareCalendarUnifinder, taskViewOnLoad, taskEdit, tearDownInvitationsManager,
+   prepareCalendarUnifinder, tearDownInvitationsManager,
    unloadCalendarManager, removeCalendarCommandController, finishCalendarUnifinder,
    PanelUI, changeMenuForTask, setupDeleteMenuitem, getMinimonth, currentView,
    refreshUnifinderFilterInterval, gCurrentMode, InitMessageMenu, onViewToolbarsPopupShowing,
@@ -97,9 +97,6 @@ async function loadCalendarComponent() {
 
   setUpInvitationsManager();
 
-  const filter = document.getElementById("task-tree-filtergroup");
-  filter.value = filter.value || "all";
-
   // Set up mode-switching menu items and mode[v]box elements for the initial mode.
   // At this point no tabs have been restored, so the only reason we wouldn't be
   // in "mail" mode is if a content tab has opened to display the account set-up.
@@ -114,14 +111,9 @@ async function loadCalendarComponent() {
 
   await prepareCalendarUnifinder();
 
-  taskViewOnLoad();
-  taskEdit.onLoad();
-
   for (const [id, attribute] of [
     ["calSidebar", "width"],
     ["bottom-events-box", "height"],
-    ["todo-tab-panel", "height"],
-    ["calendar-task-details-container", "height"],
     ["unifinder-search-results-tree-col-title", "width"],
     ["unifinder-search-results-tree-col-startdate", "width"],
     ["unifinder-search-results-tree-col-enddate", "width"],
@@ -154,8 +146,6 @@ function unloadCalendarComponent() {
   removeCalendarCommandController();
 
   finishCalendarUnifinder();
-
-  taskEdit.onUnload();
 
   CalMetronome.off("minute", updateTimeIndicatorPosition);
   CalMetronome.off("day", doMidnightUpdate);

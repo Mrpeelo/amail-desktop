@@ -107,10 +107,6 @@ export var calendarDeactivator = {
         window.calendarTabType.modes.calendar.notificationbox,
         "calendar-deactivated-notification-events",
       ],
-      [
-        window.calendarTabType.modes.tasks.notificationbox,
-        "calendar-deactivated-notification-tasks",
-      ],
     ];
 
     const value = "calendarDeactivated";

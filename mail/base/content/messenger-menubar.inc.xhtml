@@ -23,12 +23,6 @@
                     accesskey="&lightning.menupopup.new.event.accesskey;"
                     key="calendar-new-event-key"
                     command="calendar_new_event_command"/>
-          <menuitem id="calendar-new-task-menuitem"
-                    class="hide-when-calendar-deactivated"
-                    label="&lightning.menupopup.new.task.label;"
-                    accesskey="&lightning.menupopup.new.task.accesskey;"
-                    key="calendar-new-todo-key"
-                    command="calendar_new_todo_command"/>
           <menuseparator id="calendar-after-new-task-menuseparator"
                           class="hide-when-calendar-deactivated"
                           observes="menu_newFolder"/>
@@ -66,10 +60,6 @@
                     data-l10n-id="file-new-addressbook"
                     oncommand="openAccountHubABDialog();"/>
 #endif
-          <menuitem id="newIMAccountMenuItem"
-                    label="&newIMAccountCmd.label;"
-                    accesskey="&newIMAccountCmd.accesskey;"
-                    oncommand="openIMAccountWizard();"/>
           <menuitem id="newFeedAccountMenuItem"
                     label="&newFeedAccountCmd.label;"
                     accesskey="&newFeedAccountCmd.accesskey;"
@@ -82,10 +72,6 @@
                     label="&newContactCmd.label;"
                     accesskey="&newContactCmd.accesskey;"
                     command="cmd_newCard"/>
-          <menuitem id="newIMContactMenuItem"
-                    label="&newIMContactCmd.label;"
-                    accesskey="&newIMContactCmd.accesskey;"
-                    command="cmd_addChatBuddy"/>
         </menupopup>
       </menu>
       <menu id="menu_Open"
@@ -854,11 +840,6 @@
                 command="calendar_go_to_today_command"
                 key="calendar-go-to-today-key"/>
 #endif
-      <menuitem id="menu_goChat" label="&goChatCmd.label;"
-                accesskey="&goChatCmd.accesskey;"
-                command="cmd_chat"
-                data-l10n-attrs="acceltext"/>
-      <menuseparator id="goChatSeparator"/>
       <menu id="goFolderMenu"
             label="&folderMenu.label;"
             accesskey="&folderMenu.accesskey;"
@@ -1156,22 +1137,6 @@
     <menuitem id="activityManager" label="&activitymanager.label;"
               accesskey="&activitymanager.accesskey;"
               oncommand="openActivityMgr();"/>
-    <menu id="imAccountsStatus" label="&imAccountsStatus.label;"
-          accesskey="&imAccountsStatus.accesskey;"
-          command="cmd_chatStatus">
-      <menupopup id="imStatusMenupopup">
-        <menuitem id="imStatusAvailable" status="available" label="&imStatus.available;" class="menuitem-iconic"/>
-        <menuitem id="imStatusUnavailable" status="unavailable" label="&imStatus.unavailable;" class="menuitem-iconic"/>
-        <menuseparator id="imStatusOfflineSeparator"/>
-        <menuitem id="imStatusOffline" status="offline" label="&imStatus.offline;" class="menuitem-iconic"/>
-        <menuseparator id="imStatusShowAccountsSeparator"/>
-        <menuitem id="imStatusShowAccounts" label="&imStatus.showAccounts;"/>
-      </menupopup>
-    </menu>
-    <menuitem id="joinChatMenuItem"
-              label="&joinChatCmd.label;"
-              accesskey="&joinChatCmd.accesskey;"
-              command="cmd_joinChat"/>
 
     <menuseparator id="devToolsSeparator"/>
     <menuitem id="filtersCmd" label="&filtersCmd2.label;"
