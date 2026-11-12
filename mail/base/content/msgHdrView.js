@@ -1499,8 +1499,26 @@ function UpdateExpandedMessageHeaders() {
       currentHeaderData["x-mozilla-localizeddate"].headerValue;
     const date = new Date(currentHeaderData.date.headerValue);
     if (!isNaN(date)) {
-      dateLabel.setAttribute("datetime", date.toISOString());
+      const iso = date.toISOString();
+      dateLabel.setAttribute("datetime", iso);
       dateLabel.hidden = false;
+      if (date.toDateString() == new Date().toDateString()) {
+        const time = new Services.intl.DateTimeFormat(undefined, {
+          timeStyle: "short",
+        }).format(date);
+        document.l10n
+          .formatValue("amail-date-today", { time })
+          .then(text => {
+            for (const label of [
+              dateLabel,
+              document.getElementById("dateLabelSubject"),
+            ]) {
+              if (label.getAttribute("datetime") == iso) {
+                label.textContent = text;
+              }
+            }
+          });
+      }
     }
   }
 

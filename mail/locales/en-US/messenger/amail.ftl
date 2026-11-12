@@ -143,3 +143,8 @@ amail-list-newsletter-from = Newsletter from { $domain }
 amail-list-newsletter = Newsletter
 amail-list-unsubscribe = Unsubscribe
     .title = Unsubscribe from this mailing list
+
+## Message header date
+
+# $time - the time the message arrived today, e.g. 10.18
+amail-date-today = Today at { $time }
