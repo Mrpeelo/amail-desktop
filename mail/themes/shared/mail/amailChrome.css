@@ -337,8 +337,8 @@ unified-toolbar {
     }
   }
 
-  /* Group separators: | Delete …, | Read/Unread …, | Reply … */
-  & li:is([item-id="delete"], [item-id="toggle-read"], [item-id="reply"]):not([hidden])::before {
+  /* Group separators: | Delete …, | Read/Unread … */
+  & li:is([item-id="delete"], [item-id="toggle-read"]):not([hidden])::before {
     content: "";
     align-self: center;
     inline-size: 1px;
@@ -347,7 +347,7 @@ unified-toolbar {
     background-color: var(--color-surface-border);
   }
 
-  & li:is([item-id="delete"], [item-id="toggle-read"], [item-id="reply"]):not([hidden]) {
+  & li:is([item-id="delete"], [item-id="toggle-read"]):not([hidden]) {
     display: flex;
     align-items: center;
   }
