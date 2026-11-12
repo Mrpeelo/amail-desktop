@@ -203,8 +203,26 @@ NS_IMPL_IDPREF_WSTR(HtmlSigText, "htmlSigText")
 NS_IMPL_IDPREF_BOOL(HtmlSigFormat, "htmlSigFormat")
 
 NS_IMPL_IDPREF_BOOL(AutoQuote, "auto_quote")
-NS_IMPL_IDPREF_INT(ReplyOnTop, "reply_on_top")
-NS_IMPL_IDPREF_BOOL(SigBottom, "sig_bottom")
+// aMail: replies always start above the quote, with the signature between
+// the reply and the quote, like Outlook. The stored values are ignored.
+NS_IMETHODIMP
+nsMsgIdentity::GetReplyOnTop(int32_t* retval) {
+  *retval = 1;
+  return NS_OK;
+}
+NS_IMETHODIMP
+nsMsgIdentity::SetReplyOnTop(int32_t value) {
+  return mPrefBranch->SetIntPref("reply_on_top", value);
+}
+NS_IMETHODIMP
+nsMsgIdentity::GetSigBottom(bool* retval) {
+  *retval = false;
+  return NS_OK;
+}
+NS_IMETHODIMP
+nsMsgIdentity::SetSigBottom(bool value) {
+  return mPrefBranch->SetBoolPref("sig_bottom", value);
+}
 NS_IMPL_IDPREF_BOOL(SigOnForward, "sig_on_fwd")
 NS_IMPL_IDPREF_BOOL(SigOnReply, "sig_on_reply")
 

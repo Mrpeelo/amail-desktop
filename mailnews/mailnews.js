@@ -467,9 +467,9 @@ pref("mail.identity.default.directoryServer", "");
 pref("mail.identity.default.overrideGlobal_Pref", false);
 pref("mail.identity.default.auto_quote", true);
 // 0=bottom 1=top 2=select
-pref("mail.identity.default.reply_on_top", 0);
+pref("mail.identity.default.reply_on_top", 1);
 // true=below quoted false=above quoted
-pref("mail.identity.default.sig_bottom", true);
+pref("mail.identity.default.sig_bottom", false);
 // Include signature on fwd?
 pref("mail.identity.default.sig_on_fwd", false);
 // Include signature on re?
