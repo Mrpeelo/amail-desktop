@@ -56,6 +56,106 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Chat is gone: no space, tab type, menus or modules; reply placement. */
+  async "no-chat"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const exists = async url => {
+      try {
+        await fetch(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    const identity = MailServices.accounts.defaultAccount.defaultIdentity;
+    record({
+      label: "chat",
+      leftovers: [
+        "chatButton",
+        "spacesPopupButtonChat",
+        "menu_goChat",
+        "imAccountsStatus",
+        "joinChatMenuItem",
+        "newIMAccountMenuItem",
+        "newIMContactMenuItem",
+        "chatTabPanel",
+        "appmenu_newIMAccountMenuItem",
+      ].filter(id => doc.getElementById(id)),
+      tabModes: Object.keys(doc.getElementById("tabmail").tabModes).filter(m =>
+        /chat/i.test(m)
+      ),
+      chatModule: await exists("resource:///modules/IMServices.sys.mjs"),
+      chatContent: await exists("chrome://chat/content/conv.html"),
+      imServerType: "@mozilla.org/messenger/server;1?type=im" in Cc,
+      replyOnTop: identity.replyOnTop,
+      sigBottom: identity.sigBottom,
+    });
+  },
+
+  /** Tasks are gone: no Tasks space, tab, Today Pane list or menu items. */
+  async "no-tasks"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const errors = () =>
+      Services.console
+        .getMessageArray()
+        .filter(m => m instanceof Ci.nsIScriptError && !(m.flags & Ci.nsIScriptError.warningFlag))
+        .filter(m => /^(chrome|resource):/.test(m.sourceName))
+        .map(m => `${m.errorMessage} @ ${m.sourceName.split("/").pop()}:${m.lineNumber}`);
+    const startErrors = errors();
+    record({ label: "startup errors", errors: startErrors });
+    record({
+      label: "elements",
+      spaces: top.gSpacesToolbar.spaces.map(s => s.name),
+      leftovers: [
+        "tasksButton",
+        "spacesPopupButtonTasks",
+        "todo-tab-panel",
+        "calendar-task-box",
+        "calNewTask2",
+        "calMenuSwitchToTask",
+        "taskitem-context-menu",
+        "calendar-new-task-menuitem",
+        "appmenu_calendar-new-task-menu-item",
+        "calTasksMenu",
+        "sidePanelNewTask",
+        "today-pane-cycler-next",
+      ].filter(id => doc.getElementById(id)),
+      tabModes: Object.keys(doc.getElementById("tabmail").tabModes).filter(m => /task/i.test(m)),
+      newTodoEnabled: top.calendarController.isCommandEnabled("calendar_new_todo_command"),
+      mailContextTask: !!document.getElementById("mailContext-calendar-convert-task-menuitem"),
+    });
+    const tabmail = doc.getElementById("tabmail");
+    tabmail.openTab("calendar");
+    await wait(2500);
+    const pane = doc.getElementById("today-pane-panel");
+    pane.setVisible(true, true, true);
+    top.TodayPane.updateDisplay();
+    await wait(1000);
+    const menu = doc.getElementById("menu_Event_Task_Popup");
+    record({
+      label: "calendar tab",
+      mode: top.gCurrentMode,
+      tasksInView: top.currentView().tasksInView,
+      todayHeader: doc.getElementById("today-pane-header").getAttribute("value"),
+      eventsMenu: [...menu.children]
+        .filter(i => i.localName != "menuseparator")
+        .map(i => i.label || i.getAttribute("data-l10n-id") || i.id),
+      viewContext: [...doc.getElementById("calendar-view-context-menu").children].map(i => i.id),
+    });
+    await snapshot("no-tasks-calendar");
+    tabmail.closeTab(tabmail.currentTabInfo);
+    await wait(1000);
+    record({
+      label: "new errors",
+      errors: errors().filter(e => !startErrors.includes(e)),
+    });
+  },
+
   /**
    * Writing a new message opens inline in place of the message list and
    * reader, not in a window; closing brings the list back.
