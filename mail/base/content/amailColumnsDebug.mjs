@@ -421,6 +421,64 @@ async function runChecks(out) {
     popup.hidePopup();
   }
 
+  // Reading pane subject bar, actions, previous/next and close.
+  if (gDBView?.rowCount > 1) {
+    const hdrs = [0, 1].map(i => gDBView.getMsgHdrAt(i));
+    const wasRead = hdrs.map(h => h.isRead);
+    threadTree.selectedIndex = 0;
+    await wait(1500);
+    const reader = document.getElementById("messageBrowser");
+    const rdoc = reader.contentDocument;
+    const bar = rdoc.getElementById("amailSubjectBar");
+    const rect = el => {
+      const r = el?.getBoundingClientRect();
+      return r ? `${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}x${Math.round(r.height)}` : null;
+    };
+    const visibleButtons = [
+      ...rdoc.querySelectorAll("#header-view-toolbar > *"),
+    ]
+      .filter(b => b.getBoundingClientRect().width > 0)
+      .map(b => b.id);
+    const sender = rdoc.querySelector("#expandedfromBox .header-recipient");
+    out.push({
+      label: "reader header",
+      bar: rect(bar),
+      subjectInBar: !!bar.querySelector("#expandedsubjectBox"),
+      subject: rdoc.getElementById("expandedsubjectBox")?.textContent.slice(0, 60),
+      subjectSize: getComputedStyle(rdoc.getElementById("expandedsubjectBox")).fontSize,
+      card: rect(rdoc.getElementById("messagepanebox")),
+      messagepane: rect(rdoc.getElementById("messagepane")),
+      visibleButtons,
+      senderColor: sender && reader.contentWindow.getComputedStyle(sender).color,
+      bigAvatar: rdoc.getElementById("messageHeader").classList.contains("message-header-show-big-avatar"),
+      date: rect(rdoc.getElementById("dateLabel")),
+      toolbar: rect(rdoc.getElementById("header-view-toolbox")),
+      columns: [],
+    });
+    rdoc.getElementById("amailNextMessage").click();
+    await wait(1000);
+    const afterNext = threadTree.selectedIndex;
+    rdoc.getElementById("amailPreviousMessage").click();
+    await wait(1000);
+    const afterPrevious = threadTree.selectedIndex;
+    rdoc.getElementById("amailCloseMessage").click();
+    await wait(1000);
+    out.push({
+      label: "reader navigation",
+      afterNext,
+      afterPrevious,
+      afterClose: threadTree.selectedIndices.length,
+      emptyStateShown:
+        getComputedStyle(document.getElementById("amailReaderEmpty")).display != "none",
+      columns: [],
+    });
+    hdrs.forEach((h, i) => {
+      if (!wasRead[i] && h.isRead) {
+        h.folder.markMessagesRead([h], false);
+      }
+    });
+  }
+
   const origW = top.outerWidth;
   const origH = top.outerHeight;
   const panes = label => ({

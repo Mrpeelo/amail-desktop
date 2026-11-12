@@ -48,6 +48,7 @@
 
   <link rel="localization" href="branding/brand.ftl" />
   <link rel="localization" href="messenger/messenger.ftl" />
+  <link rel="localization" href="messenger/amail.ftl" />
   <link rel="localization" href="toolkit/main-window/findbar.ftl" />
   <link rel="localization" href="toolkit/global/textActions.ftl" />
   <link rel="localization" href="calendar/calendar.ftl" />
@@ -82,6 +83,7 @@
   <script defer="defer" src="chrome://messenger/content/msgHdrView.js"></script>
   <script defer="defer" src="chrome://messenger/content/aboutMessage.js"></script>
   <script type="module" src="chrome://messenger/content/attachment-list.mjs"></script>
+  <script type="module" src="chrome://messenger/content/amailReader.mjs"></script>
   <script type="module" src="chrome://messenger/content/lazy-findbar.mjs"></script>
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -109,6 +111,15 @@
     <tooltip id="aHTMLTooltip" page="true"/>
   </popupset>
 
+    <!-- aMail: subject bar above the message card. -->
+    <html:div id="amailSubjectBar">
+      <html:button id="amailCloseMessage" class="amail-reader-icon" data-l10n-id="amail-reader-close"></html:button>
+      <html:div id="amailSubjectSlot"></html:div>
+      <html:div id="amailNavButtons">
+        <html:button id="amailPreviousMessage" class="amail-reader-icon" data-l10n-id="amail-reader-previous"></html:button>
+        <html:button id="amailNextMessage" class="amail-reader-icon" data-l10n-id="amail-reader-next"></html:button>
+      </html:div>
+    </html:div>
     <!-- msg header view -->
     <!-- a convenience box for ease of extension overlaying -->
     <hbox id="messagepaneboxwrapper" flex="1">
