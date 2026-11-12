@@ -354,33 +354,10 @@
     display: none !important;
   }
 
-  /* "Select columns to display" sits at the far left of the header row. */
-  & th.last-column .button-column-picker {
-    display: none;
-  }
-
-  & th.amail-first-column {
-    &:not(.column-dragging, .column-moved-by-dragging) .button-column-picker {
-      display: unset;
-      order: -1;
-      flex: none;
-      inline-size: var(--table-header-cell-icon-width);
-      padding: 0;
-
-      & img {
-        margin-inline: auto;
-      }
-    }
-
-    &[data-type="icon"] {
-      inline-size: calc(2 * var(--table-header-cell-icon-width));
-      min-inline-size: calc(2 * var(--table-header-cell-icon-min-width));
-    }
-  }
-
-  & th.last-column[data-type="icon"]:not(.amail-first-column) {
-    inline-size: var(--table-header-cell-icon-width);
-    min-inline-size: var(--table-header-cell-icon-min-width);
+  /* Columns are chosen with the "Select columns" button in the list
+     header instead. */
+  & .button-column-picker {
+    display: none !important;
   }
 
   & .amail-col-grip {

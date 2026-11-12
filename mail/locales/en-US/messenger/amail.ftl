@@ -53,6 +53,8 @@ amail-import-settings-button =
 
 ## Message list header
 
+amail-list-columns = Select columns
+    .title = Choose the columns shown in the message list
 amail-list-compact = Compact
     .title = One line per message
 amail-list-conversations = Conversations

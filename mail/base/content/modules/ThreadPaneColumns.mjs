@@ -42,20 +42,6 @@ const DEFAULT_COLUMNS = [
     hidden: true,
   },
   {
-    id: "threadCol",
-    l10n: {
-      a11y: "threadpane-column-header-a11y-thread",
-      header: "threadpane-column-header-thread",
-      menuitem: "threadpane-column-label-thread",
-      cell: "threadpane-cell-thread",
-    },
-    ordinal: 2,
-    thread: true,
-    icon: true,
-    resizable: false,
-    sortable: false,
-  },
-  {
     id: "flaggedCol",
     l10n: {
       a11y: "threadpane-column-header-a11y-flagged",

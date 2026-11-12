@@ -45,27 +45,28 @@ export async function runColumnsDebug() {
   await wait(4000);
   out.push(snapshot("start"));
   {
-    const first = [...threadTree.table.header.querySelectorAll("th")].find(
-      th => !th.hidden
+    const button = document.getElementById("amailColumnsButton");
+    const popup = threadTree.querySelector(".menupopup-column-picker");
+    const shown = new Promise(resolve =>
+      popup.addEventListener("popupshown", resolve, { once: true })
     );
-    const rect = first.getBoundingClientRect();
-    const picker = first.querySelector(".button-column-picker");
-    const pickerRect = picker.getBoundingClientRect();
-    const hit = document.elementFromPoint(
-      pickerRect.left + pickerRect.width / 2,
-      pickerRect.top + pickerRect.height / 2
+    button.click();
+    await Promise.race([shown, wait(2000)]);
+    const items = [...popup.querySelectorAll("menuitem[name='toggle']")].map(
+      item => item.value
     );
+    popup.hidePopup();
     out.push({
-      label: "column picker",
-      firstColumn: first.id,
-      firstWidth: Math.round(rect.width),
-      pickerOffset: Math.round(pickerRect.left - rect.left),
-      pickerWidth: Math.round(pickerRect.width),
-      hitIsPicker: hit?.closest("button") == picker,
-      othersVisible: [
+      label: "select columns button",
+      buttonVisible: !button.hidden && button.getBoundingClientRect().width > 0,
+      nextToCompact:
+        button.nextElementSibling?.id == "amailCompactButton",
+      popupOpened: popup.state != "closed" || items.length > 0,
+      menuItems: items,
+      threadColumnPresent: !!document.getElementById("threadCol"),
+      headerPickersVisible: [
         ...threadTree.table.header.querySelectorAll(".button-column-picker"),
-      ].filter(b => b != picker && getComputedStyle(b).display != "none")
-        .length,
+      ].filter(b => getComputedStyle(b).display != "none").length,
       columns: [],
     });
   }

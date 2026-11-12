@@ -102,8 +102,6 @@ function sync() {
   }
   const cells = visibleCells();
   for (const [index, th] of cells.entries()) {
-    // The column picker button is shown in the first column.
-    th.classList.toggle("amail-first-column", index == 0);
     const sized = isSized(th);
     th.classList.toggle("amail-col-sized", sized);
     th.classList.toggle("amail-col-locked", sized && isLocked(th));

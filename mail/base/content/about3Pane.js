@@ -4739,6 +4739,16 @@ var threadPaneHeader = {
         this.updateAmailToggles();
       });
     document
+      .getElementById("amailColumnsButton")
+      .addEventListener("click", event => {
+        threadTree
+          .querySelector(".menupopup-column-picker")
+          .openPopup(event.currentTarget, {
+            position: "after_start",
+            triggerEvent: event,
+          });
+      });
+    document
       .getElementById("amailRunFiltersButton")
       .addEventListener("click", () => goDoCommand("cmd_applyFilters"));
     Services.prefs.addObserver("mail.threadpane.listview", () =>
@@ -4751,12 +4761,12 @@ var threadPaneHeader = {
    * Reflect the list view and threading state on the aMail toggles.
    */
   updateAmailToggles() {
+    const compact =
+      Services.prefs.getIntPref("mail.threadpane.listview", 0) == 1;
     document
       .getElementById("amailCompactButton")
-      .setAttribute(
-        "aria-pressed",
-        Services.prefs.getIntPref("mail.threadpane.listview", 0) == 1
-      );
+      .setAttribute("aria-pressed", compact);
+    document.getElementById("amailColumnsButton").hidden = !compact;
     document
       .getElementById("amailConversationsButton")
       .setAttribute("aria-pressed", !!gViewWrapper?.showThreaded);
