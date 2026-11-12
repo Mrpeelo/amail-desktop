@@ -240,17 +240,9 @@
   #threadTree .datecol-column {
     font-size: 12px;
     color: var(--color-text-secondary);
-    text-align: end;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  /* Received header aligns with the right-aligned dates. Subject takes the
-     free width (flex column in ThreadPaneColumns.mjs). */
-  #threadTree th#dateCol button {
-    justify-content: flex-end;
-    text-align: end;
   }
 
   /* Header: the folder name gives way, the toggles never wrap. */
@@ -401,10 +393,6 @@
   & th:has(> .amail-col-grip-end:is(:hover, .active)) > .amail-col-grip-end::after,
   & th:has(> .amail-col-grip-end:is(:hover, .active)) + th > .amail-col-grip-start::after {
     background-color: var(--color-primary-default);
-  }
-
-  &.amail-columns-locked .amail-col-grip {
-    display: none;
   }
 
   & thead.amail-col-resizing,

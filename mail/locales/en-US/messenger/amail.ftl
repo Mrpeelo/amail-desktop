@@ -57,8 +57,8 @@ amail-list-compact = Compact
     .title = One line per message
 amail-list-conversations = Conversations
     .title = Group messages into conversations
-amail-list-lock-columns = Lock columns
-    .title = Keep column widths fixed: no resizing by dragging, no narrowing in a small window
+amail-column-lock =
+    .label = Lock column width
 amail-list-run-filters = Run filters
     .title = Run the account's filters on this folder
 

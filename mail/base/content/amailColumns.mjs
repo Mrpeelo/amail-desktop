@@ -9,15 +9,17 @@
  *    width that only changes when the user drags it.
  *  - Dragging the line between two columns moves that line: one column
  *    grows by what the other gives up.
- *  - "Lock columns" removes the handles and never narrows columns.
+ *  - A column can be locked from the header's right-click menu: its width
+ *    then never changes, by dragging or in a narrow window. Lines next to
+ *    a locked column resize the next unlocked column instead.
  *  - Widths are stored in one pref and shared by all folders. Sender,
  *    recipient and correspondent share one width.
  *  - If the list gets too narrow, columns are shown narrower without
- *    changing the stored widths (unless locked).
+ *    changing the stored widths.
  */
 
 const PREF = "amail.columns.widths";
-const LOCK_PREF = "amail.columns.locked";
+const LOCK_PREF = "amail.columns.lockedColumns";
 const SUBJECT_ID = "subjectCol";
 const SUBJECT_MIN = 160;
 const COLUMN_MIN = 70;
@@ -29,7 +31,8 @@ let tree;
 let header;
 let widths = {};
 let syncPending = false;
-let locked = false;
+let lockedKeys = new Set();
+let menuCell = null;
 
 const keyFor = id => (WHO_COLUMNS.includes(id) ? "who" : id);
 
@@ -49,6 +52,11 @@ const visibleCells = () =>
 
 const isSized = th => th.dataset.type != "icon" && th.id != SUBJECT_ID;
 
+const isLocked = th => lockedKeys.has(keyFor(th.id));
+
+// A column whose width a drag may change: Subject or an unlocked text column.
+const isAdjustable = th => th.dataset.type != "icon" && !isLocked(th);
+
 /**
  * Apply the widths to the header cells. Stored widths are used as they are
  * while Subject keeps its minimum; otherwise columns are narrowed for
@@ -66,8 +74,11 @@ function layout() {
   const shown = new Map(sized.map(th => [th, desiredWidth(th.id)]));
   let excess = [...shown.values()].reduce((a, b) => a + b, 0) - available;
   for (const th of sized) {
-    if (locked || excess <= 0) {
+    if (excess <= 0) {
       break;
+    }
+    if (isLocked(th)) {
+      continue;
     }
     const cut = Math.min(excess, shown.get(th) - COLUMN_MIN);
     shown.set(th, shown.get(th) - cut);
@@ -80,8 +91,8 @@ function layout() {
 
 /**
  * Put drag handles on both edges of every text column. A handle moves the
- * line between the column and the nearest text column on that side (icon
- * columns in between are skipped). Each line gets a handle on either side,
+ * line between the column and the nearest adjustable column on that side
+ * (icon and locked columns in between are skipped). Each line gets a handle on either side,
  * inside the two cells that touch it, because header cells clip.
  */
 function sync() {
@@ -93,7 +104,8 @@ function sync() {
   for (const [index, th] of cells.entries()) {
     const sized = isSized(th);
     th.classList.toggle("amail-col-sized", sized);
-    if (!sized) {
+    th.classList.toggle("amail-col-locked", sized && isLocked(th));
+    if (!sized || isLocked(th)) {
       continue;
     }
     for (const [side, step] of [
@@ -101,7 +113,7 @@ function sync() {
       ["end", 1],
     ]) {
       let otherIndex = index + step;
-      while (cells[otherIndex]?.dataset.type == "icon") {
+      while (cells[otherIndex] && !isAdjustable(cells[otherIndex])) {
         otherIndex += step;
       }
       const other = cells[otherIndex];
@@ -111,7 +123,7 @@ function sync() {
       const [before, after] = side == "start" ? [other, th] : [th, other];
       addGrip(th, side, before, after);
       const neighbour = cells[index + step];
-      if (!isSized(neighbour)) {
+      if (!isSized(neighbour) || isLocked(neighbour)) {
         addGrip(neighbour, side == "start" ? "end" : "start", before, after);
       }
     }
@@ -205,13 +217,60 @@ function startDrag(event, grip, before, after) {
   window.addEventListener("pointercancel", onEnd, true);
 }
 
-function updateLock() {
-  locked = Services.prefs.getBoolPref(LOCK_PREF, false);
-  tree.classList.toggle("amail-columns-locked", locked);
-  document
-    .getElementById("amailLockColumnsButton")
-    .setAttribute("aria-pressed", locked);
-  layout();
+function loadLocks() {
+  try {
+    lockedKeys = new Set(JSON.parse(Services.prefs.getStringPref(LOCK_PREF, "[]")));
+  } catch {
+    lockedKeys = new Set();
+  }
+}
+
+function toggleLock(th) {
+  const key = keyFor(th.id);
+  if (lockedKeys.has(key)) {
+    lockedKeys.delete(key);
+  } else {
+    // Lock at the width shown right now.
+    widths[key] = Math.round(th.getBoundingClientRect().width);
+    save();
+    lockedKeys.add(key);
+  }
+  Services.prefs.setStringPref(LOCK_PREF, JSON.stringify([...lockedKeys]));
+  sync();
+}
+
+/**
+ * Add "Lock column width" to the header's right-click menu for the text
+ * column that was clicked.
+ */
+function setUpLockMenu() {
+  header.addEventListener(
+    "contextmenu",
+    event => {
+      const th = event.target.closest("th");
+      menuCell = th && isSized(th) ? th : null;
+    },
+    true
+  );
+  const popup = tree.querySelector(".menupopup-column-picker");
+  popup.addEventListener("popupshowing", event => {
+    if (event.target != popup || !menuCell) {
+      return;
+    }
+    const th = menuCell;
+    const item = document.createXULElement("menuitem");
+    item.id = "amailLockColumn";
+    item.setAttribute("type", "checkbox");
+    item.toggleAttribute("checked", isLocked(th));
+    document.l10n.setAttributes(item, "amail-column-lock");
+    item.addEventListener("command", () => toggleLock(th));
+    popup.prepend(item, document.createXULElement("menuseparator"));
+  });
+  popup.addEventListener("popuphidden", event => {
+    if (event.target == popup) {
+      menuCell = null;
+    }
+  });
 }
 
 function save() {
@@ -225,6 +284,7 @@ export function initAmailColumns(threadTree) {
   tree = threadTree;
   header = threadTree.table.header;
   loadWidths();
+  loadLocks();
   threadTree.classList.add("amail-columns");
 
   // Columns are shown, hidden and reordered by Thunderbird; follow along.
@@ -247,15 +307,6 @@ export function initAmailColumns(threadTree) {
     attributeFilter: ["hidden"],
   });
   new ResizeObserver(() => layout()).observe(threadTree);
-  document
-    .getElementById("amailLockColumnsButton")
-    .addEventListener("click", () =>
-      Services.prefs.setBoolPref(LOCK_PREF, !locked)
-    );
-  Services.prefs.addObserver(LOCK_PREF, updateLock);
-  window.addEventListener("unload", () =>
-    Services.prefs.removeObserver(LOCK_PREF, updateLock)
-  );
+  setUpLockMenu();
   sync();
-  updateLock();
 }

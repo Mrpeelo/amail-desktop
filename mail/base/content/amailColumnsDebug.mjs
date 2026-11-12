@@ -106,7 +106,22 @@ export async function runColumnsDebug() {
       ["right", 4],
       ["left", 4, true],
     ]) {
-      Services.prefs.setBoolPref("amail.columns.locked", !!locked);
+      Services.prefs.setStringPref(
+        "amail.columns.lockedColumns",
+        locked ? '["who"]' : "[]"
+      );
+      // The module reads locks at startup and on menu use; drive the menu.
+      if (locked) {
+        th.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true }));
+        await wait(700);
+        const item = document.getElementById("amailLockColumn");
+        out.push({
+          label: `${id} menu item present: ${!!item}`,
+          columns: [],
+        });
+        item?.click();
+        item?.closest("menupopup").hidePopup();
+      }
       await wait(200);
       const start = th.getBoundingClientRect();
       const x = start[edge] + offset;
@@ -149,7 +164,7 @@ export async function runColumnsDebug() {
         Services.prefs.clearUserPref("amail.columns.widths");
       }
     }
-    Services.prefs.clearUserPref("amail.columns.locked");
+    Services.prefs.clearUserPref("amail.columns.lockedColumns");
   }
 
   await IOUtils.writeJSON(
