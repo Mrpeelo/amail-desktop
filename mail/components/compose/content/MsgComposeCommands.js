@@ -4643,6 +4643,16 @@ function onPasteOrDrop(e) {
 async function ComposeStartup() {
   const windowArguments = gAmailInlineHost?.args ?? window.arguments;
   document.documentElement.toggleAttribute("amail-inline", !!gAmailInlineHost);
+  document.l10n.setAttributes(
+    document.getElementById("msgSubject"),
+    "amail-compose-subject"
+  );
+  if (gAmailInlineHost) {
+    // The menu bar shows with Alt, as in the main window.
+    document
+      .getElementById("compose-toolbar-menubar2")
+      .setAttribute("autohide", "true");
+  }
   // Findbar overlay
   if (!document.getElementById("findbar-replaceButton")) {
     const replaceButton = document.createXULElement("toolbarbutton");

@@ -441,6 +441,7 @@
 
 #amailCompose {
   grid-area: compose;
+  position: relative;
   display: flex;
   flex-direction: column;
   min-inline-size: 400px;
@@ -467,10 +468,10 @@
 }
 
 #amailComposeHeader {
-  display: flex;
-  justify-content: flex-end;
-  flex: none;
-  padding: 4px 6px 0;
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-end: 10px;
+  z-index: 1;
 }
 
 .amail-compose-icon {

@@ -83,7 +83,22 @@ const CHECKS = {
     if (!cw) {
       return;
     }
-    document.getElementById("amailComposeClose").click();
+    const to = cw.document.getElementById("toAddrInput");
+    to.value = "first@example.invalid, second@example.invalid";
+    cw.recipientAddPills(to);
+    cw.document.getElementById("addr_ccShowAddressRowButton").click();
+    cw.document.getElementById("msgSubject").value = "A subject";
+    cw.updateSendLock?.();
+    cw.goUpdateCommand?.("cmd_sendButton");
+    await wait(1500);
+    await snapshot("inline-compose-filled");
+    cw.gContentChanged = false;
+    cw.gMsgCompose.bodyModified = false;
+    for (const pill of cw.document.querySelectorAll("mail-address-pill")) {
+      pill.remove();
+    }
+    cw.document.getElementById("msgSubject").value = "";
+    cw.gAmailInlineHost.close();
     await wait(2500);
     record({
       label: "closed",

@@ -1,0 +1,180 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* aMail compose, Outlook style: a white card with a primary Send button,
+   From next to it, underlined To / Cc / Bcc / subject rows and a slim
+   format bar. Applies to the inline compose and to compose windows. */
+
+:root:root {
+  --amail-compose-line: var(--color-surface-border, ThreeDShadow);
+  --amail-compose-accent: var(--color-primary-default, AccentColor);
+  --amail-compose-surface: var(--color-surface-base, Field);
+  font-size: 14px;
+}
+
+:root:root :is(#compose-toolbox, #composeToolbar2, #MsgHeadersToolbar, #FormatToolbox, #FormatToolbar, #composeContentBox, #messageArea) {
+  appearance: none;
+  background-color: var(--amail-compose-surface);
+  background-image: none;
+  border-color: transparent;
+}
+
+/* Top bar: Send first. */
+
+:root:root #composeToolbar2 {
+  align-items: center;
+  gap: 4px;
+  min-block-size: 44px;
+  padding: 8px 12px;
+  border-block-end: 1px solid var(--amail-compose-line);
+}
+
+:root[amail-inline] #composeToolbar2 {
+  padding-inline-end: 48px;
+}
+
+:root:root #composeToolbar2 .toolbarbutton-1 {
+  min-block-size: 32px;
+  margin: 0;
+  padding: 0 10px;
+  border-radius: 4px;
+}
+
+:root:root #button-send {
+  padding-inline: 14px 16px;
+  border: 1px solid var(--amail-compose-accent);
+  background-color: var(--amail-compose-accent);
+  color: var(--color-white, #fff);
+  fill: currentColor;
+  stroke: currentColor;
+  font-weight: 600;
+
+  & :is(.toolbarbutton-text, .toolbarbutton-icon) {
+    color: inherit;
+    fill: currentColor;
+    stroke: currentColor;
+  }
+
+  &:hover:not([disabled]) {
+    background-color: var(--color-primary-hover, var(--amail-compose-accent));
+  }
+
+  &[disabled] {
+    border-color: var(--amail-compose-line);
+    background-color: color-mix(in srgb, currentColor 6%, transparent);
+    color: var(--color-text-muted, GrayText);
+  }
+}
+
+/* Header rows. */
+
+:root:root #MsgHeadersToolbar {
+  padding: 8px 16px 0 4px;
+}
+
+:root:root #top-gradient-box {
+  align-items: center;
+  min-block-size: 36px;
+}
+
+:root:root :is(#identityLabel, #subjectLabel) {
+  color: var(--color-text-secondary, inherit);
+}
+
+:root:root .address-row {
+  align-items: center;
+  margin-block: 4px;
+  margin-inline-end: 0;
+}
+
+/* Labels in one left-aligned column (xul.css pins pack="end", so the label
+   takes the free space on its far side instead); the "remove row" button
+   moves to the end of its row. */
+:root:root :is(.address-label-container, #identityLabel-box) {
+  inline-size: 84px !important;
+  flex: none;
+}
+
+:root:root :is(#top-gradient-box, #subject-box) > .aw-firstColBox {
+  display: none;
+}
+
+:root:root .address-row > .aw-firstColBox {
+  order: 3;
+}
+
+:root:root :is(#top-gradient-box, #subject-box, .address-row) {
+  margin-inline-start: 12px;
+}
+
+:root:root #identityLabel {
+  margin-inline: 0 auto;
+}
+
+:root:root #msgIdentity {
+  margin-inline-start: 0;
+}
+
+:root:root .address-label-container label {
+  margin: 0;
+  margin-inline-end: auto;
+  padding: 5px 12px;
+  border: 1px solid var(--color-surface-border-intense, var(--amail-compose-line));
+  border-radius: 4px;
+  text-align: start;
+  font-weight: 600;
+}
+
+:root:root .address-container,
+:root:root #msgSubject {
+  margin-inline: 0;
+  border: none;
+  border-block-end: 1px solid var(--amail-compose-line);
+  border-radius: 0;
+  outline: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+:root:root .address-container[focused="true"],
+:root:root #msgSubject:focus {
+  border-block-end: 2px solid var(--amail-compose-accent);
+  outline: none;
+  background-color: transparent;
+}
+
+:root:root .address-container {
+  min-block-size: 34px;
+}
+
+/* Subject: no label, a larger line with a placeholder. */
+
+:root:root #subject-box {
+  margin-block: 6px 10px;
+}
+
+:root:root #subjectLabel-box {
+  display: none;
+}
+
+:root:root #msgSubject {
+  min-block-size: 36px;
+  padding: 0;
+  font-size: 16px;
+
+  &.with-icon {
+    padding-inline-start: 25px;
+  }
+}
+
+/* Format bar and body. */
+
+:root:root #FormatToolbar {
+  padding: 2px 12px;
+  border-block: 1px solid var(--amail-compose-line);
+}
+
+:root:root #messageArea {
+  padding: 4px 8px 0;
+}

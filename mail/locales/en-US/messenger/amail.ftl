@@ -280,6 +280,8 @@ amail-undo-send-cancel = Cancel sending
 
 ## Inline compose
 
+amail-compose-subject =
+    .placeholder = Add a subject
 amail-compose-close =
     .title = Close this message (asks to save changes)
     .aria-label = Close this message
