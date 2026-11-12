@@ -44,6 +44,31 @@ export async function runColumnsDebug() {
   const top = window.browsingContext.topChromeWindow;
   await wait(4000);
   out.push(snapshot("start"));
+  {
+    const first = [...threadTree.table.header.querySelectorAll("th")].find(
+      th => !th.hidden
+    );
+    const rect = first.getBoundingClientRect();
+    const picker = first.querySelector(".button-column-picker");
+    const pickerRect = picker.getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      pickerRect.left + pickerRect.width / 2,
+      pickerRect.top + pickerRect.height / 2
+    );
+    out.push({
+      label: "column picker",
+      firstColumn: first.id,
+      firstWidth: Math.round(rect.width),
+      pickerOffset: Math.round(pickerRect.left - rect.left),
+      pickerWidth: Math.round(pickerRect.width),
+      hitIsPicker: hit?.closest("button") == picker,
+      othersVisible: [
+        ...threadTree.table.header.querySelectorAll(".button-column-picker"),
+      ].filter(b => b != picker && getComputedStyle(b).display != "none")
+        .length,
+      columns: [],
+    });
+  }
 
   // Selecting marks the message read; remember and restore that state.
   const firstHdr = gDBView?.rowCount ? gDBView.getMsgHdrAt(0) : null;
