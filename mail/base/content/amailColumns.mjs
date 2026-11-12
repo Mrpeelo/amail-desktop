@@ -7,15 +7,17 @@
  * for the table layout:
  *  - Subject takes the free width, every other text column has a fixed pixel
  *    width that only changes when the user drags it.
- *  - Each text column is resized at the edge facing Subject, where the
- *    column visibly grows or shrinks.
+ *  - Dragging the line between two columns moves that line: one column
+ *    grows by what the other gives up.
+ *  - "Lock columns" removes the handles and never narrows columns.
  *  - Widths are stored in one pref and shared by all folders. Sender,
  *    recipient and correspondent share one width.
  *  - If the list gets too narrow, columns are shown narrower without
- *    changing the stored widths.
+ *    changing the stored widths (unless locked).
  */
 
 const PREF = "amail.columns.widths";
+const LOCK_PREF = "amail.columns.locked";
 const SUBJECT_ID = "subjectCol";
 const SUBJECT_MIN = 160;
 const COLUMN_MIN = 70;
@@ -27,6 +29,7 @@ let tree;
 let header;
 let widths = {};
 let syncPending = false;
+let locked = false;
 
 const keyFor = id => (WHO_COLUMNS.includes(id) ? "who" : id);
 
@@ -63,7 +66,7 @@ function layout() {
   const shown = new Map(sized.map(th => [th, desiredWidth(th.id)]));
   let excess = [...shown.values()].reduce((a, b) => a + b, 0) - available;
   for (const th of sized) {
-    if (excess <= 0) {
+    if (locked || excess <= 0) {
       break;
     }
     const cut = Math.min(excess, shown.get(th) - COLUMN_MIN);
@@ -76,9 +79,10 @@ function layout() {
 }
 
 /**
- * Give every text column its drag handles: one inside the column at the edge
- * facing Subject, one inside the neighbouring cell on the other side of the
- * same line. Both stay inside their cell because header cells clip.
+ * Put drag handles on both edges of every text column. A handle moves the
+ * line between the column and the nearest text column on that side (icon
+ * columns in between are skipped). Each line gets a handle on either side,
+ * inside the two cells that touch it, because header cells clip.
  */
 function sync() {
   syncPending = false;
@@ -86,18 +90,30 @@ function sync() {
     grip.remove();
   }
   const cells = visibleCells();
-  const subjectIndex = cells.findIndex(th => th.id == SUBJECT_ID);
   for (const [index, th] of cells.entries()) {
     const sized = isSized(th);
     th.classList.toggle("amail-col-sized", sized);
     if (!sized) {
       continue;
     }
-    const afterSubject = index > subjectIndex;
-    addGrip(th, th, afterSubject ? "start" : "end", afterSubject);
-    const neighbour = cells[afterSubject ? index - 1 : index + 1];
-    if (neighbour) {
-      addGrip(neighbour, th, afterSubject ? "end" : "start", afterSubject);
+    for (const [side, step] of [
+      ["start", -1],
+      ["end", 1],
+    ]) {
+      let otherIndex = index + step;
+      while (cells[otherIndex]?.dataset.type == "icon") {
+        otherIndex += step;
+      }
+      const other = cells[otherIndex];
+      if (!other) {
+        continue;
+      }
+      const [before, after] = side == "start" ? [other, th] : [th, other];
+      addGrip(th, side, before, after);
+      const neighbour = cells[index + step];
+      if (!isSized(neighbour)) {
+        addGrip(neighbour, side == "start" ? "end" : "start", before, after);
+      }
     }
   }
   layout();
@@ -112,12 +128,11 @@ function requestSync() {
 
 /**
  * @param {HTMLElement} host - Header cell that contains the handle.
- * @param {HTMLElement} target - Header cell the handle resizes.
  * @param {"start"|"end"} side - Edge of the host the handle sits on.
- * @param {boolean} growsToStart - Whether dragging towards the start of the
- *   row makes the column wider.
+ * @param {HTMLElement} before - Text column before the line.
+ * @param {HTMLElement} after - Text column after the line.
  */
-function addGrip(host, target, side, growsToStart) {
+function addGrip(host, side, before, after) {
   const grip = document.createElement("div");
   grip.className = `amail-col-grip amail-col-grip-${side}`;
   grip.addEventListener("pointerdown", event => {
@@ -126,7 +141,7 @@ function addGrip(host, target, side, growsToStart) {
     }
     event.preventDefault();
     event.stopPropagation();
-    startDrag(event, grip, target, growsToStart);
+    startDrag(event, grip, before, after);
   });
   // Keep the header's own handling (sorting, column reordering) away.
   for (const type of ["mousedown", "click", "dragstart"]) {
@@ -137,23 +152,27 @@ function addGrip(host, target, side, growsToStart) {
   }
   grip.addEventListener("dblclick", event => {
     event.stopPropagation();
-    delete widths[keyFor(target.id)];
+    for (const th of [before, after]) {
+      delete widths[keyFor(th.id)];
+    }
     save();
     layout();
   });
   host.append(grip);
 }
 
-function startDrag(event, grip, target, growsToStart) {
-  const rtl = getComputedStyle(header).direction == "rtl";
-  const sign = growsToStart != rtl ? -1 : 1;
+/**
+ * Move the line between two columns: one grows by what the other gives up.
+ * Subject has no stored width; it simply absorbs the change.
+ */
+function startDrag(event, grip, before, after) {
+  const direction = getComputedStyle(header).direction == "rtl" ? -1 : 1;
   const startX = event.clientX;
-  const startWidth = target.getBoundingClientRect().width;
-  const subject = header.querySelector(`#${SUBJECT_ID}:not([hidden])`);
-  const room = subject
-    ? Math.max(0, subject.getBoundingClientRect().width - SUBJECT_MIN)
-    : Infinity;
-  const key = keyFor(target.id);
+  const minOf = th => (th.id == SUBJECT_ID ? SUBJECT_MIN : COLUMN_MIN);
+  const startBefore = before.getBoundingClientRect().width;
+  const startAfter = after.getBoundingClientRect().width;
+  const maxShrink = Math.max(0, startBefore - minOf(before));
+  const maxGrow = Math.max(0, startAfter - minOf(after));
   try {
     grip.setPointerCapture(event.pointerId);
   } catch {}
@@ -161,10 +180,16 @@ function startDrag(event, grip, target, growsToStart) {
   grip.classList.add("active");
 
   const onMove = moveEvent => {
-    const wanted = startWidth + sign * (moveEvent.clientX - startX);
-    widths[key] = Math.round(
-      Math.max(COLUMN_MIN, Math.min(wanted, startWidth + room))
+    const delta = Math.max(
+      -maxShrink,
+      Math.min(direction * (moveEvent.clientX - startX), maxGrow)
     );
+    if (isSized(before)) {
+      widths[keyFor(before.id)] = Math.round(startBefore + delta);
+    }
+    if (isSized(after)) {
+      widths[keyFor(after.id)] = Math.round(startAfter - delta);
+    }
     layout();
   };
   const onEnd = () => {
@@ -178,6 +203,15 @@ function startDrag(event, grip, target, growsToStart) {
   window.addEventListener("pointermove", onMove, true);
   window.addEventListener("pointerup", onEnd, true);
   window.addEventListener("pointercancel", onEnd, true);
+}
+
+function updateLock() {
+  locked = Services.prefs.getBoolPref(LOCK_PREF, false);
+  tree.classList.toggle("amail-columns-locked", locked);
+  document
+    .getElementById("amailLockColumnsButton")
+    .setAttribute("aria-pressed", locked);
+  layout();
 }
 
 function save() {
@@ -213,5 +247,15 @@ export function initAmailColumns(threadTree) {
     attributeFilter: ["hidden"],
   });
   new ResizeObserver(() => layout()).observe(threadTree);
+  document
+    .getElementById("amailLockColumnsButton")
+    .addEventListener("click", () =>
+      Services.prefs.setBoolPref(LOCK_PREF, !locked)
+    );
+  Services.prefs.addObserver(LOCK_PREF, updateLock);
+  window.addEventListener("unload", () =>
+    Services.prefs.removeObserver(LOCK_PREF, updateLock)
+  );
   sync();
+  updateLock();
 }

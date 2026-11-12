@@ -403,6 +403,10 @@
     background-color: var(--color-primary-default);
   }
 
+  &.amail-columns-locked .amail-col-grip {
+    display: none;
+  }
+
   & thead.amail-col-resizing,
   & thead.amail-col-resizing button {
     cursor: col-resize;

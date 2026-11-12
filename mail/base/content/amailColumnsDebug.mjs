@@ -99,9 +99,17 @@ export async function runColumnsDebug() {
     }
     // Hit-test both sides of the column's left edge like a real pointer.
     const savedWidths = Services.prefs.getStringPref("amail.columns.widths", "");
-    for (const offset of [-4, -1, 1, 4]) {
+    for (const [edge, offset, locked] of [
+      ["left", -4],
+      ["left", 4],
+      ["right", -4],
+      ["right", 4],
+      ["left", 4, true],
+    ]) {
+      Services.prefs.setBoolPref("amail.columns.locked", !!locked);
+      await wait(200);
       const start = th.getBoundingClientRect();
-      const x = start.left + offset;
+      const x = start[edge] + offset;
       const y = start.top + start.height / 2;
       const hit = document.elementFromPoint(x, y);
       const pointer = (target, type, clientX) =>
@@ -122,7 +130,12 @@ export async function runColumnsDebug() {
       await wait(300);
       const end = th.getBoundingClientRect();
       out.push({
-        label: `${id} drag 120px left, pointer ${offset}px from its left edge`,
+        label: `${id} drag 120px left, pointer ${offset}px from its ${edge} edge${locked ? ", LOCKED" : ""}`,
+        rightBefore: Math.round(start.right),
+        rightAfter: Math.round(end.right),
+        dateWidth: Math.round(
+          document.getElementById("dateCol").getBoundingClientRect().width
+        ),
         hit: `${hit?.localName}.${hit?.className} in ${hit?.closest("th")?.id}`,
         widthBefore: Math.round(start.width),
         widthAfter: Math.round(end.width),
@@ -136,6 +149,7 @@ export async function runColumnsDebug() {
         Services.prefs.clearUserPref("amail.columns.widths");
       }
     }
+    Services.prefs.clearUserPref("amail.columns.locked");
   }
 
   await IOUtils.writeJSON(
