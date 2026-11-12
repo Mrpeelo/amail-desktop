@@ -3,6 +3,7 @@
  * file, you can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
+import { todayLabel } from "chrome://messenger/content/amailDates.mjs";
 
 /**
  * The tr element row of the TreeView table.
@@ -227,13 +228,16 @@ class ThreadRow extends TreeViewTableRow {
           cell.textContent = "";
           continue;
         }
-        cell.textContent = cellTexts[textIndex];
+        const text = ["dateCol", "receivedCol"].includes(column.id)
+          ? todayLabel(cellTexts[textIndex])
+          : cellTexts[textIndex];
+        cell.textContent = text;
         if (!column.custom) {
           document.l10n.setAttributes(cell, column.l10n.cell, {
-            title: cellTexts[textIndex],
+            title: text,
           });
         }
-        ariaLabelPromises.push(cellTexts[textIndex]);
+        ariaLabelPromises.push(text);
       }
     }
 

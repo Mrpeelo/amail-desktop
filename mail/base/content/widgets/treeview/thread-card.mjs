@@ -5,6 +5,7 @@
 import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
 // eslint-disable-next-line import/no-unassigned-import
 import "chrome://messenger/content/thread-card-tags.mjs";
+import { todayLabel } from "chrome://messenger/content/amailDates.mjs";
 
 /**
  * The tr element row of the TreeView table for the cards view layout.
@@ -116,6 +117,7 @@ class ThreadCard extends TreeViewTableRow {
 
     this.senderLine.textContent = data.sender;
     this.senderLine.title = data.sender;
+    data.date = todayLabel(data.date);
     this.dateLine.textContent = data.date;
 
     this.threadCardTags.setAttribute("tags", data.tagKeys);
