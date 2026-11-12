@@ -192,9 +192,9 @@ window.addEventListener("DOMContentLoaded", async event => {
   import("chrome://messenger/content/amailSortPresets.mjs").then(module =>
     module.initAmailSortPresets()
   );
-  if (Services.env.get("AMAIL_DEBUG_COLUMNS")) {
-    import("chrome://messenger/content/amailColumnsDebug.mjs").then(module =>
-      module.runColumnsDebug()
+  if (Services.env.get("AMAIL_DEBUG_CHECKS")) {
+    import("chrome://messenger/content/amailDebug.mjs").then(module =>
+      module.runDebugChecks(Services.env.get("AMAIL_DEBUG_CHECKS").split(","))
     );
   }
   await messagePane.isReady();

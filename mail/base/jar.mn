@@ -89,7 +89,7 @@ messenger.jar:
     content/messenger/amailSortPresets.mjs          (content/amailSortPresets.mjs)
     content/messenger/amailSortApply.xhtml          (content/amailSortApply.xhtml)
     content/messenger/amailSortApply.mjs            (content/amailSortApply.mjs)
-    content/messenger/amailColumnsDebug.mjs         (content/amailColumnsDebug.mjs)
+    content/messenger/amailDebug.mjs                (content/amailDebug.mjs)
     content/messenger/specialTabs.js                (content/specialTabs.js)
 #ifdef MOZ_SERVICES_SYNC
     content/messenger/sync.js                       (content/sync.js)

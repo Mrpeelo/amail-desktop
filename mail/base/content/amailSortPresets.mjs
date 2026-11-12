@@ -152,7 +152,7 @@ function applyToOpenFolder(preset) {
  * @param {SortPreset} preset
  * @param {nsIMsgFolder} folder
  */
-export function applyToStoredFolder(preset, folder) {
+function applyToStoredFolder(preset, folder) {
   if (folder.isServer) {
     return;
   }
