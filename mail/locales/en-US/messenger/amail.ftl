@@ -16,7 +16,7 @@ amail-go-calendar = Calendar
     .title = Calendar
 
 amail-get-messages =
-    .title = Get new messages for all accounts (F5)
+    .title = Get new messages for all accounts (Shift+F5)
     .aria-label = Get messages
 
 amail-address-book =
@@ -55,6 +55,23 @@ amail-import-settings-button =
 
 amail-list-sort = Sort
     .title = Sort order and grouping of the message list
+## Split buttons in the command bar
+
+amail-split-write-message =
+    .title = More ways to create: event, contact
+    .aria-label = More create options
+amail-split-get-messages =
+    .title = Get messages for one account
+    .aria-label = Get messages for one account
+amail-new-message =
+    .label = New message
+    .acceltext = Ctrl+N
+amail-new-event =
+    .label = New event
+    .acceltext = Ctrl+I
+amail-new-contact =
+    .label = New contact
+
 ## Saved sort orders (Sort menu)
 
 amail-sort-save =

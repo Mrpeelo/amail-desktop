@@ -11,12 +11,12 @@ search-bar-label = Search
 toolbar-write-message-label = Write
 
 toolbar-write-message =
-    .title = Create a new message
+    .title = Create a new message (Ctrl+N)
 
 toolbar-move-to-label = Move to
 
 toolbar-move-to =
-    .title = Move selected message
+    .title = Move selected messages to another folder
 
 toolbar-unifinder-label = Find Events
 
@@ -36,17 +36,17 @@ toolbar-edit-event =
 toolbar-get-messages-label = Get Messages
 
 toolbar-get-messages =
-    .title = Fetch new messages for all accounts
+    .title = Fetch new messages for all accounts (Shift+F5)
 
 toolbar-reply-label = Reply
 
 toolbar-reply =
-    .title = Reply to the message
+    .title = Reply to the sender (Ctrl+R)
 
 toolbar-reply-all-label = Reply All
 
 toolbar-reply-all =
-    .title = Reply to sender and all recipients
+    .title = Reply to sender and all recipients (Ctrl+Shift+R)
 
 toolbar-reply-to-list-label = Reply to List
 
@@ -61,7 +61,7 @@ toolbar-redirect =
 toolbar-archive-label = Archive
 
 toolbar-archive =
-    .title = Archive selected messages
+    .title = Archive selected messages (A)
 
 toolbar-conversation-label = Conversation
 
@@ -91,7 +91,7 @@ toolbar-next =
 toolbar-spam-label = Spam
 
 toolbar-spam =
-    .title = Mark the selected messages as spam
+    .title = Mark the selected messages as spam (J)
 
 toolbar-not-spam-label = Not Spam
 
@@ -101,7 +101,7 @@ toolbar-not-spam =
 toolbar-delete-label = Delete
 
 toolbar-delete-title =
-    .title = Delete the selected messages
+    .title = Delete the selected messages (Delete)
 
 toolbar-undelete-label = Undelete
 
@@ -131,7 +131,7 @@ toolbar-tag-message =
 toolbar-forward-inline-label = Forward
 
 toolbar-forward-inline =
-    .title = Forward selected message as inline text
+    .title = Forward selected message (Ctrl+L)
 
 toolbar-forward-attachment-label = Forward as Attachment
 
@@ -141,12 +141,12 @@ toolbar-forward-attachment =
 toolbar-toggle-read-label = Read / Unread
 
 toolbar-toggle-read =
-    .title = Mark as read or unread (Q)
+    .title = Mark as read or unread (M)
 
 toolbar-flag-message-label = Flag
 
 toolbar-flag-message =
-    .title = Flag or unflag (Insert)
+    .title = Flag or unflag (S)
 
 toolbar-mark-as-label = Mark
 

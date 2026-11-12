@@ -22,7 +22,40 @@ const PREF = "amail.sort.presets";
  * @property {number} viewFlags - nsMsgViewFlagsType of the saved view.
  * @property {number} sortType - nsMsgViewSortType of the saved view.
  * @property {number} sortOrder - nsMsgViewSortOrder of the saved view.
+ * @property {string} [secondaryColumn] - Column id of the tie-breaker sort.
+ * @property {boolean} [secondaryAscending]
  */
+
+/** Tie-breaker for sorts saved without one: newest first. */
+const DEFAULT_SECONDARY = { column: "dateCol", ascending: false };
+
+const columnForSortType = sortType =>
+  threadPane.columns.find(
+    column =>
+      column.sortKey && Ci.nsMsgViewSortType[column.sortKey] == sortType
+  )?.id;
+
+const sortTypeForColumn = columnId =>
+  Ci.nsMsgViewSortType[
+    threadPane.columns.find(column => column.id == columnId)?.sortKey
+  ];
+
+/**
+ * The tie-breaker of a saved sort, or none when the primary sort is by date
+ * or the list is grouped (grouped lists have no secondary sort).
+ *
+ * @param {SortPreset} preset
+ * @returns {?{column: string, ascending: boolean}}
+ */
+function secondaryOf(preset) {
+  if (preset.mode == "group") {
+    return null;
+  }
+  const secondary = preset.secondaryColumn
+    ? { column: preset.secondaryColumn, ascending: preset.secondaryAscending }
+    : DEFAULT_SECONDARY;
+  return secondary.column == preset.column ? null : secondary;
+}
 
 /** @returns {SortPreset[]} */
 function loadPresets() {
@@ -45,13 +78,23 @@ function currentSort() {
   } else if (gViewWrapper.showThreaded) {
     mode = "threaded";
   }
+  const view = gViewWrapper.dbView;
+  const secondary = columnForSortType(view.secondarySortType);
+  const useSecondary =
+    secondary &&
+    secondary != gViewWrapper.primarySortColumnId &&
+    view.secondarySortType != Ci.nsMsgViewSortType.byId;
   return {
     column: gViewWrapper.primarySortColumnId,
     ascending: gViewWrapper.isSortedAscending,
     mode,
-    viewFlags: gViewWrapper.dbView.viewFlags,
-    sortType: gViewWrapper.dbView.sortType,
-    sortOrder: gViewWrapper.dbView.sortOrder,
+    viewFlags: view.viewFlags,
+    sortType: view.sortType,
+    sortOrder: view.sortOrder,
+    secondaryColumn: useSecondary ? secondary : DEFAULT_SECONDARY.column,
+    secondaryAscending: useSecondary
+      ? view.secondarySortOrder == Ci.nsMsgViewSortOrder.ascending
+      : DEFAULT_SECONDARY.ascending,
   };
 }
 
@@ -88,7 +131,14 @@ function applyToOpenFolder(preset) {
     return;
   }
   const command = value => sortController.handleCommand({ target: { value } });
-  // Choosing a sort column ungroups the list, so the grouping comes last.
+  // Sorting by a new column keeps the previous one as the tie-breaker, so
+  // sort by the tie-breaker first. Choosing a sort column ungroups the list,
+  // so the grouping comes last.
+  const secondary = secondaryOf(preset);
+  if (secondary) {
+    command(secondary.column);
+    command(secondary.ascending ? "ascending" : "descending");
+  }
   command(preset.column);
   command(preset.ascending ? "ascending" : "descending");
   command(preset.mode);
@@ -111,6 +161,23 @@ export function applyToStoredFolder(preset, folder) {
   info.viewFlags = preset.viewFlags;
   info.sortType = preset.sortType;
   info.sortOrder = preset.sortOrder;
+  // The folder's sort keys as nsMsgDBView::EncodeColumnSort writes them:
+  // one character for the sort type, one for the order (+ "0").
+  const encode = (type, ascending) =>
+    String.fromCharCode(type) +
+    String.fromCharCode(
+      48 +
+        (ascending
+          ? Ci.nsMsgViewSortOrder.ascending
+          : Ci.nsMsgViewSortOrder.descending)
+    );
+  const secondary = secondaryOf(preset);
+  const secondaryType = secondary && sortTypeForColumn(secondary.column);
+  info.setProperty(
+    "sortColumns",
+    encode(preset.sortType, preset.sortOrder == Ci.nsMsgViewSortOrder.ascending) +
+      (secondaryType ? encode(secondaryType, secondary.ascending) : "")
+  );
   // Without a commit the change is lost when the database closes.
   database.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   folder.msgDatabase = null;

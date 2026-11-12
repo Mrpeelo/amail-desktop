@@ -4,6 +4,8 @@
 
 /* global gSpacesToolbar, goDoCommand, openPreferencesTab, toAddressBook */
 
+import { initSplitButtons } from "chrome://messenger/content/amailSplitButtons.mjs";
+
 /**
  * aMail top bar: brand + Mail/Calendar switch, the tab strip (only shown
  * while more than one tab is open, see mail.tabs.autoHide), global search,
@@ -160,6 +162,7 @@ function onSpacesReady() {
     watchIndexing,
     updateAppSwitch,
     () => adoptToolbarParts(),
+    () => initSplitButtons(),
     () => gSpacesToolbar.toggleToolbar(true),
     applyDefaultThemeOnce,
     offerImportOnFirstStart,

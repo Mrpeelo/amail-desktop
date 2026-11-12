@@ -166,6 +166,13 @@ async function runChecks(out) {
       saveItem: !!document.getElementById("amailSortSave"),
       columns: [],
     });
+    out.push({
+      label: "saved sort applied (secondary = newest first)",
+      secondaryType: gViewWrapper.dbView.secondarySortType,
+      byDate: Ci.nsMsgViewSortType.byDate,
+      secondaryOrder: gViewWrapper.dbView.secondarySortOrder,
+      columns: [],
+    });
     Services.prefs.setStringPref(
       "amail.sort.presets",
       JSON.stringify([{ ...test, mode: "group" }, original])
@@ -208,8 +215,16 @@ async function runChecks(out) {
       applyToStoredFolder(target, other);
       displayFolder(other.URI);
       await wait(2500);
+      const reopened = other.msgDatabase.dBFolderInfo;
+      const stored = [...reopened.getProperty("sortColumns")].map(c =>
+        c.charCodeAt(0)
+      );
+      other.msgDatabase = null;
       out.push({
         label: "saved sort applied to closed folder",
+        storedSortColumns: stored,
+        secondaryType: gViewWrapper?.dbView.secondarySortType,
+        secondaryOrder: gViewWrapper?.dbView.secondarySortOrder,
         folder: other.localizedName,
         wanted: "subjectCol descending, plain list",
         sortedBy: gViewWrapper?.primarySortColumnId,
@@ -262,6 +277,55 @@ async function runChecks(out) {
       sender:
         sender &&
         `${getComputedStyle(sender).fontSize} ${getComputedStyle(sender).color}`,
+      columns: [],
+    });
+  }
+
+  {
+    const doc = top.document;
+    const chevrons = [...doc.querySelectorAll(".amail-split-chevron")];
+    const write = doc.querySelector(
+      'li[item-id="write-message"] .amail-split-chevron'
+    );
+    let menuItems = [];
+    if (write) {
+      let shownEvent = false;
+      top.addEventListener("popupshown", () => (shownEvent = true), {
+        once: true,
+      });
+      try {
+        write.click();
+      } catch (error) {
+        out.push({ label: `ERROR chevron click ${error}`, columns: [] });
+      }
+      await wait(1500);
+      const popup = doc.querySelector(".amail-split-menu");
+      out.push({ label: "write menu shown event", shownEvent, columns: [] });
+      menuItems = popup
+        ? [...popup.children].map(
+            item => `${item.label} [${item.getAttribute("acceltext")}]`
+          )
+        : [];
+      out.push({ label: "write menu state", state: popup?.state, columns: [] });
+      popup?.hidePopup();
+    }
+    const titles = {};
+    for (const id of ["write-message", "get-messages", "reply", "toggle-read"]) {
+      titles[id] = doc.querySelector(`li[item-id="${id}"] button`)?.title;
+    }
+    const chevronRect = write?.getBoundingClientRect();
+    const mainRect = doc
+      .querySelector('li[item-id="write-message"] button')
+      ?.getBoundingClientRect();
+    out.push({
+      label: "split buttons",
+      chevrons: chevrons.map(c => c.closest("li").getAttribute("item-id")),
+      chevronTitle: write?.title,
+      writeMenu: menuItems,
+      joined: chevronRect && mainRect && Math.round(chevronRect.left - mainRect.right),
+      chevronSize: chevronRect && `${Math.round(chevronRect.width)}x${Math.round(chevronRect.height)}`,
+      chevronBg: write && top.getComputedStyle(write).backgroundColor,
+      titles,
       columns: [],
     });
   }
