@@ -39,7 +39,7 @@ body {
   }
 
   .message-header-container {
-    padding: 16px 20px 8px;
+    padding: 8px 20px 8px;
     row-gap: 4px;
   }
 
@@ -93,13 +93,18 @@ body {
 
 @media not (forced-colors) {
   #header-view-toolbar .toolbarbutton-1.message-header-view-button {
-    border-color: transparent !important;
-    background-color: transparent;
+    border: 1px solid var(--color-surface-border) !important;
+    border-radius: 4px;
+    background-color: color-mix(in srgb, var(--color-text-base) 3%, var(--color-surface-base));
     color: var(--color-text-base);
     font-size: 13px;
 
     &:not([disabled]):hover {
-      background-color: color-mix(in srgb, var(--color-text-base) 6%, transparent);
+      background-color: color-mix(in srgb, var(--color-primary-default) 10%, var(--color-surface-base));
+    }
+
+    &:not([disabled]):hover:active {
+      background-color: color-mix(in srgb, var(--color-primary-default) 18%, var(--color-surface-base));
     }
 
     & .toolbarbutton-icon {
@@ -109,13 +114,13 @@ body {
   }
 
   #messageHeader .message-header-datetime {
-    font-size: 12px;
+    font-size: 14px;
     color: var(--color-text-secondary);
   }
 }
 
-/* Subject bar above the card (amailReader.mjs moves the subject, tags and
-   security info into it): close, subject, tags, previous/next. */
+/* Subject row at the top of the card (amailReader.mjs moves the subject, tags
+   and security info into it): subject, tags, previous/next. */
 :root:has(#msgHeaderView[collapsed]) #amailSubjectBar {
   display: none;
 }
@@ -125,8 +130,8 @@ body {
   align-items: center;
   gap: 8px;
   min-block-size: 44px;
-  padding: 8px 8px 0;
-  background-color: var(--color-surface-lower);
+  padding: 12px 12px 0 20px;
+  background-color: var(--color-surface-base);
   color: var(--color-text-base);
 }
 
@@ -213,10 +218,6 @@ body {
     outline: 2px solid var(--color-primary-default);
     outline-offset: -2px;
   }
-}
-
-#amailCloseMessage {
-  --amail-reader-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.2' stroke-linecap='round'%3E%3Crect x='2.5' y='2.5' width='15' height='15' rx='3'/%3E%3Cpath d='m7 7 6 6M13 7l-6 6'/%3E%3C/svg%3E");
 }
 
 #amailPreviousMessage {

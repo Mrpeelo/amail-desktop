@@ -274,6 +274,9 @@ var gSpacesToolbar = {
           return tabInfo.mode.name == "chat" ? 1 : 0;
         },
         open(where) {
+          if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
+            return null;
+          }
           return openTab("chat", {}, where);
         },
       },

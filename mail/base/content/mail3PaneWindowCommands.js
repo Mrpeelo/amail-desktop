@@ -91,7 +91,7 @@ var DefaultController = {
       case "cmd_goFolder":
         return isFolderPaneInitialized();
       case "cmd_chat":
-        return true;
+        return Services.prefs.getBoolPref("mail.chat.enabled");
       case "cmd_joinChat":
       case "cmd_addChatBuddy":
       case "cmd_chatStatus":

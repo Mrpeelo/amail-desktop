@@ -501,6 +501,9 @@ async function toCalendar() {
 }
 
 function showChatTab() {
+  if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
+    return;
+  }
   const tabmail = document.getElementById("tabmail");
   if (gChatTab) {
     tabmail.switchToTab(gChatTab);

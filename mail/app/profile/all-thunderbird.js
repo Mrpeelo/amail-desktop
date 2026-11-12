@@ -870,7 +870,8 @@ pref("mail.taskbar.lists.enabled", true);
 pref("mail.taskbar.lists.tasks.enabled", true);
 #endif
 
-pref("mail.chat.enabled", true);
+// aMail: no chat.
+pref("mail.chat.enabled", false, locked);
 // Whether to show chat notifications or not.
 pref("mail.chat.show_desktop_notifications", true);
 // Decide how much information is to be shown in the notification.

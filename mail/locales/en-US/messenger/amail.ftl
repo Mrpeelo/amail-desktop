@@ -57,9 +57,6 @@ amail-list-sort = Sort
     .title = Sort order and grouping of the message list
 ## Reading pane subject bar
 
-amail-reader-close =
-    .title = Close message (Esc)
-    .aria-label = Close message
 amail-reader-previous =
     .title = Previous message (B)
     .aria-label = Previous message

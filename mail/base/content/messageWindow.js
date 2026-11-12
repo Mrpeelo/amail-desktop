@@ -455,7 +455,7 @@ var MessageWindowController = {
       case "cmd_redo":
         return SetupUndoRedoCommand(command);
       case "cmd_chat":
-        return true;
+        return Services.prefs.getBoolPref("mail.chat.enabled");
       default:
         return false;
     }

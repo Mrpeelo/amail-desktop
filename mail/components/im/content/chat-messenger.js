@@ -381,6 +381,9 @@ var chatTabType = {
     return {};
   },
   restoreTab(aTabmail) {
+    if (!Services.prefs.getBoolPref("mail.chat.enabled")) {
+      return;
+    }
     aTabmail.openTab("chat", {});
   },
 

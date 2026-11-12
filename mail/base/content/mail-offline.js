@@ -238,20 +238,6 @@ var MailOfflineMgr = {
     document
       .getElementById("goOfflineMenuItem")
       .toggleAttribute("checked", aIsOffline);
-    var statusBarPanel = document.getElementById("offline-status");
-    if (aIsOffline) {
-      statusBarPanel.setAttribute("offline", "true");
-      statusBarPanel.setAttribute(
-        "tooltiptext",
-        this.offlineBundle.GetStringFromName("offlineTooltip")
-      );
-    } else {
-      statusBarPanel.removeAttribute("offline");
-      statusBarPanel.setAttribute(
-        "tooltiptext",
-        this.offlineBundle.GetStringFromName("onlineTooltip")
-      );
-    }
   },
 
   /**

@@ -32,11 +32,6 @@ class AccountHubStart extends HTMLElement {
       type: "ADDRESS_BOOK",
     },
     {
-      id: "chat",
-      l10n: "account-hub-chat-setup-button",
-      type: "CHAT",
-    },
-    {
       id: "feed",
       l10n: "account-hub-feed-setup-button",
       type: "FEED",

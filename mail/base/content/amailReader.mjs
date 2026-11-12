@@ -6,24 +6,9 @@
 
 /**
  * aMail reading pane: the subject (with tags and security info) sits on a
- * bar above the message card, with close and previous/next buttons, like
+ * row at the top of the message card, with previous/next buttons, like
  * Outlook on the web.
  */
-
-function closeMessage() {
-  const about3Pane = window.parent != window ? window.parent : null;
-  if (about3Pane?.threadTree) {
-    about3Pane.threadTree.selectedIndices = [];
-    about3Pane.threadTree.table.body.focus();
-    return;
-  }
-  const top = window.browsingContext.topChromeWindow;
-  if (top.document.documentElement.getAttribute("windowtype") == "mail:messageWindow") {
-    top.close();
-  } else {
-    top.document.getElementById("tabmail")?.closeTab();
-  }
-}
 
 function navigate(command) {
   if (commandController.isCommandEnabled(command)) {
@@ -42,9 +27,6 @@ function init() {
   header.classList.add("message-header-show-big-avatar");
   header.classList.remove("message-header-show-sender-full-address");
 
-  document
-    .getElementById("amailCloseMessage")
-    .addEventListener("click", closeMessage);
   document
     .getElementById("amailPreviousMessage")
     .addEventListener("click", () => navigate("cmd_previousMsg"));
