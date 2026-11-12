@@ -2197,6 +2197,15 @@ class TreeViewTable extends HTMLTableElement {
       }
 
       headerCell.resizable = this.isHorizontalScroll || column != flexColumn;
+      // Columns after the flex column grow towards it, so their drag handle
+      // sits on their start edge.
+      const resizeFromStart =
+        !this.isHorizontalScroll &&
+        this.columns.indexOf(column) > this.columns.indexOf(flexColumn);
+      headerCell.toggleAttribute("resize-from-start", resizeFromStart);
+      headerCell
+        .querySelector("hr")
+        ?.toggleAttribute("resize-from-start", resizeFromStart);
       const width = column.width ?? column.defaultWidth;
       if (width) {
         headerCell.style.setProperty(`--${column.id}Splitter-width`, `${width}px`);

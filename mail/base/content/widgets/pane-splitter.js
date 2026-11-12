@@ -421,7 +421,8 @@
         // Whether decreasing X/Y should increase the size.
         negative: vertical
           ? this._beforeElement
-          : this._beforeElement == ltrDir,
+          : (this._beforeElement || this.hasAttribute("resize-from-start")) ==
+            ltrDir,
         size: this._getActualResizeSize(),
         collapseSize,
       };

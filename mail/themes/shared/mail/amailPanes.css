@@ -346,9 +346,9 @@
 }
 
 /* Column sizing: only Subject absorbs free width, so maximizing or resizing
-   the reading pane never changes the other columns. Received keeps its own
-   drag handle (Thunderbird hides it on the last column) and every column
-   has a minimum width. */
+   the reading pane never changes the other columns. Columns right of Subject
+   resize from their left edge (tree-view.mjs) and every column has a
+   minimum width. */
 #threadTree {
   & th#subjectCol {
     width: auto !important;
@@ -357,11 +357,6 @@
 
   & th#dateCol {
     min-inline-size: 110px;
-
-    &.last-column hr[is="pane-splitter"] {
-      display: block;
-      inset-inline-end: 28px;
-    }
   }
 
   & th:is(#senderCol, #recipientCol, #correspondentCol) {

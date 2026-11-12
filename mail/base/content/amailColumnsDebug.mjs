@@ -97,11 +97,32 @@ export async function runColumnsDebug() {
     if (!splitter || th.hidden) {
       continue;
     }
-    const start = th.getBoundingClientRect().width;
-    splitter._updateSize(start + 120);
+    const start = th.getBoundingClientRect();
+    const handle = splitter.getBoundingClientRect();
+    const x = handle.left + handle.width / 2;
+    const y = handle.top + handle.height / 2;
+    const mouse = (target, type, clientX) =>
+      target.dispatchEvent(
+        new MouseEvent(type, { bubbles: true, buttons: 1, clientX, clientY: y })
+      );
+    mouse(splitter, "mousedown", x);
+    mouse(window, "mousemove", x - 60);
+    mouse(window, "mousemove", x - 120);
+    mouse(window, "mouseup", x - 120);
     await wait(500);
-    out.push(snapshot(`${id} drag +120 (from ${Math.round(start)})`));
-    splitter._updateSize(start);
+    const end = th.getBoundingClientRect();
+    out.push({
+      label: `${id} mouse drag 120px left`,
+      handleX: Math.round(x - start.left),
+      handleDisplay: getComputedStyle(splitter).display,
+      widthBefore: Math.round(start.width),
+      widthAfter: Math.round(end.width),
+      leftBefore: Math.round(start.left),
+      leftAfter: Math.round(end.left),
+      columns: [],
+    });
+    splitter._updateSize(start.width);
+    splitter.dispatchEvent(new CustomEvent("splitter-resized"));
     await wait(300);
   }
 
