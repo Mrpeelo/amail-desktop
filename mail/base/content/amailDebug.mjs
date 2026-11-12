@@ -56,6 +56,46 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Message list columns: which cells take the width before Subject. */
+  async "list-columns"(record) {
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const describe = () => {
+      const tree = document.getElementById("threadTree");
+      const row = tree.querySelector("tbody tr[is]") ?? tree.querySelector("tbody tr:nth-child(3)");
+      record({
+        label: "folder " + window.gFolder?.prettyName,
+        rows: tree.getAttribute("rows"),
+        classes: tree.className,
+        threaded: window.gViewWrapper?.showThreaded,
+        grouped: window.gViewWrapper?.showGroupedBySort,
+        parents: tree.querySelectorAll("tr.children").length,
+        header: [...tree.querySelectorAll("thead th")]
+          .filter(th => !th.hidden)
+          .map(th => `${th.id}:${Math.round(th.getBoundingClientRect().width)}`),
+        firstRow: row
+          ? [...row.children].map(
+              td => `${td.className || td.dataset.columnName}:${Math.round(td.getBoundingClientRect().width)}`
+            )
+          : null,
+        subjectCell: row?.querySelector(".subjectcol-column")?.outerHTML.slice(0, 1500),
+        subjectParts: [...(row?.querySelector(".subjectcol-column")?.querySelectorAll("*") ?? [])].map(
+          n => `${n.localName}.${n.className}:${Math.round(n.getBoundingClientRect().x)}+${Math.round(n.getBoundingClientRect().width)} pad=${getComputedStyle(n).paddingInlineStart} m=${getComputedStyle(n).marginInlineStart}`
+        ),
+      });
+    };
+    await wait(3000);
+    describe();
+    const feed = MailServices.accounts.allFolders.find(f => f.prettyName?.startsWith("Neila"));
+    if (feed) {
+      window.displayFolder(feed.URI);
+      await wait(3000);
+      describe();
+    }
+    await snapshot("list-columns");
+  },
+
   /**
    * Writing a new message opens inline in place of the message list and
    * reader, not in a window; closing brings the list back.
