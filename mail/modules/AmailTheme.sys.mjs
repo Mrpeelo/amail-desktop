@@ -13,12 +13,16 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  setTimeout: "resource://gre/modules/Timer.sys.mjs",
 });
 
 const PALETTE_PREF = "amail.theme.palette";
 const RESTORE_PREF = "amail.theme.restoreTheme";
 const LIGHT_THEME = "thunderbird-compact-light@mozilla.org";
 const DARK_THEME = "thunderbird-compact-dark@mozilla.org";
+/** While set, amailPalettes.css turns transitions off, so new colors apply in one step. */
+const CHANGING_PREF = "amail.theme.changing";
+const CHANGING_SETTLE_MS = 300;
 
 /** Palette -> the theme it always uses. */
 const FORCED_THEMES = {
@@ -30,6 +34,27 @@ const FORCED_THEMES = {
 };
 
 let pending = Promise.resolve();
+let changeCount = 0;
+
+/**
+ * Turn transitions off until the colors have settled. Without this, hundreds
+ * of color transitions restyle and repaint the whole window for 200 ms.
+ */
+function colorsChanging() {
+  const change = ++changeCount;
+  if (!Services.prefs.getBoolPref(CHANGING_PREF, false)) {
+    Services.prefs.setBoolPref(CHANGING_PREF, true);
+  }
+  // Let the change that triggered this queue its work first.
+  lazy.setTimeout(async () => {
+    await pending;
+    lazy.setTimeout(() => {
+      if (change == changeCount) {
+        Services.prefs.clearUserPref(CHANGING_PREF);
+      }
+    }, CHANGING_SETTLE_MS);
+  }, 0);
+}
 
 async function applyNow() {
   const themes = await lazy.AddonManager.getAddonsByTypes(["theme"]);
@@ -72,8 +97,17 @@ export const AmailTheme = {
   },
 
   init() {
-    Services.prefs.addObserver(PALETTE_PREF, () => this.apply());
+    Services.prefs.clearUserPref(CHANGING_PREF);
+    Services.prefs.addObserver(PALETTE_PREF, () => {
+      colorsChanging();
+      this.apply();
+    });
     lazy.AddonManager.addAddonListener({
+      onEnabling: addon => {
+        if (addon.type == "theme") {
+          colorsChanging();
+        }
+      },
       onEnabled: addon => {
         if (addon.type == "theme" && this.forcedTheme && addon.id != this.forcedTheme) {
           this.apply();

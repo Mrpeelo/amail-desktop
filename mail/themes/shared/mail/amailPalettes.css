@@ -21,6 +21,16 @@
  * specificity so these win over colors.css, which imports this file.
  */
 
+/* While the palette or theme changes (AmailTheme.sys.mjs), colors switch in
+   one step instead of hundreds of transitions. */
+@media -moz-pref("amail.theme.changing") {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
 /* Text on the primary colour (Write, primary buttons, today's date). */
 :root,
 :host {
