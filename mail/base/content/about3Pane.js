@@ -4726,24 +4726,13 @@ var threadPaneHeader = {
       });
     });
 
-    // aMail list header toggles: Compact (table view), Conversations
-    // (threaded), Run filters.
+    // aMail list header toggles: Compact (table view), Run filters.
     document
       .getElementById("amailCompactButton")
       .addEventListener("click", () => {
         const compact =
           Services.prefs.getIntPref("mail.threadpane.listview", 0) == 1;
         Services.prefs.setIntPref("mail.threadpane.listview", compact ? 0 : 1);
-      });
-    document
-      .getElementById("amailConversationsButton")
-      .addEventListener("click", () => {
-        if (gViewWrapper?.showThreaded) {
-          sortController.sortUnthreaded();
-        } else {
-          sortController.sortThreaded();
-        }
-        this.updateAmailToggles();
       });
     // The Sort button opens Thunderbird's sort menu on its own; the display
     // menu that used to hold it is not shown in aMail.
@@ -4779,7 +4768,7 @@ var threadPaneHeader = {
   },
 
   /**
-   * Reflect the list view and threading state on the aMail toggles.
+   * Reflect the list view state on the aMail toggles.
    */
   updateAmailToggles() {
     const compact =
@@ -4788,9 +4777,6 @@ var threadPaneHeader = {
       .getElementById("amailCompactButton")
       .setAttribute("aria-pressed", compact);
     document.getElementById("amailColumnsButton").hidden = !compact;
-    document
-      .getElementById("amailConversationsButton")
-      .setAttribute("aria-pressed", !!gViewWrapper?.showThreaded);
   },
 
   uninit() {

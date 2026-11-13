@@ -97,7 +97,42 @@ body {
     border-radius: 4px;
     background-color: color-mix(in srgb, var(--color-text-base) 3%, var(--color-surface-base));
     color: var(--color-text-base);
-    font-size: 13px;
+    /* Same size as the command bar buttons. */
+    font-size: 14px;
+    min-block-size: 32px;
+    padding-block: 3px;
+
+    &:not([is="toolbarbutton-menu-button"]),
+    & > .toolbarbutton-menubutton-button {
+      padding-inline: 3px;
+    }
+
+    & .toolbarbutton-icon {
+      inline-size: 16px;
+      block-size: 16px;
+    }
+
+    & .toolbarbutton-text {
+      padding-inline-start: 6px;
+    }
+
+    /* Reply all ▾: one box with a divider, not a box inside a box. */
+    &[is="toolbarbutton-menu-button"] {
+      padding-block: 0;
+
+      & > .toolbarbutton-menubutton-button,
+      & > .toolbarbutton-menubutton-dropmarker {
+        align-self: stretch;
+        margin: 0;
+        border-color: transparent !important;
+        border-radius: 0;
+        background-color: transparent;
+      }
+
+      & > .toolbarbutton-menubutton-dropmarker {
+        border-inline-start-color: var(--color-surface-border) !important;
+      }
+    }
 
     &:not([disabled]):hover {
       background-color: color-mix(in srgb, var(--color-primary-default) 10%, var(--color-surface-base));

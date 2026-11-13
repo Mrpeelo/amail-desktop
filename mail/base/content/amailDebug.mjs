@@ -56,6 +56,125 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Batch A: Conversations button gone, ungrouped default, separator before
+   * Reply, no alerts-service errors, reader button sizes. */
+  async "batch-a"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const errorsBefore = Services.console
+      .getMessageArray()
+      .map(m => m.message ?? String(m));
+    const header = [...document.querySelectorAll("#threadPaneHeaderBar button:not([hidden])")]
+      .filter(b => b.getBoundingClientRect().width)
+      .map(b => b.textContent.trim() || b.id);
+    record({
+      label: "list header",
+      conversationsButton: !!document.getElementById("amailConversationsButton"),
+      buttons: header,
+      defaultViewFlags: Services.prefs.getIntPref("mailnews.default_view_flags"),
+    });
+
+    const folder = MailServices.accounts.allFolders
+      .filter(f => f.getFlag(Ci.nsMsgFolderFlags.Archive) && f.server.type == "imap")
+      .sort((a, b) => b.getTotalMessages(false) - a.getTotalMessages(false))[0];
+    window.displayFolder(folder.URI);
+    await wait(3000);
+    const wasThreaded = window.gViewWrapper.showThreaded;
+    window.sortController.sortThreaded();
+    await wait(1000);
+    const threaded = window.gViewWrapper.showThreaded;
+    if (!wasThreaded) {
+      window.sortController.sortUnthreaded();
+      await wait(1000);
+    }
+    record({ label: "sort menu threading", wasThreaded, threaded, after: window.gViewWrapper.showThreaded });
+
+    const bar = top.document.getElementById("unifiedToolbarContent");
+    const sep = item => {
+      const li = bar.querySelector(`li[item-id="${item}"]`);
+      return li ? top.getComputedStyle(li, "::before").content : "missing";
+    };
+    record({ label: "separators", delete: sep("delete"), toggleRead: sep("toggle-read"), reply: sep("reply") });
+
+    const identity = MailServices.accounts.defaultAccount.defaultIdentity;
+    const eml = [
+      "From: Test Sender <sender@example.com>",
+      `To: ${identity.email}, colleague@example.com`,
+      "Cc: another@example.com",
+      "Subject: Reader button sizes",
+      `Date: ${new Date().toUTCString()}`,
+      "Message-ID: <amail-test-buttons@example.com>",
+      "MIME-Version: 1.0",
+      "Content-Type: text/plain; charset=UTF-8",
+      "",
+      "Test.",
+      "",
+    ].join("\r\n");
+    const emlPath = PathUtils.join(PathUtils.profileDir, "amail-test-buttons.eml");
+    await IOUtils.writeUTF8(emlPath, eml);
+    const emlUrl = Services.io.newFileURI(await IOUtils.getFile(emlPath)).spec + "?type=application/x-message-display";
+    const tabmail = top.document.getElementById("tabmail");
+    tabmail.openTab("mailMessageTab", { messageURI: emlUrl, background: false });
+    await wait(3500);
+    const msgTab = tabmail.currentTabInfo;
+    const metrics = (win, el) => {
+      if (!el || !el.getBoundingClientRect().width) {
+        return null;
+      }
+      const cs = win.getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      const icon = el.querySelector(".button-icon, .toolbarbutton-icon") ??
+        el.shadowRoot?.querySelector(".toolbarbutton-icon");
+      const text = el.querySelector(".button-label, .toolbarbutton-text") ??
+        el.shadowRoot?.querySelector(".toolbarbutton-text");
+      const ir = icon?.getBoundingClientRect();
+      return {
+        w: Math.round(r.width), h: Math.round(r.height),
+        font: cs.fontSize, weight: cs.fontWeight, pad: `${cs.paddingTop} ${cs.paddingInlineEnd} ${cs.paddingBottom} ${cs.paddingInlineStart}`,
+        border: cs.borderTopWidth, radius: cs.borderTopLeftRadius, bg: cs.backgroundColor, color: cs.color,
+        icon: ir ? `${Math.round(ir.width)}x${Math.round(ir.height)}` : null,
+        gap: cs.gap,
+        textFont: text ? win.getComputedStyle(text).fontSize : null,
+        textW: text ? Math.round(text.getBoundingClientRect().width) : null,
+      };
+    };
+    const cmd = {};
+    for (const id of ["delete", "flag-message", "reply", "reply-all", "forward-inline"]) {
+      cmd[id] = metrics(top, bar.querySelector(`li[item-id="${id}"] .unified-toolbar-button`));
+    }
+    record({ label: "command bar buttons", cmd });
+    const msgWin = msgTab.chromeBrowser.contentWindow;
+    const doc = msgWin.document;
+    const reader = {};
+    for (const id of ["hdrReplyButton", "hdrReplyAllButton", "hdrReplyListButton", "hdrForwardButton", "otherActionsButton"]) {
+      const el = doc.getElementById(id);
+      reader[id] = metrics(msgWin, el);
+      if (reader[id] && el.getAttribute("is") == "toolbarbutton-menu-button") {
+        reader[id].inner = metrics(msgWin, el.querySelector(".toolbarbutton-menubutton-button"));
+        reader[id].marker = metrics(msgWin, el.querySelector(".toolbarbutton-menubutton-dropmarker"));
+      }
+    }
+    record({ label: "reader buttons", reader, toolbar: doc.getElementById("header-view-toolbar")?.getBoundingClientRect().height });
+    const tb = doc.getElementById("header-view-toolbar").getBoundingClientRect();
+    const br = msgTab.chromeBrowser.getBoundingClientRect();
+    await snapshot("batch-a-reader", top, new top.DOMRect(br.x + tb.x - 40, br.y + tb.y - 30, tb.width + 80, tb.height + 60));
+    await snapshot("batch-a-bar", top, new top.DOMRect(0, 0, 1400, 110));
+    tabmail.closeTab(msgTab);
+    await IOUtils.remove(emlPath);
+
+    const errors = Services.console
+      .getMessageArray()
+      .map(m => m.message ?? String(m))
+      .filter(m => /alerts|MailGlue|msgHdrView/i.test(m));
+    record({
+      label: "alert errors",
+      atStartup: errorsBefore.filter(m => /alerts|MailGlue|msgHdrView/i.test(m)).map(m => m.slice(0, 200)),
+      all: errors.map(m => m.slice(0, 200)),
+    });
+  },
+
   /** Attachments browser: paperclip opens it, list, filters, sort. */
   async "attachments-browser"(record) {
     const top = window.browsingContext.topChromeWindow;

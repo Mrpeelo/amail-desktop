@@ -57,9 +57,14 @@ ChromeUtils.defineLazyGetter(lazy, "windowsAlertsService", () => {
   if (!("nsIWindowsAlertsService" in Ci)) {
     return null;
   }
-  return Cc["@mozilla.org/system-alerts-service;1"]
-    ?.getService(Ci.nsIAlertsService)
-    ?.QueryInterface(Ci.nsIWindowsAlertsService);
+  // The portable aMail build only starts it with alerts.useSystemBackend.
+  try {
+    return Cc["@mozilla.org/system-alerts-service;1"]
+      ?.getService(Ci.nsIAlertsService)
+      ?.QueryInterface(Ci.nsIWindowsAlertsService);
+  } catch (e) {
+    return null;
+  }
 });
 
 if (AppConstants.MOZ_UPDATER) {
@@ -502,7 +507,7 @@ MailGlue.prototype = {
           // initialized, so make sure that is lazy. Hopefully we're not
           // using it for the first time at shut-down, but that would be very
           // difficult to avoid.
-          lazy.windowsAlertsService.removeAllNotificationsForInstall();
+          lazy.windowsAlertsService?.removeAllNotificationsForInstall();
         }
         break;
       case "mail-startup-done":

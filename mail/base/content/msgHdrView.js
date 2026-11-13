@@ -676,7 +676,9 @@ var messageProgressListener = {
     this.onEndAllAttachments();
 
     // Close any notification we might have about this message.
-    Cc["@mozilla.org/system-alerts-service;1"]
+    // aMail: the general service, which also works when the system one is
+    // off (portable build).
+    Cc["@mozilla.org/alerts-service;1"]
       .getService(Ci.nsIAlertsService)
       .closeAlert(gMessageURI);
 
