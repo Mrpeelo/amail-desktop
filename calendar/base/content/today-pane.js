@@ -69,7 +69,8 @@ var TodayPane = {
    * Sets up the today pane: the agenda (aMail has no tasks).
    */
   updateDisplay() {
-    if (!this.isLoaded) {
+    // aMail has no Today pane.
+    if (!this.isLoaded || !this.isVisible) {
       return;
     }
     const agendaIsVisible = true;
@@ -391,19 +392,13 @@ var TodayPane = {
   },
 
   get isVisible() {
-    return document.getElementById("today-pane-panel").isVisible();
+    return false;
   },
 
   /**
-   * Toggle the today-pane and update its visual appearance.
-   *
-   * @param {Event} aEvent - The DOM event occurring on activated command.
+   * aMail has no Today pane, so its toggle (command, splitter) does nothing.
    */
-  toggleVisibility(aEvent) {
-    document.getElementById("today-pane-panel").togglePane(aEvent);
-    TodayPane.updateDisplay();
-    TodayPane.updateSplitterState();
-  },
+  toggleVisibility() {},
 
   /**
    * Update the today-splitter state.

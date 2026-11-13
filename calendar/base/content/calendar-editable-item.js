@@ -293,6 +293,9 @@
       if (firstCategory) {
         categoriesBox.hidden = false;
         categoriesBox.style.backgroundColor = `var(--category-${firstCategory}-color)`;
+        // aMail: the whole item takes the category colour, as in Outlook.
+        this.style.setProperty("--item-backcolor", `var(--category-${firstCategory}-color)`);
+        this.style.setProperty("--item-forecolor", `var(--category-${firstCategory}-text-color)`);
       } else {
         categoriesBox.hidden = true;
       }
@@ -408,12 +411,21 @@
       this.setAttribute("calendar", item.calendar.name.toLowerCase());
 
       // Invitation.
+      let partstat = null;
       if (cal.itip.isInvitation(item)) {
-        this.setAttribute(
-          "invitation-status",
-          cal.itip.getInvitedAttendee(item).participationStatus
-        );
+        partstat = cal.itip.getInvitedAttendee(item).participationStatus;
+        this.setAttribute("invitation-status", partstat);
       }
+
+      // aMail "show as": busy (solid), tentative (hatched), free (outlined).
+      let showAs = item.getProperty("TRANSP") == "TRANSPARENT" ? "free" : "busy";
+      if (
+        showAs == "busy" &&
+        (item.status == "TENTATIVE" || partstat == "TENTATIVE" || partstat == "NEEDS-ACTION")
+      ) {
+        showAs = "tentative";
+      }
+      this.setAttribute("amail-showas", showAs);
     }
 
     startEditing() {

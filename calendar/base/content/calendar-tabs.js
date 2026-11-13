@@ -409,6 +409,10 @@ var gLastShownCalendarView = {
  *   if notalready there.
  */
 function switchCalendarView(aType, aShow) {
+  // aMail has no Multiweek view; Month is the closest.
+  if (aType == "multiweek") {
+    aType = "month";
+  }
   gLastShownCalendarView.set(aType);
 
   if (aShow && gCurrentMode != "calendar") {

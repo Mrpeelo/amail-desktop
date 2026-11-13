@@ -4,40 +4,6 @@
 
 <menuseparator id="calViewMenuSeparator"
                class="hide-when-calendar-deactivated"/>
-<menu id="calTodayPaneMenu"
-      class="hide-when-calendar-deactivated"
-      data-l10n-id="calendar-context-today-pane">
-  <menupopup id="calTodayPaneMenuPopup">
-    <menuitem id="calShowTodayPane-2"
-              label="&todaypane.showTodayPane.label;"
-              accesskey="&todaypane.showTodayPane.accesskey;"
-              type="checkbox"
-              key="todaypanekey"
-              command="calendar_toggle_todaypane_command"/>
-    <menuseparator id="calSeparatorBeforeDisplayMiniday"/>
-    <menuitem id="calTodayPaneDisplayMiniday"
-              name="minidisplay"
-              value="miniday"
-              type="radio"
-              oncommand="TodayPane.displayMiniSection('miniday')"
-              label="&todaypane.showMiniday.label;"
-              accesskey="&todaypane.showMiniday.accesskey;"/>
-    <menuitem id="calTodayPaneDisplayMinimonth"
-              name="minidisplay"
-              value="minimonth"
-              type="radio"
-              oncommand="TodayPane.displayMiniSection('minimonth')"
-              label="&todaypane.showMinimonth.label;"
-              accesskey="&todaypane.showMinimonth.accesskey;"/>
-    <menuitem id="calTodayPaneDisplayNone"
-              name="minidisplay"
-              value="none"
-              type="radio"
-              oncommand="TodayPane.displayMiniSection('none')"
-              label="&todaypane.showNone.label;"
-              accesskey="&todaypane.showNone.accesskey;"/>
-  </menupopup>
-</menu>
 <menu id="calCalendarMenu"
       class="hide-when-calendar-deactivated"
       observes="calendar_in_foreground"
@@ -56,12 +22,6 @@
               type="radio"
               name="calendarMenuViews"
               command="calendar_week-view_command"/>
-    <menuitem id="calChangeViewMultiweek"
-              label="&lightning.toolbar.multiweek.label;"
-              accesskey="&lightning.toolbar.multiweek.accesskey;"
-              type="radio"
-              name="calendarMenuViews"
-              command="calendar_multiweek-view_command"/>
     <menuitem id="calChangeViewMonth"
               label="&lightning.toolbar.month.label;"
               accesskey="&lightning.toolbar.month.accesskey;"

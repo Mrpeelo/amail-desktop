@@ -1,0 +1,174 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* aMail calendar: the Outlook look. */
+
+/* No Today pane (the right-hand pane) anywhere in aMail. */
+#today-pane-panel,
+#today-splitter,
+#calendar-show-todaypane-panel {
+  display: none !important;
+}
+
+#calendarTabPanel {
+  --viewTodayBackground: color-mix(in srgb, var(--color-primary-default) 5%, var(--viewBackground));
+  --viewTodayOffBackground: var(--viewTodayBackground);
+  --viewTodayWeekendBackground: var(--viewTodayBackground);
+  --viewMonthDayOtherBackground: var(--color-surface-lower);
+  --viewWeekendBackground: var(--viewBackground);
+  --viewBorderColor: var(--color-surface-border);
+  --viewDayBoxSelectedBackground: color-mix(in srgb, var(--color-primary-default) 10%, var(--viewBackground));
+  --viewDayBoxOffSelectedBackground: var(--viewDayBoxSelectedBackground);
+  --viewDayBoxOtherSelectedBackground: color-mix(in srgb, var(--color-primary-default) 10%, var(--color-surface-lower));
+}
+
+/* The calendar's command row: Today, ‹ ›, the period … Day | Week | Month,
+   Find events. */
+#calendarViewHeader {
+  min-block-size: var(--amail-commandbar-height);
+  box-sizing: border-box;
+  padding-block: 0;
+  padding-inline: 12px;
+  border-block-end: 1px solid var(--color-surface-border);
+  background-color: var(--color-surface-base);
+
+  & .button {
+    min-block-size: 32px;
+    border-radius: var(--amail-radius-s);
+  }
+}
+
+#calendarControls {
+  gap: 8px;
+}
+
+#todayViewButton {
+  background-image: none;
+  padding-inline: 14px;
+  font-weight: 600;
+}
+
+#intervalDescription {
+  font-size: 18px;
+  font-weight: 600;
+  -webkit-line-clamp: 1;
+}
+
+#calendarWeek {
+  color: var(--color-text-secondary);
+  font-weight: normal;
+}
+
+.calview-toggle {
+  border-radius: var(--amail-radius-s);
+  border-color: var(--color-surface-border);
+  background-color: transparent;
+  box-shadow: none;
+  font-weight: normal;
+}
+
+button.calview-toggle-item {
+  margin: 2px;
+  padding: 4px 14px;
+  border-radius: 3px;
+  background-color: transparent;
+
+  &[role="tab"][aria-selected="true"],
+  &[role="tab"][aria-selected="true"]:hover {
+    border-color: transparent;
+    box-shadow: none;
+    background-color: color-mix(in srgb, var(--color-primary-default) 14%, transparent);
+    color: var(--color-primary-default);
+    font-weight: 600;
+  }
+}
+
+#amailFindEventsButton {
+  background-image: var(--icon-search);
+
+  &[aria-pressed="true"] {
+    background-color: color-mix(in srgb, var(--color-primary-default) 14%, transparent);
+    color: var(--color-primary-default);
+  }
+}
+
+/* Month: today is a blue number pill, not a filled day. */
+.calendar-month-day-box-current-month[relation="today"],
+.calendar-month-day-box-day-off[relation="today"] {
+  background-color: var(--viewBackground);
+}
+
+.calendar-month-day-box-other-month[relation="today"] {
+  background-color: var(--viewMonthDayOtherBackground);
+}
+
+.calendar-month-day-box-date-label[relation="today"] {
+  background-color: var(--color-primary-default);
+  color: #fff;
+}
+
+.calendar-month-day-box-week-label {
+  color: var(--color-text-secondary);
+}
+
+/* Events: category colour fill (calendar-editable-item.js), and how the time
+   is shown as, as in Outlook: busy solid, tentative hatched, free outlined. */
+.calendar-color-box {
+  border-radius: 3px;
+
+  & .calendar-category-box {
+    display: none;
+  }
+
+  &[amail-showas] {
+    opacity: 1;
+    outline: none;
+  }
+
+  &[amail-showas="tentative"] {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12'><path d='M-3 3l6-6M0 12L12 0M9 15l6-6' stroke='white' stroke-opacity='0.4' stroke-width='4'/></svg>");
+    background-size: 12px 12px;
+  }
+
+  &[amail-showas="free"] {
+    background-color: var(--viewBackground);
+    color: var(--color-text-base, currentColor);
+    box-shadow: inset 0 0 0 1px var(--item-backcolor),
+      inset 3px 0 0 var(--item-backcolor);
+  }
+
+  &:is([invitation-status="DECLINED"], [status="CANCELLED"]) {
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+
+  /* Your answer to an invitation: accepted, tentative, declined. */
+  &:is([invitation-status="ACCEPTED"], [invitation-status="TENTATIVE"], [invitation-status="DECLINED"])
+    .event-name-label::before {
+    content: "";
+    display: inline-block;
+    inline-size: 14px;
+    block-size: 14px;
+    margin-inline-end: 4px;
+    vertical-align: -2px;
+    background: no-repeat center / contain;
+  }
+
+  &[invitation-status="ACCEPTED"] .event-name-label::before {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7.5' fill='white'/><path d='M4.4 8.4l2.4 2.4 4.8-5.2' fill='none' stroke='%23107c10' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  }
+
+  &[invitation-status="TENTATIVE"] .event-name-label::before {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7.5' fill='white'/><path d='M6 6.2a2 2 0 1 1 2.8 1.8c-.6.3-.8.6-.8 1.3v.4' fill='none' stroke='%235c2e91' stroke-width='1.8' stroke-linecap='round'/><circle cx='8' cy='11.8' r='1.1' fill='%235c2e91'/></svg>");
+  }
+
+  &[invitation-status="DECLINED"] .event-name-label::before {
+    background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7.5' fill='white'/><path d='M5.3 5.3l5.4 5.4M10.7 5.3l-5.4 5.4' fill='none' stroke='%23d13438' stroke-width='2' stroke-linecap='round'/></svg>");
+  }
+}
+
+/* Week / day: the red "now" line at full strength. */
+.timeIndicator {
+  opacity: 1;
+}

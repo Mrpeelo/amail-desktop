@@ -407,9 +407,9 @@ unified-toolbar {
   }
 }
 
-/* The command bar is for mail and calendar; Settings, Address Book etc.
-   don't need it. */
-:root[amail-space]:not([amail-space="mail"], [amail-space="calendar"]) unified-toolbar {
+/* The command bar is for mail. The calendar has its own row (Today, ‹ ›,
+   Day | Week | Month); Settings, Address Book etc. don't need one. */
+:root[amail-space]:not([amail-space="mail"]) unified-toolbar {
   display: none;
 }
 

@@ -99,7 +99,7 @@
         <vbox id="calendar-deactivated-notification-location-events">
           <!-- Calendar deactivated notificationbox for events will be added here lazily. -->
         </vbox>
-        <vbox id="bottom-events-box" persist="height">
+        <vbox id="bottom-events-box" persist="height" hidden="hidden">
           <hbox id="unifinder-searchBox" class="themeable-brighttext" persist="collapsed">
             <box align="center">
               <menulist id="event-filter-menulist" value="P7D" persist="value">
@@ -221,6 +221,7 @@
           </tree>
         </vbox>
         <splitter id="calendar-view-splitter"
+                  hidden="hidden"
                   resizebefore="closest"
                   resizeafter="farthest"
                   persist="state"
@@ -236,16 +237,16 @@
                   "foobar-view", then you need to add the attribute
                   tooltiptext-foobar="..." -->
             <div id="calendarControls">
+              <button id="todayViewButton"
+                      class="button"
+                      data-l10n-id="amail-calendar-today"
+                      onclick="currentView().moveView()"
+                      type="button">
+              </button>
               <div class="button-group">
                 <button id="previousViewButton"
                         class="button icon-button icon-only"
                         onclick="goDoCommand('calendar_view_prev_command')"
-                        type="button">
-                </button>
-                <button id="todayViewButton"
-                        class="button icon-button icon-only"
-                        data-l10n-id="calendar-today-button-tooltip"
-                        onclick="currentView().moveView()"
                         type="button">
                 </button>
                 <button id="nextViewButton"
@@ -276,14 +277,6 @@
                       aria-controls="week-view"
                       aria-selected="true"
                       data-l10n-id="calendar-view-toggle-week"></button>
-              <button id="calTabMultiweek"
-                      class="calview-toggle-item"
-                      role="tab"
-                      value="multiweek"
-                      tabindex="-1"
-                      aria-controls="multiweek-view"
-                      aria-selected="false"
-                      data-l10n-id="calendar-view-toggle-multiweek"></button>
               <button id="calTabMonth"
                       class="calview-toggle-item"
                       role="tab"
@@ -293,6 +286,13 @@
                       aria-selected="false"
                       data-l10n-id="calendar-view-toggle-month"></button>
             </div>
+            <button id="amailFindEventsButton"
+                    class="button icon-button"
+                    aria-pressed="false"
+                    data-l10n-id="amail-calendar-find-events"
+                    onclick="goDoCommand('calendar_show_unifinder_command')"
+                    type="button">
+            </button>
             <button id="calendarControlBarMenu"
                     class="button button-flat icon-button icon-only"
                     onclick="showCalControlBarMenuPopup(event)"
@@ -424,7 +424,6 @@
   <menuitem id="findEventsButton"
             data-l10n-id="calendar-find-events-menu-option"
             type="checkbox"
-            checked=""
             command="calendar_show_unifinder_command"/>
   <menuseparator id="separatorBeforeHideWeekends"/>
   <menuitem id="hideWeekendsButton"

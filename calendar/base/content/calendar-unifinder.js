@@ -31,6 +31,7 @@ function toggleUnifinder() {
   // Toggle the elements
   goToggleToolbar("bottom-events-box", "calendar_show_unifinder_command");
   goToggleToolbar("calendar-view-splitter", "calShowUnifinder");
+  document.getElementById("amailFindEventsButton").ariaPressed = wasHidden;
   window.dispatchEvent(new CustomEvent("viewresize"));
 
   if (wasHidden) {
@@ -86,6 +87,9 @@ async function prepareCalendarUnifinder() {
 
   const searchBox = document.getElementById("unifinder-search-field");
   searchBox.addEventListener("input", updateUnifinderFilterText);
+
+  document.getElementById("amailFindEventsButton").ariaPressed =
+    !document.getElementById("bottom-events-box").hidden;
 }
 
 /**

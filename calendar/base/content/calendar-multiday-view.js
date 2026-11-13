@@ -2037,7 +2037,8 @@
       // We set the scrollMinute, so that when onResize is eventually triggered
       // by refresh, we will scroll to this.
       // FIXME: Find a cleaner solution.
-      this.scrollMinute = this.dayStartHour * 60;
+      // aMail: open an hour before the working day (07:00 by default).
+      this.scrollMinute = Math.max(0, this.dayStartHour - 1) * 60;
     }
 
     ensureInitialized() {

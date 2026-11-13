@@ -437,3 +437,10 @@ amail-attachments-pending = { $count ->
   }
 amail-attachments-download = Download them now
 amail-attachments-downloading = Downloading… The list fills in after the next search indexing.
+
+## Calendar
+
+amail-calendar-today = Today
+    .title = Go to today
+amail-calendar-find-events = Find events
+    .title = Show or hide the list for finding events
