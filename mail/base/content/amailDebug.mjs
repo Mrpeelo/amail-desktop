@@ -56,36 +56,6 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
-  /** Profile one light -> dark palette switch. */
-  async "theme-profile"(record) {
-    const { AmailTheme } = ChromeUtils.importESModule(
-      "resource:///modules/AmailTheme.sys.mjs"
-    );
-    const original = Services.prefs.getStringPref("amail.theme.palette");
-    Services.prefs.setStringPref("amail.theme.palette", "synthwave");
-    await AmailTheme.apply();
-    await wait(2000);
-    Services.profiler.StartProfiler(1000000, 0.5, ["js", "stackwalk", "cpu"], ["GeckoMain"]);
-    await wait(500);
-    const t = performance.now();
-    Services.prefs.setStringPref("amail.theme.palette", "kingsley");
-    await AmailTheme.apply();
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    record({ label: "switch", ms: Math.round(performance.now() - t) });
-    await wait(300);
-    const data = await Services.profiler.getProfileDataAsArrayBuffer();
-    Services.profiler.StopProfiler();
-    await IOUtils.write(
-      PathUtils.join(PathUtils.profileDir, "amail-theme-profile.json"),
-      new Uint8Array(data)
-    );
-    record({ label: "changing flag during", on: Services.prefs.getBoolPref("amail.theme.changing", false) });
-    await wait(1500);
-    record({ label: "changing flag after", on: Services.prefs.getBoolPref("amail.theme.changing", false) });
-    Services.prefs.setStringPref("amail.theme.palette", original);
-    await AmailTheme.apply();
-  },
-
 };
 
 export async function runDebugChecks(names) {
