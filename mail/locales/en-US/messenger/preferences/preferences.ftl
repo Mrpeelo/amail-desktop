@@ -1319,6 +1319,9 @@ amail-theme-palette-amail =
 amail-theme-palette-synthwave =
     .label = Synthwave
 
+amail-theme-palette-ember =
+    .label = Ember (always dark)
+
 amail-theme-palette-thunderbird =
     .label = Thunderbird classic
 

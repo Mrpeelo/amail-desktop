@@ -614,3 +614,8 @@ unified-toolbar {
   outline: 2px solid #ffffff;
   outline-offset: 2px;
 }
+
+/* The selected tab's line follows the palette, not the Windows accent. */
+.tabmail-tab[visuallyselected] {
+  border-bottom-color: var(--color-primary-default);
+}

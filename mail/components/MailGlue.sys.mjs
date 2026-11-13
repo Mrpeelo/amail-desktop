@@ -31,6 +31,7 @@ if (AppConstants.MOZ_SERVICES_SYNC) {
 ChromeUtils.defineESModuleGetters(lazy, {
   ActorManagerParent: "resource://gre/modules/ActorManagerParent.sys.mjs",
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  AmailTheme: "resource:///modules/AmailTheme.sys.mjs",
   BuiltInThemes: "resource:///modules/BuiltInThemes.sys.mjs",
   cal: "resource:///modules/calendar/calUtils.sys.mjs",
   ExtensionSupport: "resource:///modules/ExtensionSupport.sys.mjs",
@@ -709,6 +710,7 @@ MailGlue.prototype = {
   _onFirstWindowLoaded() {
     // Start these services.
     this._checkForOldBuildUpdates();
+    lazy.AmailTheme.init();
 
     // On Windows 7 and above, initialize the jump list module.
     const WINTASKBAR_CONTRACTID = "@mozilla.org/windows-taskbar;1";

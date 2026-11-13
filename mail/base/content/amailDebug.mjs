@@ -56,6 +56,66 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Ember palette: always dark, Dark theme while chosen, theme restored. */
+  async "ember-theme"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    top.resizeTo(1920, 1040);
+    await wait(800);
+    const { AddonManager } = ChromeUtils.importESModule(
+      "resource://gre/modules/AddonManager.sys.mjs"
+    );
+    const activeTheme = async () =>
+      (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id;
+    const state = async label => {
+      const cs = top.getComputedStyle(top.document.documentElement);
+      record({
+        label,
+        palette: Services.prefs.getStringPref("amail.theme.palette"),
+        theme: await activeTheme(),
+        restorePref: Services.prefs.getStringPref("amail.theme.restoreTheme", ""),
+        dark: top.matchMedia("(prefers-color-scheme: dark)").matches,
+        scheme: cs.colorScheme,
+        base: cs.getPropertyValue("--color-surface-base"),
+        primary: cs.getPropertyValue("--color-primary-default"),
+        text: cs.getPropertyValue("--color-text-base"),
+      });
+    };
+    const original = Services.prefs.getStringPref("amail.theme.palette");
+    await state("before");
+
+    top.amailSettingsDialog.openSettings("general");
+    await wait(2000);
+    let page = top.document.getElementById("amailSettingsBrowser").contentDocument;
+    const choose = async value => {
+      page = top.document.getElementById("amailSettingsBrowser").contentDocument;
+      const select = page.querySelector('select[data-pref="amail.theme.palette"]');
+      select.value = value;
+      select.dispatchEvent(new top.Event("change", { bubbles: true }));
+      await wait(3000);
+    };
+    await choose("ember");
+    await state("ember");
+    record({
+      label: "settings page",
+      modeDisabled: page.getElementById("themeMode").disabled,
+      note: !page.getElementById("themeModeForced").hidden,
+    });
+    await snapshot("ember-settings", top);
+    top.amailSettingsDialog.close();
+    await wait(800);
+    await snapshot("ember-mail", top);
+    const tabmail = top.document.getElementById("tabmail");
+    tabmail.openTab("calendar");
+    await wait(2500);
+    await snapshot("ember-calendar", top);
+    tabmail.closeTab(tabmail.currentTabInfo);
+
+    top.amailSettingsDialog.openSettings("general");
+    await wait(2000);
+    await choose(original == "ember" ? "amail" : original);
+    await state("restored");
+    top.amailSettingsDialog.close();
+  },
 };
 
 export async function runDebugChecks(names) {

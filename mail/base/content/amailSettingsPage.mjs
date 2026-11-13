@@ -18,6 +18,9 @@ const { AmailSignatures } = ChromeUtils.importESModule(
 const { AddonManager } = ChromeUtils.importESModule(
   "resource://gre/modules/AddonManager.sys.mjs"
 );
+const { AmailTheme } = ChromeUtils.importESModule(
+  "resource:///modules/AmailTheme.sys.mjs"
+);
 
 const top = window.browsingContext.topChromeWindow;
 const dialog = top.amailSettingsDialog;
@@ -133,6 +136,12 @@ function bindPrefs() {
     const theme = await AddonManager.getAddonByID(themeMode.value);
     await theme?.enable();
   });
+  document
+    .querySelector('select[data-pref="amail.theme.palette"]')
+    .addEventListener("change", async () => {
+      await AmailTheme.apply();
+      renderGeneral();
+    });
 }
 
 async function renderGeneral() {
@@ -151,6 +160,8 @@ async function renderGeneral() {
   const active = themes.find(theme => theme.isActive)?.id;
   const values = [...themeMode.options].map(option => option.value);
   themeMode.value = values.includes(active) ? active : "default-theme@mozilla.org";
+  themeMode.disabled = AmailTheme.forcesDark;
+  $("themeModeForced").hidden = !AmailTheme.forcesDark;
 }
 
 // Accounts

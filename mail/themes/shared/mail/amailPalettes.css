@@ -6,6 +6,7 @@
  * aMail colour palettes, selected with the "amail.theme.palette" pref:
  *   "amail"       Outlook-style white + light blue (default)
  *   "synthwave"   purple / magenta / gold, from the Daily branding
+ *   "ember"       reds / oranges / golds, always dark
  *   "thunderbird" stock Thunderbird colours (no overrides)
  * Light, dark and "follow Windows" come from the Light / Dark / System
  * themes; every value here is a light-dark() pair.
@@ -170,6 +171,101 @@
       --color-text-warning-dark: #f9d286;
       --color-accent-pink-dark: #f53db8;
       --color-accent-purple-dark: #d63aef;
+    }
+  }
+
+  /* Ember: reds, oranges and golds; always dark (AmailTheme.sys.mjs also
+     switches to the Dark theme). */
+  @media -moz-pref("amail.theme.palette", "ember") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      color-scheme: dark;
+
+      --color-white: #fdfbee;
+      --color-black: #270402;
+      --color-gray-05: #fffdf6;
+      --color-gray-10: #fdfbee;
+      --color-gray-20: #ffe4bd;
+      --color-gray-30: #ffd291;
+      --color-gray-40: #d9a27a;
+      --color-gray-50: #b5765a;
+      --color-gray-60: #831308;
+      --color-gray-70: #53140f;
+      --color-gray-80: #3e0f0b;
+      --color-gray-90: #340b09;
+      --color-neutral-200: #53140f;
+
+      --color-blue-30: #ffd291;
+      --color-blue-40: #ffbb02;
+      --color-blue-50: #fe9102;
+      --color-blue-60: #f85e2a;
+      --color-blue-70: #e62101;
+
+      --color-accent-blue-light: #f85e2a;
+      --color-accent-blue-dark: #f85e2a;
+      --color-ink-20: #53140f;
+      --color-ink-60: #53140f;
+
+      --sidebar-highlight-background-color: #e62101;
+      --sidebar-highlight-text-color: #fdfbee;
+
+      --amail-topbar-bg: #831308;
+      --amail-topbar-text: #fdfbee;
+      --amail-topbar-hover: rgba(255, 210, 145, 0.18);
+
+      --color-surface-base-light: #340b09;
+      --color-surface-raised-light: #3e0f0b;
+      --color-surface-subtle-light: #3e0f0b;
+      --color-surface-lower-light: #270402;
+      --color-surface-deep-light: #53140f;
+      --color-surface-border-light: #53140f;
+      --color-surface-border-intense-light: #831308;
+      --color-primary-soft-light: #53140f;
+      --color-primary-default-light: #f85e2a;
+      --color-primary-hover-light: #fe9102;
+      --color-primary-pressed-light: #e62101;
+      --color-secondary-default-light: #ffbb02;
+      --color-critical-soft-light: #53140f;
+      --color-critical-default-light: #ff7a5c;
+      --color-critical-hover-light: #ff9a80;
+      --color-critical-pressed-light: #e62101;
+      --color-warning-soft-light: #4a2a05;
+      --color-text-base-light: #fdfbee;
+      --color-text-secondary-light: #ffd291;
+      --color-text-muted-light: #c98f6c;
+      --color-text-brand-light: #ffbb02;
+      --color-text-highlight-light: #ffbb02;
+      --color-text-warning-light: #fede00;
+      --color-text-critical-light: #ff7a5c;
+      --color-accent-pink-light: #f85e2a;
+      --color-accent-purple-light: #e62101;
+
+      --color-surface-base-dark: #340b09;
+      --color-surface-raised-dark: #3e0f0b;
+      --color-surface-subtle-dark: #3e0f0b;
+      --color-surface-lower-dark: #270402;
+      --color-surface-deep-dark: #53140f;
+      --color-surface-border-dark: #53140f;
+      --color-surface-border-intense-dark: #831308;
+      --color-primary-soft-dark: #53140f;
+      --color-primary-default-dark: #f85e2a;
+      --color-primary-hover-dark: #fe9102;
+      --color-primary-pressed-dark: #e62101;
+      --color-secondary-default-dark: #ffbb02;
+      --color-critical-soft-dark: #53140f;
+      --color-critical-default-dark: #ff7a5c;
+      --color-critical-hover-dark: #ff9a80;
+      --color-critical-pressed-dark: #e62101;
+      --color-warning-soft-dark: #4a2a05;
+      --color-text-base-dark: #fdfbee;
+      --color-text-secondary-dark: #ffd291;
+      --color-text-muted-dark: #c98f6c;
+      --color-text-brand-dark: #ffbb02;
+      --color-text-highlight-dark: #ffbb02;
+      --color-text-warning-dark: #fede00;
+      --color-text-critical-dark: #ff7a5c;
+      --color-accent-pink-dark: #f85e2a;
+      --color-accent-purple-dark: #e62101;
     }
   }
 }

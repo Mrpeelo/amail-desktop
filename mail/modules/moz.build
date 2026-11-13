@@ -11,6 +11,7 @@ MOZ_SRC_FILES += [
 EXTRA_JS_MODULES += [
     "AmailProfileImport.sys.mjs",
     "AmailSignatures.sys.mjs",
+    "AmailTheme.sys.mjs",
     "AmailUndoSend.sys.mjs",
     "AttachmentChecker.worker.js",
     "AttachmentInfo.sys.mjs",
