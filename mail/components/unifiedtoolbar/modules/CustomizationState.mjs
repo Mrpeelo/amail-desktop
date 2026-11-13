@@ -50,5 +50,25 @@ export function getState() {
     );
     state = JSON.parse(rawState);
   }
+  // aMail: Reply, Reply all and Forward joined the mail command bar; add them
+  // once to a bar saved before that.
+  if (
+    state.mail &&
+    !Services.prefs.getBoolPref("amail.toolbar.replyItemsAdded", false)
+  ) {
+    Services.prefs.setBoolPref("amail.toolbar.replyItemsAdded", true);
+    const added = ["reply", "reply-all", "forward-inline"].filter(
+      id => !state.mail.includes(id)
+    );
+    if (added.length) {
+      const after = state.mail.indexOf("flag-message");
+      state.mail.splice(
+        after == -1 ? state.mail.length : after + 1,
+        0,
+        ...added
+      );
+      storeState(state);
+    }
+  }
   return state;
 }

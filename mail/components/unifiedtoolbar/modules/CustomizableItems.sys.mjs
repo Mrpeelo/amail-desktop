@@ -29,6 +29,9 @@ const AMAIL_MAIL_ITEMS = [
   "move-to",
   "toggle-read",
   "flag-message",
+  "reply",
+  "reply-all",
+  "forward-inline",
 ];
 
 /**

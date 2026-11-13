@@ -268,6 +268,56 @@ unified-toolbar {
     stroke: var(--color-primary-default);
   }
 
+  /* Command bar icons from the Rust aMail (filled, 24px grid). */
+  & .button-icon {
+    -moz-context-properties: fill, stroke;
+    fill: currentColor;
+  }
+
+  & li[item-id="get-messages"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-sync.svg");
+  }
+
+  & li[item-id="write-message"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-compose.svg");
+  }
+
+  & li[item-id="delete"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-delete.svg");
+  }
+
+  & li[item-id="archive"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-archive.svg");
+  }
+
+  & li[item-id="junk"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-junk.svg");
+  }
+
+  & li[item-id="move-to"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-move.svg");
+  }
+
+  & li[item-id="toggle-read"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-read.svg");
+  }
+
+  & li[item-id="flag-message"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-flag.svg");
+  }
+
+  & li[item-id="reply"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-reply.svg");
+  }
+
+  & li[item-id="reply-all"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-replyall.svg");
+  }
+
+  & li[item-id="forward-inline"] .button-icon {
+    content: url("chrome://messenger/skin/icons/amail/cmd-forward.svg");
+  }
+
   & li[item-id="write-message"] .unified-toolbar-button {
     background-color: var(--color-primary-default);
     color: var(--color-white);
