@@ -56,6 +56,72 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Filter list: an edit while a search is active refreshes the list. */
+  async "filter-search-refresh"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const server = MailServices.accounts.allServers.find(s => {
+      try {
+        const list = s.getFilterList(null);
+        return [...Array(list.filterCount).keys()].some(i =>
+          list.getFilterAt(i).filterName.toLowerCase().includes("bunny")
+        );
+      } catch {
+        return false;
+      }
+    });
+    if (!server) {
+      record({ label: "no server with a bunny filter" });
+      return;
+    }
+    const win = top.openDialog(
+      "chrome://messenger/content/FilterListDialog.xhtml",
+      "",
+      "chrome,dialog=no",
+      { folder: server.rootFolder }
+    );
+    await new Promise(resolve => win.addEventListener("load", resolve, { once: true }));
+    await wait(1500);
+    const shown = () => [...win.gFilterListbox.itemChildren].map(li => li._filter.filterName);
+    win.gSearchBox.value = "bunny";
+    win.rebuildFilterList();
+    record({
+      label: "search bunny",
+      shown: shown(),
+      oldCode: (() => {
+        try {
+          win.gSearchBox.inputEl.value = "";
+          return "no error";
+        } catch (e) {
+          return String(e);
+        }
+      })(),
+    });
+
+    const filter = win.currentFilter() ?? win.gFilterListbox.itemChildren[0]._filter;
+    const oldName = filter.filterName;
+    filter.filterName = "Renamed (test)";
+    let error = null;
+    try {
+      win.resetSearchBox(filter);
+      win.rebuildFilterList();
+    } catch (e) {
+      error = String(e);
+    }
+    record({
+      label: "after edit",
+      error,
+      search: win.gSearchBox.value,
+      showsNewName: shown().includes("Renamed (test)"),
+      showsOldName: shown().includes(oldName),
+      count: shown().length,
+    });
+    filter.filterName = oldName;
+    win.rebuildFilterList();
+    win.close();
+  },
   /** Palettes with a fixed mode: aMail always light, Ember always dark. */
   async "forced-themes"(record) {
     const top = window.browsingContext.topChromeWindow;
