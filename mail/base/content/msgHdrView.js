@@ -3945,32 +3945,30 @@ var gMessageNotificationBar = {
   },
 
   async setRemoteContentMsg(aMsgHdr, aContentURI, aCanOverride) {
-    // update the allow remote content for sender string
-    const brandName = this.brandBundle.getString("brandShortName");
-    const remoteContentMsg = this.stringBundle.getFormattedString(
-      "remoteContentBarMessage",
-      [brandName]
-    );
-
-    const buttonLabel = this.stringBundle.getString(
-      AppConstants.platform == "win"
-        ? "remoteContentPrefLabel"
-        : "remoteContentPrefLabelUnix"
-    );
-    const buttonAccesskey = this.stringBundle.getString(
-      AppConstants.platform == "win"
-        ? "remoteContentPrefAccesskey"
-        : "remoteContentPrefAccesskeyUnix"
-    );
-
+    // aMail: Show images · Always from <sender> · Always from <domain>.
+    const sender = MailServices.headerParser.parseEncodedHeader(
+      gMessage?.author ?? ""
+    )[0]?.email;
+    const domain = sender?.includes("@") ? sender.split("@").pop() : "";
+    const [remoteContentMsg, showLabel, senderLabel, domainLabel] =
+      await document.l10n.formatValues([
+        "amail-remote-blocked",
+        "amail-remote-show",
+        { id: "amail-remote-always", args: { name: sender ?? "" } },
+        { id: "amail-remote-always", args: { name: domain } },
+      ]);
+    const trust = entry => {
+      allowRemoteContentForURI(`chrome://messenger/content/email=${entry}`);
+    };
     const buttons = [
-      {
-        label: buttonLabel,
-        accessKey: buttonAccesskey,
-        popup: "remoteContentOptions",
-        callback() {},
-      },
+      { label: showLabel, callback: () => LoadMsgWithRemoteContent() },
     ];
+    if (sender) {
+      buttons.push({ label: senderLabel, callback: () => trust(sender) });
+    }
+    if (domain) {
+      buttons.push({ label: domainLabel, callback: () => trust(`@${domain}`) });
+    }
 
     // The popup value is a space separated list of all the blocked origins.
     const popup = document.getElementById("remoteContentOptions");
@@ -3997,11 +3995,7 @@ var gMessageNotificationBar = {
           },
           aCanOverride ? buttons : []
         )
-        .then(notification => {
-          notification.buttonContainer.firstElementChild?.classList.add(
-            "button-menu-list"
-          );
-        }, console.warn);
+        .catch(console.warn);
       await this._remoteContentNotificationPromise;
       delete this._remoteContentNotificationPromise;
     }

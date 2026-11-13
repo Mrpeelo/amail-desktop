@@ -404,17 +404,31 @@ function renderTrusted() {
       return {
         perm,
         sender,
-        value: sender ? origin.slice(EMAIL_ORIGIN.length) : perm.principal.host || origin,
+        // Sites by full origin: http and https are separate entries.
+        value: sender ? origin.slice(EMAIL_ORIGIN.length) : origin,
       };
     })
     .sort((a, b) => b.sender - a.sender || a.value.localeCompare(b.value));
-  for (const { perm, sender, value } of rows) {
+  const query = $("trustedSearch").value.trim().toLowerCase();
+  const shown = query
+    ? rows.filter(row => row.value.toLowerCase().includes(query))
+    : rows;
+  document.l10n.setAttributes(
+    $("trustedCount"),
+    query ? "amail-settings-trusted-count-filtered" : "amail-settings-trusted-count",
+    { count: rows.length, shown: shown.length }
+  );
+  for (const { perm, sender, value } of shown) {
     table.append(
       el(
         "tr",
         {},
         el("td.dim", {
-          l10n: sender ? "amail-settings-trusted-sender" : "amail-settings-trusted-site",
+          l10n: !sender
+            ? "amail-settings-trusted-site"
+            : value.startsWith("@")
+              ? "amail-settings-trusted-domain"
+              : "amail-settings-trusted-sender",
         }),
         el("td", {}, el("strong", { text: value })),
         el(
@@ -434,7 +448,13 @@ function renderTrusted() {
   }
   if (!table.rows.length) {
     table.append(
-      el("tr", {}, el("td.dim", { l10n: "amail-settings-trusted-none" }))
+      el(
+        "tr",
+        {},
+        el("td.dim", {
+          l10n: query ? "amail-settings-trusted-no-match" : "amail-settings-trusted-none",
+        })
+      )
     );
   }
 }
@@ -598,6 +618,7 @@ $("importProfile").addEventListener("click", () => {
   renderAccounts();
 });
 $("trustedMore").addEventListener("click", openPermissions);
+$("trustedSearch").addEventListener("input", () => renderTrusted());
 $("filterManager").addEventListener("click", () => {
   top.MsgFilters();
   renderFilters();

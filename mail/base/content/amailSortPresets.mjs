@@ -126,23 +126,58 @@ async function saveCurrentSort() {
   if (!gViewWrapper?.dbView) {
     return;
   }
-  const [title, message, checkLabel] = await document.l10n.formatValues([
-    "amail-sort-save-title",
-    "amail-sort-save-message",
-    "amail-sort-save-columns",
-  ]);
+  const [title, message, checkLabel, overwriteTitle] =
+    await document.l10n.formatValues([
+      "amail-sort-save-title",
+      "amail-sort-save-message",
+      "amail-sort-save-columns",
+      "amail-sort-overwrite-title",
+    ]);
   const input = { value: "" };
   const withColumns = {
     value: Services.prefs.getBoolPref(SAVE_COLUMNS_PREF, false),
   };
-  if (
-    !Services.prompt.prompt(window, title, message, input, checkLabel, withColumns)
-  ) {
-    return;
-  }
-  const name = input.value.trim();
-  if (!name) {
-    return;
+  let name;
+  // A name that is taken asks whether to overwrite: Yes saves over it, No
+  // asks for another name, Cancel stops.
+  while (true) {
+    if (
+      !Services.prompt.prompt(window, title, message, input, checkLabel, withColumns)
+    ) {
+      return;
+    }
+    name = input.value.trim();
+    if (!name) {
+      return;
+    }
+    if (!loadPresets().some(preset => preset.name == name)) {
+      break;
+    }
+    const overwriteMessage = await document.l10n.formatValue(
+      "amail-sort-overwrite-message",
+      { name }
+    );
+    const P = Ci.nsIPromptService;
+    const choice = Services.prompt.confirmEx(
+      window,
+      overwriteTitle,
+      overwriteMessage,
+      P.BUTTON_POS_0 * P.BUTTON_TITLE_YES +
+        P.BUTTON_POS_1 * P.BUTTON_TITLE_CANCEL +
+        P.BUTTON_POS_2 * P.BUTTON_TITLE_NO +
+        P.BUTTON_POS_0_DEFAULT,
+      null,
+      null,
+      null,
+      null,
+      {}
+    );
+    if (choice == 0) {
+      break;
+    }
+    if (choice == 1) {
+      return;
+    }
   }
   Services.prefs.setBoolPref(SAVE_COLUMNS_PREF, withColumns.value);
   const presets = loadPresets().filter(preset => preset.name != name);

@@ -153,6 +153,7 @@ code {
 
 select,
 input[type="number"],
+input[type="search"],
 textarea {
   box-sizing: border-box;
   margin: 0;
@@ -170,7 +171,8 @@ textarea {
 }
 
 select,
-input[type="number"] {
+input[type="number"],
+input[type="search"] {
   block-size: 32px;
   padding-inline: 8px;
 }
@@ -327,4 +329,14 @@ textarea {
 .signature-defaults {
   align-items: flex-end;
   margin-block-start: 8px;
+}
+
+#trustedSearch {
+  inline-size: 100%;
+  max-inline-size: 360px;
+  margin-block: 4px 2px;
+}
+
+#trustedCount {
+  margin-block: 2px 8px;
 }

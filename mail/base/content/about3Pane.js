@@ -4931,11 +4931,19 @@ var threadPaneHeader = {
       return;
     }
 
-    document.l10n.setAttributes(
-      this.folderCount,
-      "thread-pane-folder-message-count",
-      { count: newValue }
-    );
+    // aMail: "N unread" while the folder has unread mail, otherwise the
+    // number of messages.
+    const unread =
+      gFolder && !gViewWrapper?.isSynthetic ? gFolder.getNumUnread(false) : 0;
+    if (unread > 0) {
+      document.l10n.setAttributes(this.folderCount, "amail-list-unread-count", {
+        count: unread,
+      });
+      return;
+    }
+    document.l10n.setAttributes(this.folderCount, "amail-list-message-count", {
+      count: newValue,
+    });
   },
 
   /**
@@ -7001,6 +7009,9 @@ var folderListener = {
           break;
         }
         folderPane.changeUnreadCount(folder, newValue);
+        if (gFolder && folder?.URI == gFolder.URI) {
+          threadPaneHeader.updateMessageCount(gFolder.getTotalMessages(false));
+        }
         break;
       case "TotalMessages":
         if (oldValue == newValue) {

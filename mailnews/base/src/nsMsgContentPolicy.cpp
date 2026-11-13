@@ -86,23 +86,39 @@ bool nsMsgContentPolicy::ShouldAcceptRemoteContentForSender(
   ExtractEmail(EncodedHeader(author), emailAddress);
   if (emailAddress.IsEmpty()) return false;
 
+  // aMail: the sender's address, then "@domain" (everyone at that domain).
+  nsAutoCString domainEntry;
+  int32_t at = emailAddress.RFindChar('@');
+  if (at != kNotFound) {
+    domainEntry = Substring(emailAddress, at);
+  }
+
   nsCOMPtr<nsIIOService> ios = mozilla::components::IO::Service();
-  nsCOMPtr<nsIURI> mailURI;
-  emailAddress.InsertLiteral("chrome://messenger/content/email=", 0);
-  rv = ios->NewURI(emailAddress, nullptr, nullptr, getter_AddRefs(mailURI));
-  NS_ENSURE_SUCCESS(rv, false);
+  for (const nsCString& entry : {emailAddress, nsCString(domainEntry)}) {
+    if (entry.IsEmpty()) {
+      continue;
+    }
+    nsAutoCString spec("chrome://messenger/content/email="_ns);
+    spec.Append(entry);
+    nsCOMPtr<nsIURI> mailURI;
+    rv = ios->NewURI(spec, nullptr, nullptr, getter_AddRefs(mailURI));
+    if (NS_FAILED(rv)) {
+      continue;
+    }
 
-  // check with permission manager
-  uint32_t permission = 0;
-  mozilla::OriginAttributes attrs;
-  RefPtr<mozilla::BasePrincipal> principal =
-      mozilla::BasePrincipal::CreateContentPrincipal(mailURI, attrs);
-  rv = mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
-                                                       &permission);
-  NS_ENSURE_SUCCESS(rv, false);
-
-  // Only return true if the permission manager has an explicit allow
-  return (permission == nsIPermissionManager::ALLOW_ACTION);
+    // check with permission manager
+    uint32_t permission = 0;
+    mozilla::OriginAttributes attrs;
+    RefPtr<mozilla::BasePrincipal> principal =
+        mozilla::BasePrincipal::CreateContentPrincipal(mailURI, attrs);
+    rv = mPermissionManager->TestPermissionFromPrincipal(principal, "image"_ns,
+                                                         &permission);
+    // Only an explicit allow counts.
+    if (NS_SUCCEEDED(rv) && permission == nsIPermissionManager::ALLOW_ACTION) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

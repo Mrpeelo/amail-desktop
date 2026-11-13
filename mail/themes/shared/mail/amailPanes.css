@@ -124,6 +124,31 @@
       font-weight: 600;
     }
 
+    /* Drafts: how many drafts there are, in brackets (Outlook style). */
+    & li[data-folder-type="drafts"] {
+      & > .container > .unread-count {
+        display: none;
+      }
+
+      &.total > .container > .total-count {
+        display: inline !important;
+        padding: 0;
+        border: none;
+        background: none;
+        color: var(--color-text-secondary);
+        font-size: 12px;
+        font-weight: 400;
+
+        &::before {
+          content: "[";
+        }
+
+        &::after {
+          content: "]";
+        }
+      }
+    }
+
     /* Account rows: chevron, colour dot, bold name. */
     & li[data-server-type] {
       margin-block-start: 4px;

@@ -90,6 +90,9 @@ amail-sort-saved =
 amail-sort-save-title = Save sort order
 amail-sort-save-message = Name for the current sort order (column, direction and grouping):
 amail-sort-save-columns = Save columns too (shown columns, their order and widths)
+amail-sort-overwrite-title = Overwrite sort order?
+# $name - name of the saved sort order
+amail-sort-overwrite-message = A sort order named “{ $name }” already exists. Overwrite it? Choose No to give it another name.
 amail-sort-apply-here =
     .label = Apply to this folder
 amail-sort-apply-folders =
@@ -249,7 +252,18 @@ amail-settings-no-subject = (no subject)
 
 amail-settings-trusted-intro = Remote images load automatically for these senders; image sites load in any message. Use the image banner on a message to add one.
 amail-settings-trusted-none = Nothing trusted yet.
+amail-settings-trusted-search =
+    .placeholder = Search trusted senders and sites
+amail-settings-trusted-no-match = No trusted sender or site matches the search.
+# $count - number of trusted entries
+amail-settings-trusted-count = { $count ->
+    [one] 1 entry
+   *[other] { $count } entries
+  }
+# $shown - entries matching the search, $count - all entries
+amail-settings-trusted-count-filtered = { $shown } of { $count }
 amail-settings-trusted-sender = Sender
+amail-settings-trusted-domain = Domain
 amail-settings-trusted-site = Image site
 amail-settings-trusted-more = Blocked senders and sites…
 
@@ -322,3 +336,17 @@ amail-compose-close =
 amail-menu-events =
     .label = Events
     .accesskey = n
+
+## Message list header count
+
+# $count - unread messages in the folder
+amail-list-unread-count = { $count } unread
+# $count - messages in the folder
+amail-list-message-count = { $count }
+
+## Remote content banner (reading pane)
+
+amail-remote-blocked = To protect your privacy, remote images in this message were blocked.
+amail-remote-show = Show images
+# $name - a sender's address or a domain
+amail-remote-always = Always from { $name }

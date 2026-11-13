@@ -473,6 +473,33 @@ function amailApplyDefaultSignature() {
   }
 }
 
+/**
+ * Which signature the message has now, found by its text, so drafts and
+ * signatures inserted by Thunderbird itself are recognised too.
+ *
+ * @returns {?string} The signature id, "" for none, null if it is not one of
+ *   the sender's signatures.
+ */
+function amailCurrentSignatureId() {
+  const current = amailFindSignature();
+  if (!current) {
+    return "";
+  }
+  const words = text => text.replace(/^\s*--\s*/, "").replace(/\s+/g, " ").trim();
+  const shown = words(current.textContent);
+  const parser = new DOMParser();
+  for (const signature of AmailSignatures.list(gCurrentIdentity)) {
+    const text = parser.parseFromString(
+      AmailSignatures.toHTML(signature.text),
+      "text/html"
+    ).body.textContent;
+    if (words(text) == shown) {
+      return signature.id;
+    }
+  }
+  return null;
+}
+
 /** Fill the Signature menu: the sender's signatures, none, manage. */
 function amailFillSignatureMenu(event) {
   const popup = event.target;
@@ -480,9 +507,16 @@ function amailFillSignatureMenu(event) {
     return;
   }
   popup.replaceChildren();
+  // The signature in the message is ticked.
+  const currentId = amailCurrentSignatureId();
   for (const signature of AmailSignatures.list(gCurrentIdentity)) {
     const item = document.createXULElement("menuitem");
     item.setAttribute("label", signature.name);
+    item.setAttribute("type", "radio");
+    item.setAttribute("name", "amail-signature");
+    if (signature.id == currentId) {
+      item.setAttribute("checked", "true");
+    }
     item.addEventListener("command", () => {
       amailSetSignature(signature);
       gContentChanged = true;
@@ -491,6 +525,11 @@ function amailFillSignatureMenu(event) {
   }
   const none = document.createXULElement("menuitem");
   document.l10n.setAttributes(none, "amail-compose-signature-none");
+  none.setAttribute("type", "radio");
+  none.setAttribute("name", "amail-signature");
+  if (currentId === "") {
+    none.setAttribute("checked", "true");
+  }
   none.addEventListener("command", () => {
     amailSetSignature(null);
     gContentChanged = true;
