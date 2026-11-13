@@ -7,6 +7,7 @@
 const lazy = {};
 ChromeUtils.defineESModuleGetters(lazy, {
   AddonManager: "resource://gre/modules/AddonManager.sys.mjs",
+  AmailTheme: "resource:///modules/AmailTheme.sys.mjs",
   MailServices: "resource:///modules/MailServices.sys.mjs",
   MailUtils: "resource:///modules/MailUtils.sys.mjs",
 });
@@ -74,9 +75,23 @@ export const appearancePane = {
 
   /**
    * Light / Dark / Follow Windows maps to the built-in theme add-ons, which
-   * only set the color scheme; the palette pref supplies the colors.
+   * only set the color scheme; the palette pref supplies the colors. Palettes
+   * that are always light or dark lock the choice (AmailTheme.sys.mjs).
    */
   async initThemeMode() {
+    const radiogroup = document.getElementById("amailThemeMode");
+    radiogroup.addEventListener("command", async () => {
+      const theme = await lazy.AddonManager.getAddonByID(radiogroup.value);
+      await theme?.enable();
+    });
+    Preferences.get("amail.theme.palette").on("change", async () => {
+      await lazy.AmailTheme.apply();
+      this.updateThemeMode();
+    });
+    await this.updateThemeMode();
+  },
+
+  async updateThemeMode() {
     const radiogroup = document.getElementById("amailThemeMode");
     const themes = await lazy.AddonManager.getAddonsByTypes(["theme"]);
     const active = themes.find(theme => theme.isActive);
@@ -84,10 +99,7 @@ export const appearancePane = {
     radiogroup.value = values.includes(active?.id)
       ? active.id
       : "default-theme@mozilla.org";
-    radiogroup.addEventListener("command", async () => {
-      const theme = await lazy.AddonManager.getAddonByID(radiogroup.value);
-      await theme?.enable();
-    });
+    radiogroup.disabled = !!lazy.AmailTheme.forcedTheme;
   },
 
   /**

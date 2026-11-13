@@ -324,7 +324,7 @@ unified-toolbar {
 
   & li[item-id="write-message"] .unified-toolbar-button {
     background-color: var(--color-primary-default);
-    color: var(--color-white);
+    color: var(--amail-on-primary, var(--color-white));
     font-weight: 600;
     padding-inline: 14px;
 
@@ -382,9 +382,9 @@ unified-toolbar {
   }
 
   & li[item-id="write-message"] .amail-split-chevron {
-    border-inline-start-color: color-mix(in srgb, var(--color-white) 40%, transparent);
+    border-inline-start-color: color-mix(in srgb, var(--amail-on-primary, var(--color-white)) 40%, transparent);
     background-color: var(--color-primary-default);
-    color: var(--color-white);
+    color: var(--amail-on-primary, var(--color-white));
 
     &:hover {
       background-color: var(--color-primary-hover);

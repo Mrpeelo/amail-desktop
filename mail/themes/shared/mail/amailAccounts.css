@@ -185,7 +185,7 @@ button:not(.button-flat, .icon-only, .dialogClose, [type="color"]) {
   &[default="true"] {
     border-color: var(--color-primary-default);
     background-color: var(--color-primary-default);
-    color: var(--color-white, #fff);
+    color: var(--amail-on-primary, #fff);
 
     &:hover:not([disabled]) {
       border-color: var(--color-primary-hover);

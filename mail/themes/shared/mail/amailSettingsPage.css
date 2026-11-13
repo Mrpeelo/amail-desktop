@@ -230,7 +230,7 @@ textarea {
   &.primary {
     border-color: var(--color-primary-default);
     background-color: var(--color-primary-default);
-    color: var(--color-white);
+    color: var(--amail-on-primary, var(--color-white));
 
     &:hover {
       background-color: var(--color-primary-hover);

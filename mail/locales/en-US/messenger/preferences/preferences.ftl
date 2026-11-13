@@ -1314,13 +1314,22 @@ amail-theme-palette-label =
     .value = Color palette:
 
 amail-theme-palette-amail =
-    .label = aMail (white and light blue)
+    .label = aMail (white and light blue, always light)
 
 amail-theme-palette-synthwave =
     .label = Synthwave
 
-amail-theme-palette-ember =
-    .label = Ember (always dark)
+amail-theme-palette-kingsley =
+    .label = Kingsley Amber (always dark)
+
+amail-theme-palette-afterlife =
+    .label = Afterlife Jade (always dark)
+
+amail-theme-palette-roman =
+    .label = Roman Slate (always dark)
+
+amail-theme-palette-avida =
+    .label = Avida Cobalt (always dark)
 
 amail-theme-palette-thunderbird =
     .label = Thunderbird classic

@@ -160,8 +160,17 @@ async function renderGeneral() {
   const active = themes.find(theme => theme.isActive)?.id;
   const values = [...themeMode.options].map(option => option.value);
   themeMode.value = values.includes(active) ? active : "default-theme@mozilla.org";
-  themeMode.disabled = AmailTheme.forcesDark;
-  $("themeModeForced").hidden = !AmailTheme.forcesDark;
+  const forced = AmailTheme.forcedTheme;
+  themeMode.disabled = !!forced;
+  $("themeModeForced").hidden = !forced;
+  if (forced) {
+    document.l10n.setAttributes(
+      $("themeModeForced"),
+      themeMode.value == "thunderbird-compact-dark@mozilla.org"
+        ? "amail-settings-theme-forced-dark"
+        : "amail-settings-theme-forced-light"
+    );
+  }
 }
 
 // Accounts

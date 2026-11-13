@@ -56,8 +56,8 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
-  /** Ember palette: always dark, Dark theme while chosen, theme restored. */
-  async "ember-theme"(record) {
+  /** Palettes with a fixed mode: aMail always light, Ember always dark. */
+  async "forced-themes"(record) {
     const top = window.browsingContext.topChromeWindow;
     top.resizeTo(1920, 1040);
     await wait(800);
@@ -65,55 +65,56 @@ const CHECKS = {
       "resource://gre/modules/AddonManager.sys.mjs"
     );
     const activeTheme = async () =>
-      (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id;
+      (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id.split("@")[0];
     const state = async label => {
       const cs = top.getComputedStyle(top.document.documentElement);
+      const page = top.document.getElementById("amailSettingsBrowser").contentDocument;
       record({
         label,
         palette: Services.prefs.getStringPref("amail.theme.palette"),
         theme: await activeTheme(),
-        restorePref: Services.prefs.getStringPref("amail.theme.restoreTheme", ""),
+        restore: Services.prefs.getStringPref("amail.theme.restoreTheme", ""),
         dark: top.matchMedia("(prefers-color-scheme: dark)").matches,
         scheme: cs.colorScheme,
-        base: cs.getPropertyValue("--color-surface-base"),
-        primary: cs.getPropertyValue("--color-primary-default"),
-        text: cs.getPropertyValue("--color-text-base"),
+        base: getComputedStyle(top.document.body).backgroundColor,
+        modeLocked: page?.getElementById("themeMode")?.disabled,
+        note: page?.getElementById("themeModeForced")?.hidden === false
+          ? page.getElementById("themeModeForced").textContent
+          : null,
       });
     };
     const original = Services.prefs.getStringPref("amail.theme.palette");
-    await state("before");
+    Services.prefs.setStringPref("amail.theme.palette", "amail");
+    await wait(2500);
+    await state("amail");
+
+    await (await AddonManager.getAddonByID("thunderbird-compact-dark@mozilla.org")).enable();
+    await wait(2500);
+    await state("amail after enabling Dark elsewhere");
 
     top.amailSettingsDialog.openSettings("general");
     await wait(2000);
-    let page = top.document.getElementById("amailSettingsBrowser").contentDocument;
     const choose = async value => {
-      page = top.document.getElementById("amailSettingsBrowser").contentDocument;
+      const page = top.document.getElementById("amailSettingsBrowser").contentDocument;
       const select = page.querySelector('select[data-pref="amail.theme.palette"]');
       select.value = value;
       select.dispatchEvent(new top.Event("change", { bubbles: true }));
       await wait(3000);
+      await state(value);
     };
-    await choose("ember");
-    await state("ember");
-    record({
-      label: "settings page",
-      modeDisabled: page.getElementById("themeMode").disabled,
-      note: !page.getElementById("themeModeForced").hidden,
-    });
-    await snapshot("ember-settings", top);
-    top.amailSettingsDialog.close();
-    await wait(800);
-    await snapshot("ember-mail", top);
-    const tabmail = top.document.getElementById("tabmail");
-    tabmail.openTab("calendar");
-    await wait(2500);
-    await snapshot("ember-calendar", top);
-    tabmail.closeTab(tabmail.currentTabInfo);
-
-    top.amailSettingsDialog.openSettings("general");
-    await wait(2000);
-    await choose(original == "ember" ? "amail" : original);
-    await state("restored");
+    await snapshot("pal-amail-settings", top);
+    for (const value of ["kingsley", "afterlife", "roman", "avida"]) {
+      await choose(value);
+      await snapshot(`pal-${value}-settings`, top);
+      top.amailSettingsDialog.close();
+      await wait(800);
+      await snapshot(`pal-${value}`, top);
+      top.amailSettingsDialog.openSettings("general");
+      await wait(2000);
+    }
+    await choose("amail");
+    await choose("synthwave");
+    await choose(original);
     top.amailSettingsDialog.close();
   },
 };

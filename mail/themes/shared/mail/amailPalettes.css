@@ -4,12 +4,16 @@
 
 /*
  * aMail colour palettes, selected with the "amail.theme.palette" pref:
- *   "amail"       Outlook-style white + light blue (default)
+ *   "amail"       Outlook-style white + light blue (default), always light
  *   "synthwave"   purple / magenta / gold, from the Daily branding
- *   "ember"       reds / oranges / golds, always dark
+ *   "kingsley"    Kingsley Amber: reds / oranges / golds, always dark
+ *   "afterlife"   Afterlife Jade: neon greens / teals, always dark
+ *   "roman"       Roman Slate: night blues / ice / mint, always dark
+ *   "avida"       Avida Cobalt: warm blacks / cobalt / gold, always dark
  *   "thunderbird" stock Thunderbird colours (no overrides)
  * Light, dark and "follow Windows" come from the Light / Dark / System
- * themes; every value here is a light-dark() pair.
+ * themes; values are light-dark() pairs. Palettes that are always light or
+ * always dark set color-scheme and the same value on both sides.
  *
  * The gray steps are remapped per scheme by the role layout.css gives them
  * (light: white/05..30 = backgrounds, 70/90 = text; dark: 90..60 =
@@ -17,23 +21,33 @@
  * specificity so these win over colors.css, which imports this file.
  */
 
+/* Text on the primary colour (Write, primary buttons, today's date). */
+:root,
+:host {
+  --amail-on-primary: var(--color-white);
+}
+
 @media not (forced-colors) {
+  /* aMail: Outlook-style white and blue; always light (AmailTheme.sys.mjs
+     also switches to the Light theme). */
   @media -moz-pref("amail.theme.palette", "amail") {
     :root:not(#__amail),
     :host(:not(#__amail)) {
-      --color-white: light-dark(#ffffff, #ffffff);
-      --color-black: light-dark(#000000, #1b1b1b);
-      --color-gray-05: light-dark(#f5f9fe, #f5f5f5);
-      --color-gray-10: light-dark(#eef5fc, #f0f0f0);
-      --color-gray-20: light-dark(#e2ecf7, #e0e0e0);
-      --color-gray-30: light-dark(#c3cfdb, #c2c2c2);
-      --color-gray-40: light-dark(#a3b1bf, #a0a0a0);
-      --color-gray-50: light-dark(#8a939c, #8f8f8f);
-      --color-gray-60: light-dark(#6b7580, #4d4d4d);
-      --color-gray-70: light-dark(#5c6670, #3a3a3a);
-      --color-gray-80: light-dark(#3a4048, #2b2b2b);
-      --color-gray-90: light-dark(#242424, #242424);
-      --color-neutral-200: light-dark(#dbe5ef, #3a3a3a);
+      color-scheme: light;
+
+      --color-white: #ffffff;
+      --color-black: #000000;
+      --color-gray-05: #f5f9fe;
+      --color-gray-10: #eef5fc;
+      --color-gray-20: #e2ecf7;
+      --color-gray-30: #c3cfdb;
+      --color-gray-40: #a3b1bf;
+      --color-gray-50: #8a939c;
+      --color-gray-60: #6b7580;
+      --color-gray-70: #5c6670;
+      --color-gray-80: #3a4048;
+      --color-gray-90: #242424;
+      --color-neutral-200: #dbe5ef;
 
       --color-blue-30: #62abf5;
       --color-blue-40: #479ef5;
@@ -41,12 +55,12 @@
       --color-blue-60: #0f6cbd;
       --color-blue-70: #115ea3;
 
-      --sidebar-highlight-background-color: light-dark(#0f6cbd, #479ef5);
-      --sidebar-highlight-text-color: light-dark(#ffffff, #0a0a0a);
+      --sidebar-highlight-background-color: #0f6cbd;
+      --sidebar-highlight-text-color: #ffffff;
 
-      --amail-topbar-bg: light-dark(#dceaf8, #1f2d3b);
-      --amail-topbar-text: light-dark(#0b3a63, #e6eef6);
-      --amail-topbar-hover: light-dark(rgba(15, 108, 189, 0.12), rgba(255, 255, 255, 0.12));
+      --amail-topbar-bg: #dceaf8;
+      --amail-topbar-text: #0b3a63;
+      --amail-topbar-hover: rgba(15, rgba(255, 255, 255, 0.12));
 
       --color-surface-base-light: #ffffff;
       --color-surface-raised-light: #ffffff;
@@ -72,29 +86,29 @@
       --color-text-warning-light: #835b00;
       --color-text-critical-light: #c50f1f;
 
-      --color-surface-base-dark: #242424;
-      --color-surface-raised-dark: #2b2b2b;
-      --color-surface-subtle-dark: #2b2b2b;
-      --color-surface-lower-dark: #1b1b1b;
-      --color-surface-deep-dark: #163b5e;
-      --color-surface-border-dark: #3a3a3a;
-      --color-surface-border-intense-dark: #4d4d4d;
-      --color-primary-soft-dark: #0e2a44;
-      --color-primary-default-dark: #479ef5;
-      --color-primary-hover-dark: #62abf5;
-      --color-primary-pressed-dark: #2886de;
-      --color-critical-soft-dark: #3f1418;
-      --color-critical-default-dark: #f1707b;
-      --color-critical-hover-dark: #f58e97;
-      --color-critical-pressed-dark: #e0505c;
-      --color-warning-soft-dark: #3d3214;
-      --color-text-base-dark: #f0f0f0;
-      --color-text-secondary-dark: #c2c2c2;
-      --color-text-muted-dark: #8f8f8f;
-      --color-text-brand-dark: #62abf5;
-      --color-text-highlight-dark: #479ef5;
-      --color-text-warning-dark: #f2c661;
-      --color-text-critical-dark: #f1707b;
+      --color-surface-base-dark: #ffffff;
+      --color-surface-raised-dark: #ffffff;
+      --color-surface-subtle-dark: #f5f9fe;
+      --color-surface-lower-dark: #eef5fc;
+      --color-surface-deep-dark: #d6e8fa;
+      --color-surface-border-dark: #dbe5ef;
+      --color-surface-border-intense-dark: #c3cfdb;
+      --color-primary-soft-dark: #ebf3fc;
+      --color-primary-default-dark: #0f6cbd;
+      --color-primary-hover-dark: #115ea3;
+      --color-primary-pressed-dark: #0c3b5e;
+      --color-critical-soft-dark: #fdf3f4;
+      --color-critical-default-dark: #c50f1f;
+      --color-critical-hover-dark: #a50d1a;
+      --color-critical-pressed-dark: #750b14;
+      --color-warning-soft-dark: #fff4ce;
+      --color-text-base-dark: #242424;
+      --color-text-secondary-dark: #5c6670;
+      --color-text-muted-dark: #8a939c;
+      --color-text-brand-dark: #0c3b5e;
+      --color-text-highlight-dark: #0f6cbd;
+      --color-text-warning-dark: #835b00;
+      --color-text-critical-dark: #c50f1f;
     }
   }
 
@@ -174,9 +188,9 @@
     }
   }
 
-  /* Ember: reds, oranges and golds; always dark (AmailTheme.sys.mjs also
-     switches to the Dark theme). */
-  @media -moz-pref("amail.theme.palette", "ember") {
+  /* Kingsley Amber: reds, oranges and golds; always dark (AmailTheme.sys.mjs also switches to the
+     Dark theme). */
+  @media -moz-pref("amail.theme.palette", "kingsley") {
     :root:not(#__amail),
     :host(:not(#__amail)) {
       color-scheme: dark;
@@ -208,6 +222,9 @@
 
       --sidebar-highlight-background-color: #e62101;
       --sidebar-highlight-text-color: #fdfbee;
+      --selected-item-color: #e62101;
+      --selected-item-text-color: #fdfbee;
+      --amail-on-primary: #fdfbee;
 
       --amail-topbar-bg: #831308;
       --amail-topbar-text: #fdfbee;
@@ -266,6 +283,300 @@
       --color-text-critical-dark: #ff7a5c;
       --color-accent-pink-dark: #f85e2a;
       --color-accent-purple-dark: #e62101;
+    }
+  }
+
+  /* Afterlife Jade: neon greens and teals; always dark (AmailTheme.sys.mjs also switches to the
+     Dark theme). */
+  @media -moz-pref("amail.theme.palette", "afterlife") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      color-scheme: dark;
+
+      --color-white: #f9f9f9;
+      --color-black: #080703;
+      --color-gray-05: #f9f9f9;
+      --color-gray-10: #eef5c1;
+      --color-gray-20: #d6e6b0;
+      --color-gray-30: #b9d3a0;
+      --color-gray-40: #8fb39a;
+      --color-gray-50: #57a29d;
+      --color-gray-60: #316330;
+      --color-gray-70: #253d2d;
+      --color-gray-80: #142e23;
+      --color-gray-90: #11280e;
+      --color-neutral-200: #253d2d;
+
+      --color-blue-30: #69e6e2;
+      --color-blue-40: #4fd37c;
+      --color-blue-50: #30bb62;
+      --color-blue-60: #30bb62;
+      --color-blue-70: #316330;
+
+      --color-accent-blue-light: #30bb62;
+      --color-accent-blue-dark: #30bb62;
+      --color-ink-20: #253d2d;
+      --color-ink-60: #253d2d;
+
+      --sidebar-highlight-background-color: #30bb62;
+      --sidebar-highlight-text-color: #080703;
+      --selected-item-color: #30bb62;
+      --selected-item-text-color: #080703;
+      --amail-on-primary: #080703;
+
+      --amail-topbar-bg: #142e23;
+      --amail-topbar-text: #eef5c1;
+      --amail-topbar-hover: rgba(105, 230, 226, 0.16);
+
+      --color-surface-base-light: #11280e;
+      --color-surface-raised-light: #142e23;
+      --color-surface-subtle-light: #142e23;
+      --color-surface-lower-light: #080703;
+      --color-surface-deep-light: #253d2d;
+      --color-surface-border-light: #253d2d;
+      --color-surface-border-intense-light: #316330;
+      --color-primary-soft-light: #253d2d;
+      --color-primary-default-light: #30bb62;
+      --color-primary-hover-light: #4fd37c;
+      --color-primary-pressed-light: #316330;
+      --color-secondary-default-light: #69e6e2;
+      --color-critical-soft-light: #3a1a10;
+      --color-critical-default-light: #e0603f;
+      --color-critical-hover-light: #f07a5a;
+      --color-critical-pressed-light: #b6472b;
+      --color-warning-soft-light: #33330f;
+      --color-text-base-light: #eef5c1;
+      --color-text-secondary-light: #b9d3a0;
+      --color-text-muted-light: #57a29d;
+      --color-text-brand-light: #69e6e2;
+      --color-text-highlight-light: #69e6e2;
+      --color-text-warning-light: #e6d36a;
+      --color-text-critical-light: #e0603f;
+      --color-accent-pink-light: #69e6e2;
+      --color-accent-purple-light: #30bb62;
+
+      --color-surface-base-dark: #11280e;
+      --color-surface-raised-dark: #142e23;
+      --color-surface-subtle-dark: #142e23;
+      --color-surface-lower-dark: #080703;
+      --color-surface-deep-dark: #253d2d;
+      --color-surface-border-dark: #253d2d;
+      --color-surface-border-intense-dark: #316330;
+      --color-primary-soft-dark: #253d2d;
+      --color-primary-default-dark: #30bb62;
+      --color-primary-hover-dark: #4fd37c;
+      --color-primary-pressed-dark: #316330;
+      --color-secondary-default-dark: #69e6e2;
+      --color-critical-soft-dark: #3a1a10;
+      --color-critical-default-dark: #e0603f;
+      --color-critical-hover-dark: #f07a5a;
+      --color-critical-pressed-dark: #b6472b;
+      --color-warning-soft-dark: #33330f;
+      --color-text-base-dark: #eef5c1;
+      --color-text-secondary-dark: #b9d3a0;
+      --color-text-muted-dark: #57a29d;
+      --color-text-brand-dark: #69e6e2;
+      --color-text-highlight-dark: #69e6e2;
+      --color-text-warning-dark: #e6d36a;
+      --color-text-critical-dark: #e0603f;
+      --color-accent-pink-dark: #69e6e2;
+      --color-accent-purple-dark: #30bb62;
+    }
+  }
+
+  /* Roman Slate: night blues, ice, mint; always dark (AmailTheme.sys.mjs also switches to the
+     Dark theme). */
+  @media -moz-pref("amail.theme.palette", "roman") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      color-scheme: dark;
+
+      --color-white: #f4f9fb;
+      --color-black: #0f131e;
+      --color-gray-05: #f4f9fb;
+      --color-gray-10: #e6f1f5;
+      --color-gray-20: #c8e2ec;
+      --color-gray-30: #a5d3e3;
+      --color-gray-40: #79a0c9;
+      --color-gray-50: #5f7fae;
+      --color-gray-60: #4d6ca3;
+      --color-gray-70: #2f456c;
+      --color-gray-80: #1f3150;
+      --color-gray-90: #18273c;
+      --color-neutral-200: #2f456c;
+
+      --color-blue-30: #a5d3e3;
+      --color-blue-40: #79a0c9;
+      --color-blue-50: #4d6ca3;
+      --color-blue-60: #79a0c9;
+      --color-blue-70: #4d6ca3;
+
+      --color-accent-blue-light: #79a0c9;
+      --color-accent-blue-dark: #79a0c9;
+      --color-ink-20: #2f456c;
+      --color-ink-60: #2f456c;
+
+      --sidebar-highlight-background-color: #79a0c9;
+      --sidebar-highlight-text-color: #0f131e;
+      --selected-item-color: #79a0c9;
+      --selected-item-text-color: #0f131e;
+      --amail-on-primary: #0f131e;
+
+      --amail-topbar-bg: #2f456c;
+      --amail-topbar-text: #e6f1f5;
+      --amail-topbar-hover: rgba(165, 211, 227, 0.18);
+
+      --color-surface-base-light: #18273c;
+      --color-surface-raised-light: #1f3150;
+      --color-surface-subtle-light: #1f3150;
+      --color-surface-lower-light: #0f131e;
+      --color-surface-deep-light: #2f456c;
+      --color-surface-border-light: #2f456c;
+      --color-surface-border-intense-light: #4d6ca3;
+      --color-primary-soft-light: #2f456c;
+      --color-primary-default-light: #79a0c9;
+      --color-primary-hover-light: #a5d3e3;
+      --color-primary-pressed-light: #4d6ca3;
+      --color-secondary-default-light: #47d6aa;
+      --color-critical-soft-light: #591725;
+      --color-critical-default-light: #e8798a;
+      --color-critical-hover-light: #f093a1;
+      --color-critical-pressed-light: #97696c;
+      --color-warning-soft-light: #3a3610;
+      --color-text-base-light: #e6f1f5;
+      --color-text-secondary-light: #a5d3e3;
+      --color-text-muted-light: #79a0c9;
+      --color-text-brand-light: #47d6aa;
+      --color-text-highlight-light: #a5d3e3;
+      --color-text-warning-light: #dfd12a;
+      --color-text-critical-light: #e8798a;
+      --color-accent-pink-light: #bc76cf;
+      --color-accent-purple-light: #bc76cf;
+
+      --color-surface-base-dark: #18273c;
+      --color-surface-raised-dark: #1f3150;
+      --color-surface-subtle-dark: #1f3150;
+      --color-surface-lower-dark: #0f131e;
+      --color-surface-deep-dark: #2f456c;
+      --color-surface-border-dark: #2f456c;
+      --color-surface-border-intense-dark: #4d6ca3;
+      --color-primary-soft-dark: #2f456c;
+      --color-primary-default-dark: #79a0c9;
+      --color-primary-hover-dark: #a5d3e3;
+      --color-primary-pressed-dark: #4d6ca3;
+      --color-secondary-default-dark: #47d6aa;
+      --color-critical-soft-dark: #591725;
+      --color-critical-default-dark: #e8798a;
+      --color-critical-hover-dark: #f093a1;
+      --color-critical-pressed-dark: #97696c;
+      --color-warning-soft-dark: #3a3610;
+      --color-text-base-dark: #e6f1f5;
+      --color-text-secondary-dark: #a5d3e3;
+      --color-text-muted-dark: #79a0c9;
+      --color-text-brand-dark: #47d6aa;
+      --color-text-highlight-dark: #a5d3e3;
+      --color-text-warning-dark: #dfd12a;
+      --color-text-critical-dark: #e8798a;
+      --color-accent-pink-dark: #bc76cf;
+      --color-accent-purple-dark: #bc76cf;
+    }
+  }
+
+  /* Avida Cobalt: warm blacks, cobalt and azure, gold; always dark (AmailTheme.sys.mjs also switches to the
+     Dark theme). */
+  @media -moz-pref("amail.theme.palette", "avida") {
+    :root:not(#__amail),
+    :host(:not(#__amail)) {
+      color-scheme: dark;
+
+      --color-white: #f6f2f2;
+      --color-black: #030200;
+      --color-gray-05: #f6f2f2;
+      --color-gray-10: #e9e3e3;
+      --color-gray-20: #d9cfc8;
+      --color-gray-30: #bfb0a4;
+      --color-gray-40: #a08672;
+      --color-gray-50: #8a6f5d;
+      --color-gray-60: #745745;
+      --color-gray-70: #552e1f;
+      --color-gray-80: #1d130e;
+      --color-gray-90: #140d09;
+      --color-neutral-200: #2e1d14;
+
+      --color-blue-30: #8fd0ff;
+      --color-blue-40: #3aa8fd;
+      --color-blue-50: #3aa8fd;
+      --color-blue-60: #3aa8fd;
+      --color-blue-70: #01389d;
+
+      --color-accent-blue-light: #3aa8fd;
+      --color-accent-blue-dark: #3aa8fd;
+      --color-ink-20: #2e1d14;
+      --color-ink-60: #2e1d14;
+
+      --sidebar-highlight-background-color: #3aa8fd;
+      --sidebar-highlight-text-color: #030200;
+      --selected-item-color: #3aa8fd;
+      --selected-item-text-color: #030200;
+      --amail-on-primary: #030200;
+
+      --amail-topbar-bg: #01389d;
+      --amail-topbar-text: #e9e3e3;
+      --amail-topbar-hover: rgba(58, 168, 253, 0.2);
+
+      --color-surface-base-light: #140d09;
+      --color-surface-raised-light: #1d130e;
+      --color-surface-subtle-light: #1d130e;
+      --color-surface-lower-light: #030200;
+      --color-surface-deep-light: #552e1f;
+      --color-surface-border-light: #2e1d14;
+      --color-surface-border-intense-light: #745745;
+      --color-primary-soft-light: #552e1f;
+      --color-primary-default-light: #3aa8fd;
+      --color-primary-hover-light: #62bcfe;
+      --color-primary-pressed-light: #01389d;
+      --color-secondary-default-light: #ecce86;
+      --color-critical-soft-light: #552e1f;
+      --color-critical-default-light: #e0874a;
+      --color-critical-hover-light: #eba06b;
+      --color-critical-pressed-light: #bb712a;
+      --color-warning-soft-light: #3d2f14;
+      --color-text-base-light: #e9e3e3;
+      --color-text-secondary-light: #ecce86;
+      --color-text-muted-light: #a08672;
+      --color-text-brand-light: #3aa8fd;
+      --color-text-highlight-light: #28ded2;
+      --color-text-warning-light: #ecce86;
+      --color-text-critical-light: #e0874a;
+      --color-accent-pink-light: #28ded2;
+      --color-accent-purple-light: #5546c3;
+
+      --color-surface-base-dark: #140d09;
+      --color-surface-raised-dark: #1d130e;
+      --color-surface-subtle-dark: #1d130e;
+      --color-surface-lower-dark: #030200;
+      --color-surface-deep-dark: #552e1f;
+      --color-surface-border-dark: #2e1d14;
+      --color-surface-border-intense-dark: #745745;
+      --color-primary-soft-dark: #552e1f;
+      --color-primary-default-dark: #3aa8fd;
+      --color-primary-hover-dark: #62bcfe;
+      --color-primary-pressed-dark: #01389d;
+      --color-secondary-default-dark: #ecce86;
+      --color-critical-soft-dark: #552e1f;
+      --color-critical-default-dark: #e0874a;
+      --color-critical-hover-dark: #eba06b;
+      --color-critical-pressed-dark: #bb712a;
+      --color-warning-soft-dark: #3d2f14;
+      --color-text-base-dark: #e9e3e3;
+      --color-text-secondary-dark: #ecce86;
+      --color-text-muted-dark: #a08672;
+      --color-text-brand-dark: #3aa8fd;
+      --color-text-highlight-dark: #28ded2;
+      --color-text-warning-dark: #ecce86;
+      --color-text-critical-dark: #e0874a;
+      --color-accent-pink-dark: #28ded2;
+      --color-accent-purple-dark: #5546c3;
     }
   }
 }
