@@ -56,6 +56,67 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Attachments browser: paperclip opens it, list, filters, sort. */
+  async "attachments-browser"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    top.document.getElementById("amailAttachments").click();
+    const browser = top.document.getElementById("amailSettingsBrowser");
+    let page = null;
+    const started = Date.now();
+    for (let i = 0; i < 240; i++) {
+      await wait(500);
+      const doc = browser.contentDocument;
+      if (doc?.location.href.includes("amailAttachments") && doc.getElementById("loading")?.hidden) {
+        page = browser.contentWindow;
+        break;
+      }
+    }
+    if (!page) {
+      record({ label: "ERROR attachments did not load", url: browser.currentURI?.spec });
+      return;
+    }
+    const doc = page.document;
+    const api = page.wrappedJSObject.amailAttachments;
+    const state = () => ({
+      count: doc.getElementById("count").textContent,
+      rows: doc.querySelectorAll("#list tbody tr").length,
+      first: doc.querySelector("#list tbody tr td:nth-child(2)")?.textContent,
+      firstSize: doc.querySelector("#list tbody tr td:nth-child(3)")?.textContent,
+    });
+    record({
+      label: "loaded",
+      seconds: Math.round((Date.now() - started) / 1000),
+      title: top.document.getElementById("amailSettingsTitle").textContent,
+      backHidden: top.document.getElementById("amailSettingsBack").hidden,
+      all: api.rows.length,
+      pending: doc.getElementById("pending").hidden ? 0 : doc.getElementById("pendingText").textContent,
+      ...state(),
+      accounts: [...doc.getElementById("account").options].map(o => o.textContent),
+    });
+    const set = (id, value) => {
+      const el = doc.getElementById(id);
+      el.value = value;
+      el.dispatchEvent(new page.Event(id == "search" ? "input" : "change"));
+      return wait(400);
+    };
+    await set("type", "pdf");
+    record({ label: "type pdf", ...state() });
+    await set("type", "");
+    await set("sort", "largest");
+    record({ label: "largest first", ...state() });
+    await set("size", "10485760");
+    record({ label: "over 10 MB", ...state() });
+    await set("size", "0");
+    await set("sort", "newest");
+    const box = doc.querySelector("#list tbody tr td.pick input");
+    box?.click();
+    await wait(400);
+    record({ label: "one picked", remove: doc.getElementById("remove").textContent, disabled: doc.getElementById("remove").disabled });
+    box?.click();
+    await snapshot("attachments-browser");
+    top.amailSettingsDialog.close();
+  },
+
   /** Search server: button on the global search page, results tab. */
   async "server-search"(record) {
     const top = window.browsingContext.topChromeWindow;
