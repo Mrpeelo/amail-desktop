@@ -89,6 +89,7 @@ amail-sort-saved =
     .label = Saved sorts
 amail-sort-save-title = Save sort order
 amail-sort-save-message = Name for the current sort order (column, direction and grouping):
+amail-sort-save-columns = Save columns too (shown columns, their order and widths)
 amail-sort-apply-here =
     .label = Apply to this folder
 amail-sort-apply-folders =

@@ -278,6 +278,20 @@ function save() {
 }
 
 /**
+ * Widths changed by something else (a saved sort, another message list):
+ * show them.
+ */
+const widthsObserver = {
+  observe() {
+    const current = JSON.stringify(widths);
+    loadWidths();
+    if (JSON.stringify(widths) != current) {
+      requestSync();
+    }
+  },
+};
+
+/**
  * @param {HTMLElement} threadTree - The message list tree-view.
  */
 export function initAmailColumns(threadTree) {
@@ -307,6 +321,12 @@ export function initAmailColumns(threadTree) {
     attributeFilter: ["hidden"],
   });
   new ResizeObserver(() => layout()).observe(threadTree);
+  Services.prefs.addObserver(PREF, widthsObserver);
+  window.addEventListener(
+    "unload",
+    () => Services.prefs.removeObserver(PREF, widthsObserver),
+    { once: true }
+  );
   setUpLockMenu();
   sync();
 }

@@ -2,16 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global gFolder, gViewWrapper, MailServices, sortController, threadPane */
+/* global gFolder, gViewWrapper, MailServices, sortController, threadPane, threadTree */
 
 /**
  * aMail saved sort orders, in the Sort menu of the message list header.
  * A saved sort holds the sort column, direction and grouping (conversations,
  * plain list or grouped by sort) and can be applied to the open folder or to
- * any number of folders at once.
+ * any number of folders at once. It can also hold the column layout: which
+ * columns are shown, their order and all column widths.
  */
 
 const PREF = "amail.sort.presets";
+const WIDTHS_PREF = "amail.columns.widths";
+const SAVE_COLUMNS_PREF = "amail.sort.saveColumns";
 
 /**
  * @typedef {object} SortPreset
@@ -24,6 +27,14 @@ const PREF = "amail.sort.presets";
  * @property {number} sortOrder - nsMsgViewSortOrder of the saved view.
  * @property {string} [secondaryColumn] - Column id of the tie-breaker sort.
  * @property {boolean} [secondaryAscending]
+ * @property {ColumnLayout} [columns] - Only when saved with the columns.
+ */
+
+/**
+ * @typedef {object} ColumnLayout
+ * @property {Record<string, {visible: boolean, ordinal: number}>} states -
+ *   As Thunderbird stores them in a folder ("columnStates").
+ * @property {Record<string, number>} widths - The amail.columns.widths value.
  */
 
 /** Tie-breaker for sorts saved without one: newest first. */
@@ -98,24 +109,48 @@ function currentSort() {
   };
 }
 
+/** @returns {ColumnLayout} */
+function currentColumns() {
+  const states = {};
+  for (const column of threadPane.columns) {
+    states[column.id] = { visible: !column.hidden, ordinal: column.ordinal };
+  }
+  let widths = {};
+  try {
+    widths = JSON.parse(Services.prefs.getStringPref(WIDTHS_PREF, "{}")) ?? {};
+  } catch {}
+  return { states, widths };
+}
+
 async function saveCurrentSort() {
   if (!gViewWrapper?.dbView) {
     return;
   }
-  const [title, message] = await document.l10n.formatValues([
+  const [title, message, checkLabel] = await document.l10n.formatValues([
     "amail-sort-save-title",
     "amail-sort-save-message",
+    "amail-sort-save-columns",
   ]);
   const input = { value: "" };
-  if (!Services.prompt.prompt(window, title, message, input, null, {})) {
+  const withColumns = {
+    value: Services.prefs.getBoolPref(SAVE_COLUMNS_PREF, false),
+  };
+  if (
+    !Services.prompt.prompt(window, title, message, input, checkLabel, withColumns)
+  ) {
     return;
   }
   const name = input.value.trim();
   if (!name) {
     return;
   }
+  Services.prefs.setBoolPref(SAVE_COLUMNS_PREF, withColumns.value);
   const presets = loadPresets().filter(preset => preset.name != name);
-  presets.push({ name, ...currentSort() });
+  presets.push({
+    name,
+    ...currentSort(),
+    ...(withColumns.value ? { columns: currentColumns() } : {}),
+  });
   presets.sort((a, b) => a.name.localeCompare(b.name));
   savePresets(presets);
 }
@@ -143,6 +178,28 @@ function applyToOpenFolder(preset) {
   command(preset.ascending ? "ascending" : "descending");
   command(preset.mode);
   threadPane.restoreSortIndicator();
+  if (preset.columns) {
+    threadPane.applyPersistedColumnsState(preset.columns.states);
+    threadPane.updateColumns();
+    threadTree.reset();
+    threadPane.persistColumnStates();
+    applyWidths(preset);
+  }
+}
+
+/**
+ * Use the column widths of a saved sort everywhere: they replace all current
+ * widths (message lists follow the pref).
+ *
+ * @param {SortPreset} preset
+ */
+function applyWidths(preset) {
+  if (preset.columns) {
+    Services.prefs.setStringPref(
+      WIDTHS_PREF,
+      JSON.stringify(preset.columns.widths ?? {})
+    );
+  }
 }
 
 /**
@@ -178,6 +235,9 @@ function applyToStoredFolder(preset, folder) {
     encode(preset.sortType, preset.sortOrder == Ci.nsMsgViewSortOrder.ascending) +
       (secondaryType ? encode(secondaryType, secondary.ascending) : "")
   );
+  if (preset.columns) {
+    info.setCharProperty("columnStates", JSON.stringify(preset.columns.states));
+  }
   // Without a commit the change is lost when the database closes.
   database.commit(Ci.nsMsgDBCommitType.kLargeCommit);
   folder.msgDatabase = null;
@@ -202,6 +262,9 @@ function applyToFolders(preset) {
     } catch (error) {
       console.error(`aMail: could not apply sort to ${uri}`, error);
     }
+  }
+  if (result.uris.length) {
+    applyWidths(preset);
   }
 }
 
