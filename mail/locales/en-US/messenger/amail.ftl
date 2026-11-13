@@ -350,3 +350,13 @@ amail-remote-blocked = To protect your privacy, remote images in this message we
 amail-remote-show = Show images
 # $name - a sender's address or a domain
 amail-remote-always = Always from { $name }
+
+## Reading pane: conversation strip
+
+# $count - messages in the conversation
+amail-reader-conversation = { $count } messages in this conversation
+
+## Reading pane: invitation card
+
+# $name - the organizer's name or address
+amail-invite-organizer = Organizer: { $name }

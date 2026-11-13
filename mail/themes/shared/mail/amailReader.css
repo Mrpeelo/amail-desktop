@@ -263,3 +263,158 @@ body {
     outline-offset: 1px;
   }
 }
+
+/* Label chips after the subject. */
+#amailReaderLabels:empty {
+  display: none;
+}
+
+#amailReaderLabels .amail-label-chip {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 0 6px;
+  border-radius: 3px;
+  background-color: color-mix(in srgb, var(--color-primary-default) 12%, transparent);
+  color: var(--color-primary-default);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+/* Conversation strip: the other messages of the conversation. */
+#amailConversation {
+  margin: 0 20px 8px;
+  border: 1px solid var(--color-border-muted, var(--color-surface-border));
+  border-radius: 6px;
+  max-block-size: 180px;
+  overflow: auto;
+}
+
+#amailConversation[hidden] {
+  display: none;
+}
+
+.amail-conversation-head {
+  padding: 6px 10px;
+  border-block-end: 1px solid var(--color-border-muted, var(--color-surface-border));
+  color: var(--color-text-secondary);
+  font-size: 12px;
+}
+
+.amail-conversation-item {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr) auto;
+  gap: 10px;
+  inline-size: 100%;
+  margin: 0;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-mix(in srgb, currentColor 6%, transparent);
+  }
+
+  &.current {
+    background-color: color-mix(in srgb, var(--color-text-base) 10%, transparent);
+  }
+
+  &.unread .who {
+    font-weight: 600;
+  }
+
+  & .who,
+  & .snip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  & .snip,
+  & .when {
+    color: var(--color-text-secondary);
+  }
+}
+
+/* Invitation card (the calendar invitation bar, Outlook style). */
+#amailInviteTile,
+#amailInviteBody > div {
+  display: none;
+}
+
+#imip-bar.amail-invite {
+  margin: 0 20px 10px;
+  padding: 12px 14px;
+  gap: 14px;
+  align-items: flex-start;
+  border: 1px solid var(--color-border-muted, var(--color-surface-border));
+  border-inline-start: 4px solid var(--color-primary-default);
+  border-radius: 6px;
+  background-color: color-mix(in srgb, var(--color-primary-default) 8%, var(--color-surface-base, white));
+
+  &.amail-invite-cancelled {
+    border-inline-start-color: var(--color-red-50, #c42b1c);
+  }
+
+  & > img {
+    display: none;
+  }
+
+  & #amailInviteTile {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    inline-size: 52px;
+    block-size: 56px;
+    border: 1px solid var(--color-border-muted, var(--color-surface-border));
+    border-radius: 6px;
+    background-color: var(--color-surface-base, white);
+    color: var(--color-primary-default);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.1;
+
+    & small {
+      color: var(--color-text-secondary);
+      font-size: 11px;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+  }
+
+  & #amailInviteBody > div {
+    display: block;
+  }
+
+  & #amailInviteTitle {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  & #amailInviteWhen,
+  & #amailInviteOrganizer,
+  & .msgNotificationBarText {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+  }
+
+  & #imip-view-toolbox {
+    margin-block-start: 8px;
+  }
+
+  /* Accept is the main answer: blue outline and text. (Its inner button
+     lives in a shadow tree, so it can't take a filled background.) */
+  & :is(#imipAcceptButton, #imipAcceptRecurrencesButton):not([disabled]) {
+    border-color: var(--color-primary-default) !important;
+    color: var(--color-primary-default) !important;
+    font-weight: 600;
+  }
+}

@@ -6,6 +6,10 @@ import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
 // eslint-disable-next-line import/no-unassigned-import
 import "chrome://messenger/content/thread-card-tags.mjs";
 import { todayLabel } from "chrome://messenger/content/amailDates.mjs";
+import {
+  labelChips,
+  labelsFor,
+} from "chrome://messenger/content/amailLabels.mjs";
 
 /**
  * The tr element row of the TreeView table for the cards view layout.
@@ -87,6 +91,12 @@ class ThreadCard extends TreeViewTableRow {
 
     this.subjectLine.textContent = data.subject;
     this.subjectLine.title = data.subject;
+    // aMail: the message's other Gmail labels before the subject.
+    if (!propertiesSet.has("dummy")) {
+      this.subjectLine.prepend(
+        ...labelChips(document, labelsFor(this.view.getMsgHdrAt(this._index)))
+      );
+    }
 
     // Handle a different style and data if this is a dummy row.
     if (propertiesSet.has("dummy")) {

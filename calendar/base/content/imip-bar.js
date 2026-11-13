@@ -104,6 +104,7 @@ var calImipBar = {
 
     imipBar.collapsed = false;
     imipBar.label = cal.itip.getMethodText(itipItem.receivedMethod);
+    calImipBar.amailFillCard(itipItem);
 
     // This is triggered by CalMimeConverter.convertToHTML, so we know that
     // the message is not yet loaded with the invite. Keep track of this for
@@ -154,6 +155,54 @@ var calImipBar = {
     // calendar, we proceed to displayModifications. If overlayLoaded is true
     // we update the #messagepane immediately, otherwise we update it on
     // DOMContentLoaded, which has not yet happened.
+  },
+
+  /**
+   * aMail: the invitation as a card: a date tile, the title, when and where,
+   * and who organises it.
+   *
+   * @param {calIItipItem} itipItem
+   */
+  amailFillCard(itipItem) {
+    const bar = document.getElementById("imip-bar");
+    // The answer buttons go under the text, as in Outlook.
+    document
+      .getElementById("amailInviteBody")
+      .append(document.getElementById("imip-view-toolbox"));
+    const item = itipItem.getItemList()[0];
+    const start = item?.startDate ?? item?.entryDate;
+    bar.classList.toggle("amail-invite", !!start);
+    bar.classList.toggle("amail-invite-cancelled", itipItem.receivedMethod == "CANCEL");
+    if (!start) {
+      return;
+    }
+    const end = item.endDate ?? item.dueDate ?? start;
+    const local = start.getInTimezone(cal.dtz.defaultTimezone);
+    const jsDate = cal.dtz.dateTimeToJsDate(local);
+    document.getElementById("amailInviteDay").textContent = jsDate.getDate();
+    document.getElementById("amailInviteMonth").textContent = jsDate.toLocaleDateString(
+      undefined,
+      { month: "short" }
+    );
+    document.getElementById("amailInviteTitle").textContent = item.title || "";
+    const where = item.getProperty("LOCATION");
+    const when = cal.dtz.formatter.formatInterval(
+      local,
+      end.getInTimezone(cal.dtz.defaultTimezone)
+    );
+    document.getElementById("amailInviteWhen").textContent = where
+      ? `${when} · ${where}`
+      : when;
+    const organizer = item.organizer;
+    const organizerLine = document.getElementById("amailInviteOrganizer");
+    if (organizer) {
+      document.l10n.setAttributes(organizerLine, "amail-invite-organizer", {
+        name: organizer.commonName || organizer.id.replace(/^mailto:/i, ""),
+      });
+    } else {
+      organizerLine.removeAttribute("data-l10n-id");
+      organizerLine.textContent = "";
+    }
   },
 
   /**

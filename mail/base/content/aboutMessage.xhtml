@@ -118,11 +118,13 @@
         <!-- aMail: subject and previous/next at the top of the card. -->
         <html:div id="amailSubjectBar">
           <html:div id="amailSubjectSlot"></html:div>
+          <html:span id="amailReaderLabels"></html:span>
           <html:div id="amailNavButtons">
             <html:button id="amailPreviousMessage" class="amail-reader-icon" data-l10n-id="amail-reader-previous"></html:button>
             <html:button id="amailNextMessage" class="amail-reader-icon" data-l10n-id="amail-reader-next"></html:button>
           </html:div>
         </html:div>
+        <html:div id="amailConversation" hidden="hidden"></html:div>
         <vbox id="singleMessage">
           <hbox id="msgHeaderView" collapsed="collapsed" class="main-header-area">
 #include msgHdrView.inc.xhtml

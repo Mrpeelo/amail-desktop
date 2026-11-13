@@ -12,10 +12,20 @@
               align="center">
           <html:img src="chrome://messenger/skin/icons/new/normal/calendar-invite.svg"
                     alt="" />
-          <description class="msgNotificationBarText"
-                       flex="1">
-            &lightning.imipbar.description;
-          </description>
+          <!-- aMail: invitation card (date tile, title, when, where, organizer). -->
+          <html:div id="amailInviteTile" aria-hidden="true">
+            <html:span id="amailInviteDay"></html:span>
+            <html:small id="amailInviteMonth"></html:small>
+          </html:div>
+          <vbox id="amailInviteBody" flex="1">
+            <html:div id="amailInviteTitle"></html:div>
+            <html:div id="amailInviteWhen"></html:div>
+            <html:div id="amailInviteOrganizer"></html:div>
+            <description class="msgNotificationBarText"
+                         flex="1">
+              &lightning.imipbar.description;
+            </description>
+          </vbox>
 
           <!-- Some Toolbox implementation notes:
              -

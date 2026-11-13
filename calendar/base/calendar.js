@@ -89,7 +89,8 @@ pref("calendar.itip.separateInvitationButtons", true);
 pref("calendar.itip.showImipBar", true);
 
 // Whether to always expand the iMIP details, instead of collapsing them.
-pref("calendar.itip.imipDetailsOpen", true);
+// aMail: the invitation card shows the details; the table in the body starts closed.
+pref("calendar.itip.imipDetailsOpen", false);
 
 // Temporary pref for using the new invitation display instead of the old one.
 pref("calendar.itip.newInvitationDisplay", false);

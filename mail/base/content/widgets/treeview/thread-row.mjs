@@ -4,6 +4,10 @@
 
 import { TreeViewTableRow } from "chrome://messenger/content/tree-view.mjs";
 import { todayLabel } from "chrome://messenger/content/amailDates.mjs";
+import {
+  labelChips,
+  labelsFor,
+} from "chrome://messenger/content/amailLabels.mjs";
 
 /**
  * The tr element row of the TreeView table.
@@ -101,8 +105,17 @@ class ThreadRow extends TreeViewTableRow {
           subjectText += unread ? ` (${unread}/${total})` : ` (${total})`;
         }
 
-        const span = div.querySelector("span");
+        const span = div.querySelector("span:not(.amail-label-chip)");
         span.textContent = subjectText;
+        // aMail: the message's other Gmail labels before the subject.
+        for (const chip of div.querySelectorAll(".amail-label-chip")) {
+          chip.remove();
+        }
+        if (!isDummyRow) {
+          span.before(
+            ...labelChips(document, labelsFor(this.view.getMsgHdrAt(this._index)))
+          );
+        }
         document.l10n.setAttributes(cell, column.l10n.cell, {
           title: subjectText,
         });
