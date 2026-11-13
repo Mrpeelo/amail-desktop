@@ -56,6 +56,62 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Settings dropdowns open with a short fade and slide; choosing still works. */
+  async "select-dropdown-anim"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    top.amailSettingsDialog.openSettings("general");
+    await wait(2500);
+    const browser = top.document.getElementById("amailSettingsBrowser");
+    const page = browser.contentWindow;
+    const select = [...page.document.querySelectorAll("select")].find(
+      s => s.closest("label")?.textContent.includes("sending") || s.id == "undoSendDelay"
+    ) ?? page.document.querySelectorAll("select")[3];
+    const original = select.value;
+    select.scrollIntoView();
+    const rect = select.getBoundingClientRect();
+    const offset = browser.getBoundingClientRect();
+    const states = [];
+    const shown = new Promise(resolve => {
+      const onShowing = e => {
+        if (e.target.closest?.("#ContentSelectDropdown")) {
+          const cs = top.getComputedStyle(e.target);
+          states.push({ at: "showing", animate: e.target.getAttribute("animate"), transform: cs.transform, opacity: cs.opacity, duration: cs.transitionDuration, cls: e.target.className });
+        }
+      };
+      const onShown = e => {
+        if (e.target.closest?.("#ContentSelectDropdown")) {
+          const cs = top.getComputedStyle(e.target);
+          states.push({ at: "shown", animate: e.target.getAttribute("animate"), transform: cs.transform, opacity: cs.opacity });
+          top.document.removeEventListener("popupshowing", onShowing, true);
+          top.document.removeEventListener("popupshown", onShown, true);
+          resolve(e.target);
+        }
+      };
+      top.document.addEventListener("popupshowing", onShowing, true);
+      top.document.addEventListener("popupshown", onShown, true);
+    });
+    const x = offset.x + rect.x + 20;
+    const y = offset.y + rect.y + 10;
+    top.synthesizeMouseEvent("mousedown", x, y, { button: 0, clickCount: 1 });
+    top.synthesizeMouseEvent("mouseup", x, y, { button: 0, clickCount: 1 });
+    const popup = await Promise.race([shown, wait(3000).then(() => null)]);
+    await wait(400);
+    if (popup) {
+      const cs = top.getComputedStyle(popup);
+      states.push({ at: "settled", animate: popup.getAttribute("animate"), transform: cs.transform, opacity: cs.opacity });
+      const item = [...popup.children].find(i => i.localName == "menuitem" && !i.selected && !i.hasAttribute("selected"));
+      record({ label: "items", count: popup.childElementCount, itemTransition: item && top.getComputedStyle(item).transition });
+      const hidden = new Promise(r => popup.addEventListener("popuphidden", r, { once: true }));
+      popup.activateItem(item);
+      await Promise.race([hidden, wait(2000)]);
+      await wait(300);
+      record({ label: "choose", picked: item?.label, value: select.value, original, changed: select.value != original });
+    }
+    record({ label: "dropdown", opened: !!popup, states });
+    select.value = original;
+    select.dispatchEvent(new page.Event("change", { bubbles: true }));
+    top.amailSettingsDialog.close();
+  },
 };
 
 export async function runDebugChecks(names) {

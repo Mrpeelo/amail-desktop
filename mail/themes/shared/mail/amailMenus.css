@@ -34,4 +34,28 @@
       border-color: var(--color-surface-border);
     }
   }
+
+  /* Dropdowns of <select> (Settings): a short fade and a small slide instead
+     of snapping open, and a highlight that eases between items. */
+  #ContentSelectDropdown > menupopup {
+    &.animatable-menupopup:not([animate="false"]) {
+      transition-duration: 0.15s;
+    }
+
+    @media (-moz-panel-animations) and (not (prefers-reduced-motion)) {
+      &.animatable-menupopup:not([animate="open"], [animate="false"], [animate="cancel"]) {
+        transform: translateY(-6px);
+
+        &[side="bottom"] {
+          transform: translateY(6px);
+        }
+      }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      & > :is(menuitem, menucaption) {
+        transition: background-color 80ms ease-out;
+      }
+    }
+  }
 }

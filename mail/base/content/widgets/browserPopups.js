@@ -56,6 +56,23 @@ window.addEventListener(
       gContextMenu.hiding();
       gContextMenu = null;
     });
+
+    // aMail: <select> dropdowns fade in (amailMenus.css). The animate
+    // attribute is what panel.js sets for arrow panels.
+    const selectPopup = document.querySelector("#ContentSelectDropdown > menupopup");
+    if (selectPopup) {
+      selectPopup.classList.add("animatable-menupopup");
+      selectPopup.addEventListener("popupshowing", event => {
+        if (event.target == selectPopup) {
+          selectPopup.setAttribute("animate", "open");
+        }
+      });
+      selectPopup.addEventListener("popuphidden", event => {
+        if (event.target == selectPopup) {
+          selectPopup.removeAttribute("animate");
+        }
+      });
+    }
   },
   { once: true }
 );
