@@ -1,0 +1,224 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* aMail account settings: the account list (AccountManager.xhtml) and every
+   account page (am-*.xhtml), in the look of the aMail Settings page. */
+
+/* Not every page loads the colour tokens. */
+@import url("chrome://messenger/skin/colors.css");
+@import url("chrome://messenger/skin/variables.css");
+
+:root {
+  --amail-hover: color-mix(in srgb, var(--color-text-base) 5%, transparent);
+  --amail-selected: color-mix(in srgb, var(--color-text-base) 10%, transparent);
+  --amail-radius: 6px;
+  --amail-danger: light-dark(#c42b1c, #ff99a4);
+  accent-color: var(--color-primary-default);
+  font: 14px/1.4 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+}
+
+/* Account list: like the mail folder pane. */
+
+#accountTreeBox {
+  min-inline-size: 240px;
+  background-color: var(--color-surface-subtle);
+  border-inline-end: 1px solid var(--color-surface-border);
+}
+
+#accountTreeHeaderBar {
+  justify-content: stretch;
+  padding: 12px;
+}
+
+#accountTreeCreateAccount {
+  flex: 1;
+  min-block-size: 32px;
+  margin: 0;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+#accounttree {
+  padding-block-end: 8px;
+
+  & li > .container {
+    min-block-size: 28px;
+    box-sizing: border-box;
+    margin-inline: 6px;
+    padding-inline: 4px 8px;
+    border: none;
+    border-radius: var(--amail-radius);
+    background-color: transparent;
+    color: var(--color-text-base);
+  }
+
+  & li:not(.selected) > .container:hover {
+    background-color: var(--amail-hover);
+  }
+
+  & li.selected > .container,
+  &:focus-within li.selected > .container {
+    background-color: var(--amail-selected);
+    color: var(--color-text-base);
+
+    & > .name {
+      font-weight: 600;
+    }
+  }
+
+  & > li > .container > .name {
+    margin-inline: 6px;
+    font-weight: 600;
+  }
+
+  & .twisty-icon {
+    fill: var(--color-text-secondary);
+  }
+
+  /* Accounts: a colour dot, as in the folder pane. */
+  & > li:not(#smtp) > .container > .icon {
+    --icon-color: var(--color-primary-default);
+    inline-size: 8px;
+    block-size: 8px;
+    margin-inline: 4px;
+    border-radius: 50%;
+    background-image: none;
+    background-color: var(--icon-color);
+  }
+
+  & ul > li > .container {
+    padding-inline-start: 34px;
+  }
+}
+
+/* Account pages */
+
+#containerBox {
+  max-inline-size: 760px;
+  padding-block: 20px 32px;
+  padding-inline: 28px;
+}
+
+.dialogheader-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+legend,
+.header {
+  margin-block: 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+fieldset {
+  margin-block-end: 24px;
+}
+
+.identity-table {
+  border-spacing: 0 6px;
+
+  & th {
+    inline-size: 170px;
+    padding-inline-end: 12px;
+    font-weight: normal;
+    white-space: nowrap;
+  }
+}
+
+/* Inputs, dropdowns and buttons like the aMail Settings page. */
+
+input:is([type="text"], [type="email"], [type="number"], [type="password"], [type="url"], :not([type])),
+select,
+textarea,
+menulist {
+  box-sizing: border-box;
+  min-block-size: 32px;
+  border: 1px solid var(--color-surface-border);
+  border-block-end-color: var(--color-surface-border-intense);
+  border-radius: 4px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+  font: inherit;
+
+  &:focus-visible {
+    outline: none;
+    border-block-end: 2px solid var(--color-primary-default);
+  }
+}
+
+input:is([type="text"], [type="email"], [type="number"], [type="password"], [type="url"], :not([type])),
+select {
+  padding-inline: 8px;
+}
+
+menulist {
+  padding-inline: 8px 4px;
+
+  &:hover:not([disabled]) {
+    background-color: var(--color-surface-base);
+    border-color: var(--color-surface-border-intense);
+  }
+}
+
+button:not(.button-flat, .icon-only, .dialogClose, [type="color"]) {
+  min-block-size: 32px;
+  padding-inline: 12px;
+  border: 1px solid var(--color-surface-border-intense);
+  border-radius: 4px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-base);
+  font-weight: 600;
+
+  &:hover:not([disabled]) {
+    background-color: var(--color-surface-subtle);
+    border-color: var(--color-surface-border-intense);
+  }
+
+  &.button-primary,
+  &[default="true"] {
+    border-color: var(--color-primary-default);
+    background-color: var(--color-primary-default);
+    color: var(--color-white, #fff);
+
+    &:hover:not([disabled]) {
+      border-color: var(--color-primary-hover);
+      background-color: var(--color-primary-hover);
+    }
+  }
+}
+
+/* Delete account: outlined red. */
+#deleteAccount {
+  border-color: var(--amail-danger);
+  background-color: transparent;
+  color: var(--amail-danger);
+  list-style-image: none;
+
+  &:hover:not([disabled]) {
+    border-color: var(--amail-danger);
+    background-color: color-mix(in srgb, var(--amail-danger) 8%, transparent);
+  }
+}
+
+/* The signature lives in Settings > Signatures. */
+.amail-signature-link {
+  margin-block: 6px 10px;
+  color: var(--color-text-secondary);
+
+  & a {
+    color: var(--color-primary-default);
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

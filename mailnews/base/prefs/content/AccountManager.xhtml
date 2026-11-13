@@ -50,6 +50,7 @@
     window.addEventListener("load", event => { onLoad(event); });
     window.addEventListener("unload", event => { onUnload(); });
   </script>
+  <link rel="stylesheet" href="chrome://messenger/skin/amailAccounts.css" />
 </head>
 <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <stringbundle id="bundle_brand" src="chrome://branding/locale/brand.properties"/>
@@ -98,27 +99,6 @@
                 prefstring="mail.disable_new_account_addition"
                 oncommand="openNewsgroupAccountWizard(); event.stopPropagation();"/>
     </menupopup>
-
-    <vbox class="sidebar-footer-list">
-      <html:a id="prefsButton" class="sidebar-footer-link"
-              onclick="openPreferencesTab();">
-        <html:img class="sidebar-footer-icon"
-                  src="chrome://messenger/skin/icons/new/compact/settings.svg" alt="" />
-        <label class="sidebar-footer-label"
-               data-l10n-id="open-preferences-sidebar-button2"
-               flex="1"/>
-      </html:a>
-
-      <html:a id="addonsButton" class="sidebar-footer-link"
-              onclick="window.browsingContext.topChromeWindow.openAddonsMgr();">
-        <html:img class="sidebar-footer-icon"
-                  src="chrome://messenger/skin/icons/new/compact/extension.svg"
-                  alt="" />
-        <label class="sidebar-footer-label"
-               data-l10n-id="open-addons-sidebar-button"
-               flex="1"/>
-      </html:a>
-    </vbox>
   </html:aside>
   <html:aside>
     <iframe id="contentFrame" name="contentFrame" />

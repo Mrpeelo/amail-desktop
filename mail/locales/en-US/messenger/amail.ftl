@@ -225,6 +225,10 @@ amail-settings-add-account = Add account
 amail-settings-import = Import from Thunderbird / Betterbird…
 amail-settings-account-default = Default
 
+## Account settings
+
+amail-account-signature-link = Signatures are set in <a data-l10n-name="signatures">Settings › Signatures</a>.
+
 ## Settings: Signatures & templates
 
 amail-settings-signatures = Signatures

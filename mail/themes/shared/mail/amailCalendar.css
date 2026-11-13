@@ -168,6 +168,170 @@ button.calview-toggle-item {
   }
 }
 
+/* Sidebar: like the mail folder pane. */
+#calSidebar {
+  --amail-hover: color-mix(in srgb, var(--color-text-base) 5%, transparent);
+  --amail-selected: color-mix(in srgb, var(--color-text-base) 10%, transparent);
+  --amail-radius: 6px;
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text-base);
+  border-inline-end: 1px solid var(--color-surface-border);
+}
+
+#calsidebar_splitter {
+  border: none;
+  margin-inline-start: -4px;
+  inline-size: 4px;
+  background: transparent;
+}
+
+#primaryButtonSidePanel {
+  justify-content: stretch;
+  padding: 12px 12px 4px;
+
+  & > .button {
+    flex: 1;
+    min-block-size: 32px;
+    margin: 0;
+    border-radius: var(--amail-radius-s);
+    font-weight: 600;
+  }
+}
+
+#minimonth-pane #calMinimonth {
+  --mmMainBackground: transparent;
+  --mmDayColor: var(--color-text-base);
+  --mmDayOtherColor: var(--color-text-secondary);
+  --mmDayWeekColor: var(--color-text-secondary);
+  --mmDayTodayColor: #fff;
+  --mmDayTodayBackground: var(--color-primary-default);
+  --mmDaySelectedColor: var(--color-primary-default);
+  --mmDaySelectedBackground: color-mix(in srgb, var(--color-primary-default) 14%, transparent);
+  --mmDaySelectedBorderColor: transparent;
+  --mmDaySelectedTodayBackground: var(--color-primary-default);
+  --mmDaySelectedTodayBorderColor: transparent;
+  --mmDayBusyColor: var(--color-primary-default);
+  --mmDayBorderRadius: 6px;
+  border: none;
+  color: var(--color-text-base);
+
+  & .minimonth-nav-section {
+    background: transparent;
+    border: none;
+  }
+
+  & .minimonth-nav-item {
+    border: none;
+  }
+
+  & .minimonth-header button {
+    border-radius: var(--amail-radius-s);
+
+    &:hover {
+      background-color: var(--amail-hover);
+    }
+  }
+
+  & .minimonth-month-name,
+  & .minimonth-year-name {
+    font-weight: 600;
+  }
+
+  & .minimonth-row-header {
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: normal;
+  }
+
+  & .minimonth-week {
+    font-size: 11px;
+    font-weight: normal;
+  }
+
+  & .minimonth-day {
+    font-size: 12px;
+
+    &[today="true"] {
+      color: var(--mmDayTodayColor);
+      font-weight: 600;
+    }
+
+    &[today="true"][busy]::after {
+      background-color: #fff;
+    }
+
+    &:hover[interactive] {
+      border-color: transparent;
+      background-color: var(--amail-hover);
+    }
+
+    &[today="true"]:hover[interactive] {
+      background-color: var(--color-primary-hover, var(--color-primary-default));
+    }
+  }
+}
+
+#minimonth-splitter {
+  block-size: 1px;
+  margin: 8px 12px;
+  background-color: var(--color-surface-border);
+}
+
+#calendarListHeader {
+  margin-inline: 6px;
+  padding: 6px 8px;
+  border-radius: var(--amail-radius);
+  font-size: 14px;
+
+  &:not([disabled]):hover {
+    background-color: var(--amail-hover);
+  }
+}
+
+#calendar-list-inner-pane > #calendar-list > li {
+  min-block-size: 28px;
+  box-sizing: border-box;
+  margin-block: 0;
+  margin-inline: 6px;
+  padding-inline: 10px 8px;
+  gap: 8px;
+  border-radius: var(--amail-radius);
+
+  &:not(.selected):hover {
+    background-color: var(--amail-hover);
+  }
+
+  &.selected {
+    background-color: var(--amail-selected);
+    color: var(--color-text-base);
+
+    & > .calendar-name {
+      font-weight: 600;
+    }
+  }
+
+  & > .calendar-color {
+    inline-size: 10px;
+    block-size: 10px;
+    border-radius: 50%;
+  }
+}
+
+#sideButtonsBottom {
+  padding: 6px;
+  border-block-start: 1px solid var(--color-surface-border);
+
+  & > .button {
+    min-block-size: 28px;
+    margin: 0;
+    border-radius: var(--amail-radius);
+
+    &:hover {
+      background-color: var(--amail-hover);
+    }
+  }
+}
+
 /* Week / day: the red "now" line at full strength. */
 .timeIndicator {
   opacity: 1;

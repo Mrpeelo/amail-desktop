@@ -1138,11 +1138,34 @@ function updateBlockedItems(aItems, aMustBeTrue) {
   }
 }
 
+/**
+ * aMail: only the account being shown stays expanded in the list.
+ *
+ * @param {HTMLLIElement} row - The selected row.
+ */
+function expandOnlyAccountOf(row) {
+  const tree = document.getElementById("accounttree");
+  const accountRow = row.closest("#accounttree > li");
+  for (const child of tree.children) {
+    if (!child.querySelector(":scope > ul > li")) {
+      continue;
+    }
+    if (child == accountRow) {
+      tree.expandRow(child);
+    } else {
+      tree.collapseRow(child);
+    }
+  }
+}
+
 // Called when someone clicks on an account. Figure out context by what they
 // clicked on. This is also called when an account is removed. In this case,
 // nothing is selected.
 function onAccountTreeSelect(pageId, account) {
   const tree = document.getElementById("accounttree");
+  if (tree.selectedRow) {
+    expandOnlyAccountOf(tree.selectedRow);
+  }
 
   let changeView = pageId && account;
   if (!changeView) {
@@ -1680,22 +1703,6 @@ var gAccountTree = {
       accountKeyList.pop(); // Remove SMTP.
       MailServices.accounts.reorderAccounts(accountKeyList);
     });
-    mainTree.addEventListener("expanded", event => {
-      this._dataStore.setValue(
-        document.documentURI,
-        event.target.id,
-        "open",
-        "true"
-      );
-    });
-    mainTree.addEventListener("collapsed", event => {
-      this._dataStore.setValue(
-        document.documentURI,
-        event.target.id,
-        "open",
-        "false"
-      );
-    });
 
     MailServices.accounts.addIncomingServerListener(this);
     Services.obs.addObserver(this, "server-color-changed", true);
@@ -1746,24 +1753,6 @@ var gAccountTree = {
     serverRow
       .querySelector(".icon")
       .style.setProperty("--icon-color", iconColor ?? "");
-  },
-
-  _dataStore: Services.xulStore,
-
-  /**
-   * Retrieve from XULStore.json whether the account should be expanded (open)
-   * in the account tree.
-   *
-   * @param {string} aAccountKey - Key of the account to check.
-   */
-  _getAccountOpenState(aAccountKey) {
-    if (!this._dataStore.hasValue(document.documentURI, aAccountKey, "open")) {
-      // If there was no value stored, use opened state.
-      return "true";
-    }
-    // Retrieve the persisted value from XULStore.json.
-    // It is stored under the URI of the current document and ID of the XUL element.
-    return this._dataStore.getValue(document.documentURI, aAccountKey, "open");
   },
 
   /**
@@ -1922,10 +1911,8 @@ var gAccountTree = {
           kidtreeitem.id = `${accountKey}/${panel.src}`;
         }
         treeitem.id = accountKey;
-        // Load the 'open' state of the account from XULStore.json.
-        if (this._getAccountOpenState(accountKey) != "true") {
-          treeitem.classList.add("collapsed");
-        }
+        // aMail: expanded when selected (expandOnlyAccountOf).
+        treeitem.classList.add("collapsed");
       }
       treeitem._account = account;
     }

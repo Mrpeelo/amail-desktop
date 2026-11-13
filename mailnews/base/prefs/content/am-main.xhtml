@@ -16,6 +16,7 @@
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="localization" href="messenger/accountSettings.ftl" />
+    <link rel="localization" href="messenger/amail.ftl" />
     <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/variables.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/accountManage.css" />
@@ -34,6 +35,7 @@
     <script defer="defer" src="chrome://messenger/content/am-main.js"></script>
     <script defer="defer" src="chrome://messenger/content/am-prefs.js"></script>
     <script defer="defer" src="chrome://messenger/content/amUtils.js"></script>
+    <link rel="stylesheet" href="chrome://messenger/skin/amailAccounts.css" />
   </head>
   <html:body
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -189,7 +191,7 @@
                 />
               </html:td>
             </html:tr>
-            <html:tr>
+            <html:tr hidden="hidden">
               <html:th>
                 <label
                   value="&signatureText.label;"
@@ -213,10 +215,21 @@
             </html:tr>
           </html:table>
 
+          <html:p
+            class="amail-signature-link"
+            data-l10n-id="amail-account-signature-link"
+          >
+            <html:a
+              data-l10n-name="signatures"
+              href="#"
+              onclick="event.preventDefault(); window.browsingContext.topChromeWindow.amailSettingsDialog.openSettings('signatures');"
+            ></html:a>
+          </html:p>
+
           <hbox
+            hidden="true"
             class="indent"
             flex="1"
-            style="min-height: 100px; display: flex"
           >
             <html:textarea
               id="identity.htmlSigText"
@@ -228,7 +241,7 @@
             />
           </hbox>
 
-          <hbox align="center">
+          <hbox align="center" hidden="true">
             <checkbox
               id="identity.attachSignature"
               wsm_persist="true"
@@ -241,7 +254,7 @@
             />
           </hbox>
 
-          <hbox align="center" class="indent input-container">
+          <hbox align="center" class="indent input-container" hidden="true">
             <html:input
               id="identity.signature"
               type="text"

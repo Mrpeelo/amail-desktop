@@ -56,6 +56,61 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Account settings restyle: list, pages, signature link. */
+  async "account-restyle"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    top.resizeTo(1920, 1040);
+    await wait(800);
+    top.amailSettingsDialog.openAccounts();
+    await wait(3000);
+    const browser = top.document.getElementById("amailSettingsBrowser");
+    const am = browser.contentWindow;
+    const doc = am.document;
+    const tree = doc.getElementById("accounttree");
+    const state = () =>
+      [...tree.children].map(li => ({
+        name: li.querySelector(".name").textContent,
+        expanded: !li.classList.contains("collapsed") && !!li.querySelector("ul > li"),
+        selected: !!li.querySelector(".selected") || li.classList.contains("selected"),
+        dot: am.getComputedStyle(li.querySelector(".icon")).fill,
+      }));
+    const cs = (el, ...props) => el && Object.fromEntries(props.map(p => [p, am.getComputedStyle(el)[p]]));
+    const frame = doc.getElementById("contentFrame").contentDocument;
+    record({
+      label: "list",
+      footer: !!doc.querySelector(".sidebar-footer-list"),
+      add: cs(doc.getElementById("accountTreeCreateAccount"), "backgroundColor", "borderTopWidth", "blockSize"),
+      rows: state(),
+      page: frame.documentURI,
+      title: cs(frame.querySelector(".dialogheader-title"), "fontSize", "fontWeight"),
+      del: cs(frame.getElementById("deleteAccount"), "color", "borderTopColor", "backgroundColor"),
+      input: cs(frame.getElementById("identity.fullName"), "blockSize", "borderBottomColor", "borderTopLeftRadius"),
+      sigBox: frame.getElementById("identity.htmlSigText")?.getBoundingClientRect().height,
+      sigLink: frame.querySelector(".amail-signature-link")?.textContent.trim(),
+    });
+    await snapshot("acc-main", top);
+
+    if (tree.children.length > 2) {
+      tree.selectedIndex = tree.rows.indexOf(tree.children[1]);
+      await wait(2000);
+      record({ label: "second account", rows: state() });
+    }
+    const child = tree.querySelector("li:not(.collapsed) > ul > li");
+    if (child) {
+      tree.selectedIndex = tree.rows.indexOf(child);
+      await wait(2000);
+      record({ label: "child page", page: doc.getElementById("contentFrame").contentDocument.documentURI });
+      await snapshot("acc-server", top);
+    }
+
+    tree.selectedIndex = 0;
+    await wait(2000);
+    doc.getElementById("contentFrame").contentDocument.querySelector(".amail-signature-link a").click();
+    await wait(2000);
+    record({ label: "signature link", url: browser.currentURI.spec });
+    top.amailSettingsDialog.close();
+  },
+
   /** Calendar restyle on a temporary calendar of sample events. */
   async "calendar-restyle"(record) {
     const top = window.browsingContext.topChromeWindow;
@@ -180,6 +235,21 @@ const CHECKS = {
       await snapshot(`cal-${view}`, top);
       if (view == "week") {
         await snapshot("cal-week-zoom", top, new top.DOMRect(350, 330, 1150, 320));
+        const side = doc.getElementById("calSidebar").getBoundingClientRect();
+        await snapshot("cal-sidebar", top, new top.DOMRect(side.x, side.y, side.width + 20, side.height));
+        const today = doc.querySelector("#calMinimonth .minimonth-day[today='true']");
+        record({
+          label: "sidebar",
+          width: side.width,
+          bg: top.getComputedStyle(doc.getElementById("calSidebar")).backgroundColor,
+          newEvent: doc.getElementById("sidePanelNewEvent").getBoundingClientRect().width,
+          todayBg: today && top.getComputedStyle(today).backgroundColor,
+          rows: [...doc.querySelectorAll("#calendar-list > li")].map(li => [
+            li.querySelector(".calendar-name").textContent,
+            li.getBoundingClientRect().height,
+            top.getComputedStyle(li).backgroundColor,
+          ]),
+        });
       }
     }
 
