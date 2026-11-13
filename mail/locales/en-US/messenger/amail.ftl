@@ -360,3 +360,11 @@ amail-reader-conversation = { $count } messages in this conversation
 
 # $name - the organizer's name or address
 amail-invite-organizer = Organizer: { $name }
+
+## Search server (global search results)
+
+amail-server-search-button = Search server
+    .title = Search the mail servers too, including mail whose text was not downloaded
+amail-server-search-empty = No results in the downloaded mail. Try the server:
+# $query - the search text
+amail-server-search-title = Server results for “{ $query }”

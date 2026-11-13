@@ -19,6 +19,7 @@
       content="default-src chrome:; script-src chrome: 'unsafe-inline' moz-src:; style-src chrome: 'unsafe-inline'"
     />
     <link rel="localization" href="messenger/glodaFacetView.ftl" />
+    <link rel="localization" href="messenger/amail.ftl" />
     <link
       rel="stylesheet"
       href="chrome://messenger/skin/glodaFacetView.css"
@@ -89,6 +90,14 @@
           >
             &glodaFacetView.openEmailAsList.label;
           </a>
+          <!-- aMail: run the same search on the mail servers. -->
+          <button
+            id="amail-search-server"
+            type="button"
+            class="results-message-showall-button"
+            data-l10n-id="amail-server-search-button"
+            onclick="FacetContext.searchServer()"
+          ></button>
         </div>
         <div id="data-column">
           <!-- facet-results-message is put before facet-date here so that it gets upgraded first.
@@ -116,6 +125,15 @@
               <br />
               &glodaFacetView.empty.label;
             </span>
+            <p class="amail-empty-server">
+              <span data-l10n-id="amail-server-search-empty"></span>
+              <button
+                type="button"
+                class="results-message-showall-button"
+                data-l10n-id="amail-server-search-button"
+                onclick="FacetContext.searchServer()"
+              ></button>
+            </p>
           </div>
           <button
             id="showMore"

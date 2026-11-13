@@ -1007,6 +1007,18 @@ var FacetContext = {
   /**
    * Show the active message set in a 3-pane tab.
    */
+  /** aMail: run the search text on the mail servers, in a new tab. */
+  async searchServer() {
+    const query = this.searcher?.searchString;
+    if (!query) {
+      return;
+    }
+    const { openServerSearch } = ChromeUtils.importESModule(
+      "chrome://messenger/content/amailServerSearch.mjs"
+    );
+    await openServerSearch(this.rootWin, query);
+  },
+
   showActiveSetInTab() {
     const tabmail = this.rootWin.document.getElementById("tabmail");
     tabmail.openTab("mail3PaneTab", {
