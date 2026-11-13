@@ -93,6 +93,8 @@ messenger.jar:
     content/messenger/amailReader.mjs               (content/amailReader.mjs)
     content/messenger/amailLabels.mjs               (content/amailLabels.mjs)
     content/messenger/amailServerSearch.mjs         (content/amailServerSearch.mjs)
+    content/messenger/amailAttachments.xhtml        (content/amailAttachments.xhtml)
+    content/messenger/amailAttachments.mjs          (content/amailAttachments.mjs)
     content/messenger/amailSplitButtons.mjs         (content/amailSplitButtons.mjs)
     content/messenger/amailSortPresets.mjs          (content/amailSortPresets.mjs)
     content/messenger/amailSortApply.xhtml          (content/amailSortApply.xhtml)

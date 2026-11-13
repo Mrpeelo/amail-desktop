@@ -13,6 +13,7 @@
 const SETTINGS = "chrome://messenger/content/amailSettingsPage.xhtml";
 const PREFERENCES = "about:preferences";
 const ACCOUNTS = "about:accountsettings";
+const ATTACHMENTS = "chrome://messenger/content/amailAttachments.xhtml";
 
 const modal = document.getElementById("amailSettingsModal");
 const card = document.getElementById("amailSettingsCard");
@@ -26,6 +27,7 @@ const TITLES = {
   [SETTINGS]: "amail-settings-title",
   [PREFERENCES]: "amail-settings-all-title",
   [ACCOUNTS]: "amail-settings-accounts-title",
+  [ATTACHMENTS]: "amail-attachments-title",
 };
 
 function show(url) {
@@ -34,7 +36,7 @@ function show(url) {
     modal.hidden = false;
     browser.docShellIsActive = true;
   }
-  back.hidden = url == SETTINGS;
+  back.hidden = url == SETTINGS || url == ATTACHMENTS;
   card.classList.toggle("amail-settings-wide", url != SETTINGS);
   document.l10n.setAttributes(title, TITLES[url]);
 }
@@ -226,4 +228,16 @@ function hookTabmailWhenReady(nextEvent) {
 }
 hookTabmailWhenReady("DOMContentLoaded");
 
-window.amailSettingsDialog = { open, openSettings, openAccounts, close };
+/** Open the attachments browser (paperclip in the title bar). */
+function openAttachments() {
+  show(ATTACHMENTS);
+  load(ATTACHMENTS);
+}
+
+window.amailSettingsDialog = {
+  open,
+  openSettings,
+  openAccounts,
+  openAttachments,
+  close,
+};

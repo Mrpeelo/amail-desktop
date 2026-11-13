@@ -368,3 +368,74 @@ amail-server-search-button = Search server
 amail-server-search-empty = No results in the downloaded mail. Try the server:
 # $query - the search text
 amail-server-search-title = Server results for “{ $query }”
+
+## Attachments browser
+
+amail-attachments-button =
+    .title = Attachments
+amail-attachments-title = Attachments
+amail-attachments-search =
+    .placeholder = Search by file name, sender or subject
+amail-attachments-type =
+    .aria-label = Type
+amail-attachments-type-all = All types
+amail-attachments-type-image = Images
+amail-attachments-type-pdf = PDF
+amail-attachments-type-document = Documents
+amail-attachments-type-archive = Archives
+amail-attachments-type-media = Audio and video
+amail-attachments-type-other = Other
+amail-attachments-account =
+    .aria-label = Account
+amail-attachments-account-all = All accounts
+amail-attachments-size =
+    .aria-label = Size
+amail-attachments-size-any = Any size
+amail-attachments-size-1mb = Over 1 MB
+amail-attachments-size-10mb = Over 10 MB
+amail-attachments-sort =
+    .aria-label = Sort
+amail-attachments-sort-newest = Newest first
+amail-attachments-sort-oldest = Oldest first
+amail-attachments-sort-largest = Largest first
+amail-attachments-sort-smallest = Smallest first
+amail-attachments-sort-az = Name A–Z
+amail-attachments-sort-za = Name Z–A
+amail-attachments-loading = Looking through your mail…
+amail-attachments-pick-all =
+    .aria-label = Select all shown
+amail-attachments-col-name = Name
+amail-attachments-col-size = Size
+amail-attachments-col-message = Message
+amail-attachments-col-date = Date
+amail-attachments-save = Save
+    .title = Save to your Downloads folder
+amail-attachments-save-as = Save as…
+amail-attachments-show-message = Message
+    .title = Show the message
+amail-attachments-more = Show more
+# $count - attachments shown, $size - their total size
+amail-attachments-count = { $count ->
+    [one] 1 attachment ({ $size })
+   *[other] { $count } attachments ({ $size })
+  }
+# $count - selected attachments, $size - their total size
+amail-attachments-remove = { $count ->
+    [0] Remove selected from mail…
+   *[other] Remove selected from mail… ({ $size })
+  }
+amail-attachments-remove-title = Remove attachments
+# $count - selected attachments, $size - their total size
+amail-attachments-remove-message = Remove { $count ->
+    [one] 1 attachment
+   *[other] { $count } attachments
+  } ({ $size }) from your mail? Detach keeps a copy in a folder you choose; Delete removes them. The original messages go to Trash.
+amail-attachments-remove-detach = Detach (keep a copy)
+amail-attachments-remove-delete = Delete
+# $count - messages whose attachments are not known yet
+amail-attachments-pending = { $count ->
+    [one] 1 message with attachments has not been downloaded yet, so its attachments are not listed.
+   *[other] { $count } messages with attachments have not been downloaded yet, so their attachments are not listed.
+  }
+amail-attachments-download = Download them now
+amail-attachments-downloading = Downloading… The list fills in after the next search indexing.

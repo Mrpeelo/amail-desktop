@@ -183,6 +183,9 @@ document
   .getElementById("amailGoCalendar")
   .addEventListener("click", () => openSpaceByName("calendar"));
 document
+  .getElementById("amailAttachments")
+  .addEventListener("click", () => window.amailSettingsDialog?.openAttachments());
+document
   .getElementById("amailGetMessages")
   .addEventListener("click", () => goDoCommand("cmd_getMsgsForAuthAccounts"));
 document

@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title data-l10n-id="amail-attachments-title"></title>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src chrome:; script-src chrome:; style-src chrome: 'unsafe-inline'; img-src chrome: moz-icon: data:" />
+  <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/colors.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailSettingsPage.css" />
+  <link rel="stylesheet" href="chrome://messenger/skin/amailAttachments.css" />
+  <link rel="localization" href="branding/brand.ftl" />
+  <link rel="localization" href="messenger/amail.ftl" />
+  <script type="module" src="chrome://messenger/content/amailAttachments.mjs"></script>
+</head>
+<body>
+  <div id="filters">
+    <input type="search" id="search" data-l10n-id="amail-attachments-search" />
+    <select id="type" data-l10n-id="amail-attachments-type">
+      <option value="" data-l10n-id="amail-attachments-type-all"></option>
+      <option value="image" data-l10n-id="amail-attachments-type-image"></option>
+      <option value="pdf" data-l10n-id="amail-attachments-type-pdf"></option>
+      <option value="document" data-l10n-id="amail-attachments-type-document"></option>
+      <option value="archive" data-l10n-id="amail-attachments-type-archive"></option>
+      <option value="media" data-l10n-id="amail-attachments-type-media"></option>
+      <option value="other" data-l10n-id="amail-attachments-type-other"></option>
+    </select>
+    <select id="account" data-l10n-id="amail-attachments-account">
+      <option value="" data-l10n-id="amail-attachments-account-all"></option>
+    </select>
+    <select id="size" data-l10n-id="amail-attachments-size">
+      <option value="0" data-l10n-id="amail-attachments-size-any"></option>
+      <option value="1048576" data-l10n-id="amail-attachments-size-1mb"></option>
+      <option value="10485760" data-l10n-id="amail-attachments-size-10mb"></option>
+    </select>
+    <select id="sort" data-l10n-id="amail-attachments-sort">
+      <option value="newest" data-l10n-id="amail-attachments-sort-newest"></option>
+      <option value="oldest" data-l10n-id="amail-attachments-sort-oldest"></option>
+      <option value="largest" data-l10n-id="amail-attachments-sort-largest"></option>
+      <option value="smallest" data-l10n-id="amail-attachments-sort-smallest"></option>
+      <option value="az" data-l10n-id="amail-attachments-sort-az"></option>
+      <option value="za" data-l10n-id="amail-attachments-sort-za"></option>
+    </select>
+  </div>
+
+  <div id="summary">
+    <span id="count" class="dim"></span>
+    <button type="button" id="remove" class="btn danger" disabled="disabled"></button>
+  </div>
+  <p id="pending" class="note" hidden="hidden">
+    <span id="pendingText"></span>
+    <button type="button" id="download" class="btn" data-l10n-id="amail-attachments-download"></button>
+  </p>
+  <p id="loading" class="dim" data-l10n-id="amail-attachments-loading"></p>
+
+  <table id="list" class="table">
+    <thead>
+      <tr>
+        <th class="pick"><input type="checkbox" id="pickAll" data-l10n-id="amail-attachments-pick-all" /></th>
+        <th data-l10n-id="amail-attachments-col-name"></th>
+        <th class="num" data-l10n-id="amail-attachments-col-size"></th>
+        <th data-l10n-id="amail-attachments-col-message"></th>
+        <th data-l10n-id="amail-attachments-col-date"></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div class="actions">
+    <button type="button" id="more" class="btn" hidden="hidden" data-l10n-id="amail-attachments-more"></button>
+  </div>
+</body>
+</html>

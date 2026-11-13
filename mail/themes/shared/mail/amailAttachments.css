@@ -1,0 +1,113 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/* Attachments browser (amailAttachments.xhtml), on top of the Settings page
+   styles. */
+
+body {
+  box-sizing: border-box;
+  padding: 16px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-block-end: 10px;
+
+  & #search {
+    flex: 1;
+    min-inline-size: 200px;
+  }
+}
+
+#summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block: 6px 10px;
+}
+
+#pending {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+#list {
+  inline-size: 100%;
+  table-layout: fixed;
+
+  /* Checkbox, name, size, message, date, actions. */
+  & th:nth-child(1) { inline-size: 28px; }
+  & th:nth-child(2) { inline-size: 30%; }
+  & th:nth-child(3) { inline-size: 76px; }
+  & th:nth-child(4) { inline-size: auto; }
+  & th:nth-child(5) { inline-size: 88px; }
+  & th:nth-child(6) { inline-size: 220px; }
+
+  & :is(th, td):nth-child(4) {
+    padding-inline-start: 16px;
+  }
+
+  & th {
+    text-align: start;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+  }
+
+  & .pick {
+    inline-size: 28px;
+  }
+
+  & .num {
+    text-align: end;
+    white-space: nowrap;
+  }
+
+  & .nowrap {
+    white-space: nowrap;
+  }
+
+  & .end {
+    text-align: end;
+    white-space: nowrap;
+
+    & .btn {
+      margin-inline-start: 4px;
+      padding-inline: 8px;
+      min-block-size: 26px;
+      font-size: 12px;
+    }
+  }
+
+  & .name {
+    max-inline-size: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: start;
+  }
+
+  & .message {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+
+    & > * {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}
