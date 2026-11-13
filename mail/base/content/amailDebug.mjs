@@ -56,6 +56,209 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Label chips, conversation strip, invitation card. */
+  async "reader-batch"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const { MailServices } = ChromeUtils.importESModule(
+      "resource:///modules/MailServices.sys.mjs"
+    );
+    const { labelsFor } = ChromeUtils.importESModule(
+      "chrome://messenger/content/amailLabels.mjs"
+    );
+
+    // "N unread" header: a folder with unread mail.
+    const unreadFolder = MailServices.accounts.allFolders.find(
+      f => !f.isServer && !f.getFlag(Ci.nsMsgFolderFlags.Virtual) && f.getNumUnread(false) > 0
+    );
+    if (unreadFolder) {
+      window.displayFolder(unreadFolder.URI);
+      await wait(2500);
+      record({
+        label: "unread header",
+        unread: unreadFolder.getNumUnread(false),
+        shown: document.getElementById("threadPaneFolderCount").textContent,
+      });
+    }
+
+    // Label chips: Gmail Inbox.
+    const inbox = MailServices.accounts.allFolders.find(
+      f => f.getFlag(Ci.nsMsgFolderFlags.Archive) && f.server.type == "imap" && f.server.QueryInterface(Ci.nsIImapIncomingServer).isGMailServer && f.getTotalMessages(false) > 0
+    );
+    window.displayFolder(inbox.URI);
+    await wait(3000);
+    const view = window.gDBView;
+    const sample = [];
+    for (let i = 0; i < Math.min(view.rowCount, 200) && sample.length < 5; i++) {
+      const hdr = view.getMsgHdrAt(i);
+      const labels = labelsFor(hdr);
+      if (labels.length) {
+        sample.push({ i, raw: hdr.getStringProperty("X-GM-LABELS"), labels });
+      }
+    }
+    const rowsWithChips = [...document.querySelectorAll("#threadTree tbody tr .amail-label-chip")].map(
+      c => c.textContent
+    );
+    record({
+      label: "label chips",
+      folder: inbox.prettyName,
+      firstRaw: view.rowCount ? view.getMsgHdrAt(0).getStringProperty("X-GM-LABELS") : null,
+      sample,
+      chipsInList: rowsWithChips.slice(0, 8),
+    });
+
+    // Find a real conversation (2+ different messages) with Gloda.
+    const { Gloda } = ChromeUtils.importESModule(
+      "resource:///modules/gloda/GlodaPublic.sys.mjs"
+    );
+    const conversationSize = hdr =>
+      new Promise(resolve => {
+        Gloda.getMessageCollectionForHeader(hdr, {
+          onItemsAdded() {},
+          onItemsModified() {},
+          onItemsRemoved() {},
+          onQueryCompleted(c) {
+            const conv = c.items[0]?.conversation;
+            if (!conv) {
+              resolve(0);
+              return;
+            }
+            conv.getMessagesCollection({
+              onItemsAdded() {},
+              onItemsModified() {},
+              onItemsRemoved() {},
+              onQueryCompleted(m) {
+                resolve(new Set(m.items.map(x => x.headerMessageID)).size);
+              },
+            });
+          },
+        });
+      });
+    const sent = MailServices.accounts.allFolders.find(
+      f => f.getFlag(Ci.nsMsgFolderFlags.SentMail) && f.server == inbox.server && f.getTotalMessages(false) > 0
+    );
+    window.displayFolder(sent.URI);
+    await wait(3000);
+    const sentView = window.gDBView;
+    let target = -1;
+    let scanned = 0;
+    for (let i = 0; i < Math.min(sentView.rowCount, 400) && target < 0; i++) {
+      scanned++;
+      if ((await conversationSize(sentView.getMsgHdrAt(i))) >= 2) {
+        target = i;
+      }
+    }
+    record({ label: "conversation search", scanned, target });
+    const aboutMessage = document.getElementById("messageBrowser").contentWindow;
+    let found = null;
+    if (target >= 0) {
+      const hdr = sentView.getMsgHdrAt(target);
+      const wasRead = hdr.isRead;
+      window.threadTree.selectedIndex = target;
+      await wait(2500);
+      const strip = aboutMessage.document.getElementById("amailConversation");
+      found = {
+        shown: !strip.hidden,
+        head: strip.querySelector(".amail-conversation-head")?.textContent,
+        rows: [...strip.querySelectorAll(".amail-conversation-item")].map(b =>
+          [...b.children].map(c => c.textContent.slice(0, 30)).join(" | ") + (b.classList.contains("current") ? "  <current>" : "")
+        ),
+        readerChips: [...aboutMessage.document.querySelectorAll("#amailReaderLabels .amail-label-chip")].map(c => c.textContent),
+      };
+      if (!wasRead) {
+        hdr.folder.markMessagesRead([hdr], false);
+      }
+    }
+    record({ label: "conversation strip", found });
+    if (found) {
+      await snapshot("conversation-strip");
+      // Clicking another row shows that message.
+      const strip = aboutMessage.document.getElementById("amailConversation");
+      const other = [...strip.querySelectorAll(".amail-conversation-item")].find(b => !b.classList.contains("current"));
+      const before = aboutMessage.gMessage?.messageId;
+      other?.click();
+      await wait(2000);
+      record({
+        label: "strip click",
+        changed: aboutMessage.gMessage?.messageId != before,
+        nowCurrent: aboutMessage.document.querySelector("#amailConversation .current .who")?.textContent,
+      });
+    }
+    window.threadTree.selectedIndices = [];
+    await wait(500);
+
+    // Invitation card from a generated invitation email.
+    const now = new Date(Date.now() + 3 * 86400000);
+    const stamp = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+    const end = new Date(now.getTime() + 3600000);
+    const identity = MailServices.accounts.defaultAccount.defaultIdentity;
+    const ics = [
+      "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//aMail test//EN", "METHOD:REQUEST",
+      "BEGIN:VEVENT", "UID:amail-test-invite-1@example.com", `DTSTAMP:${stamp(new Date())}`,
+      `DTSTART:${stamp(now)}`, `DTEND:${stamp(end)}`, "SUMMARY:Project review",
+      "LOCATION:Meeting room 3", "ORGANIZER;CN=Test Organizer:mailto:organizer@example.com",
+      `ATTENDEE;PARTSTAT=NEEDS-ACTION;RSVP=TRUE:mailto:${identity.email}`,
+      "END:VEVENT", "END:VCALENDAR",
+    ].join("\r\n");
+    const eml = [
+      "From: Test Organizer <organizer@example.com>",
+      `To: ${identity.email}`,
+      "Subject: Invitation: Project review",
+      `Date: ${new Date().toUTCString()}`,
+      "Message-ID: <amail-test-invite-1@example.com>",
+      "MIME-Version: 1.0",
+      'Content-Type: multipart/alternative; boundary="b1"',
+      "",
+      "--b1",
+      "Content-Type: text/plain; charset=UTF-8",
+      "",
+      "You are invited.",
+      "--b1",
+      'Content-Type: text/calendar; charset=UTF-8; method=REQUEST',
+      "",
+      ics,
+      "--b1--",
+      "",
+    ].join("\r\n");
+    const path = PathUtils.join(PathUtils.profileDir, "amail-test-invite.eml");
+    await IOUtils.writeUTF8(path, eml);
+    const file = await IOUtils.getFile(path);
+    const url = Services.io.newFileURI(file).spec + "?type=application/x-message-display";
+    const tabmail = top.document.getElementById("tabmail");
+    tabmail.openTab("mailMessageTab", { messageURI: url, background: false });
+    await wait(4000);
+    const tab = tabmail.currentTabInfo;
+    const msgWin = tab.chromeBrowser?.contentWindow;
+    const bar = msgWin?.document.getElementById("imip-bar");
+    const visibleButtons = bar
+      ? [...bar.querySelectorAll("toolbarbutton")].filter(b => !b.hidden).map(b => b.label)
+      : null;
+    record({
+      label: "invitation card",
+      shown: bar && !bar.collapsed,
+      card: bar?.classList.contains("amail-invite"),
+      day: msgWin?.document.getElementById("amailInviteDay")?.textContent,
+      month: msgWin?.document.getElementById("amailInviteMonth")?.textContent,
+      title: msgWin?.document.getElementById("amailInviteTitle")?.textContent,
+      when: msgWin?.document.getElementById("amailInviteWhen")?.textContent,
+      organizer: msgWin?.document.getElementById("amailInviteOrganizer")?.textContent,
+      buttons: visibleButtons,
+      accept: (() => {
+        const b = msgWin?.document.getElementById("imipAcceptButton");
+        if (!b) {
+          return null;
+        }
+        const info = el => {
+          const cs = msgWin.getComputedStyle(el);
+          return `${el.localName}.${el.className}[${el.hasAttribute("disabled") ? "disabled" : ""}] bg=${cs.backgroundColor} color=${cs.color} op=${cs.opacity} app=${cs.appearance}`;
+        };
+        return [info(b), ...[...b.querySelectorAll("*")].slice(0, 6).map(info)];
+      })(),
+    });
+    await snapshot("invitation-card");
+    tabmail.closeTab(tab);
+    await IOUtils.remove(path);
+  },
+
 };
 
 export async function runDebugChecks(names) {
