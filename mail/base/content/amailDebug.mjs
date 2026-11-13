@@ -56,6 +56,110 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Theme import/export: round trip, applying, validation, delete. */
+  async "theme-import-export"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    top.resizeTo(1920, 1040);
+    await wait(800);
+    const { AmailTheme, AmailThemeError } = ChromeUtils.importESModule(
+      "resource:///modules/AmailTheme.sys.mjs"
+    );
+    const { AddonManager } = ChromeUtils.importESModule(
+      "resource://gre/modules/AddonManager.sys.mjs"
+    );
+    const activeTheme = async () =>
+      (await AddonManager.getAddonsByTypes(["theme"])).find(t => t.isActive)?.id.split("@")[0];
+    const dir = PathUtils.profileDir;
+    const original = Services.prefs.getStringPref("amail.theme.palette");
+    const write = () =>
+      top.document.querySelector('li[item-id="write-message"] .unified-toolbar-button');
+    const look = async label => {
+      const about3 = top.document.getElementById("tabmail").currentAbout3Pane;
+      record({
+        label,
+        palette: Services.prefs.getStringPref("amail.theme.palette"),
+        theme: await activeTheme(),
+        scheme: top.getComputedStyle(top.document.documentElement).colorScheme,
+        writeBg: write() && top.getComputedStyle(write()).backgroundColor,
+        folderPaneBg: about3 && about3.getComputedStyle(about3.document.getElementById("folderPane")).backgroundColor,
+      });
+    };
+
+    const exported = PathUtils.join(dir, "amail-test-kingsley.css");
+    await AmailTheme.exportFile("kingsley", exported);
+    const text = await IOUtils.readUTF8(exported);
+    record({ label: "export kingsley", lines: text.split("\n").length, head: text.split("\n").slice(2, 6) });
+    const synth = PathUtils.join(dir, "amail-test-synthwave.css");
+    await AmailTheme.exportFile("synthwave", synth);
+    const synthText = await IOUtils.readUTF8(synth);
+    record({ label: "export synthwave", lightDark: (synthText.match(/light-dark\(/g) || []).length, mode: /mode: (\w+)/.exec(synthText)?.[1] });
+
+    const edited = PathUtils.join(dir, "amail-test-edited.css");
+    await IOUtils.writeUTF8(
+      edited,
+      text
+        .replace('"Kingsley Amber"', '"Test Green"')
+        .replace(/--color-primary-default: [^;]+;/, "--color-primary-default: #00aa00;")
+        .replace(/--amail-topbar-bg: [^;]+;/, "--amail-topbar-bg: #004400;")
+    );
+    const { palette, name } = await AmailTheme.importFile(edited);
+    record({ label: "imported", palette, name, list: (await AmailTheme.listImported()).map(t => `${t.name} (${t.mode})`) });
+    Services.prefs.setStringPref("amail.theme.palette", palette);
+    await AmailTheme.apply();
+    await wait(1500);
+    await look("imported active");
+    await snapshot("theme-imported", top);
+
+    top.amailSettingsDialog.openSettings("general");
+    await wait(2500);
+    const page = top.document.getElementById("amailSettingsBrowser").contentDocument;
+    record({
+      label: "settings",
+      selected: page.getElementById("palette").value,
+      importedOptions: [...page.querySelectorAll("#paletteImported option")].map(o => o.textContent),
+      deleteShown: !page.getElementById("themeDelete").hidden,
+      exportEnabled: !page.getElementById("themeExport").disabled,
+      importButton: page.getElementById("themeImport").textContent,
+    });
+    await snapshot("theme-settings", top);
+    top.amailSettingsDialog.close();
+
+    const bad = {
+      selector: "body { color: red }",
+      url: ':root { --amail-theme-name: "x"; --color-surface-base: url(https://example.com/x.png); }',
+      notColor: ':root { --amail-theme-name: "x"; --color-text-base: banana(1); }',
+      noName: ":root { --color-text-base: #fff; }",
+    };
+    for (const [kind, css] of Object.entries(bad)) {
+      const path = PathUtils.join(dir, `amail-test-bad-${kind}.css`);
+      await IOUtils.writeUTF8(path, css);
+      try {
+        await AmailTheme.importFile(path);
+        record({ label: `bad ${kind}`, result: "ACCEPTED (wrong)" });
+      } catch (e) {
+        record({ label: `bad ${kind}`, rejected: e instanceof AmailThemeError, message: e.message });
+      }
+      await IOUtils.remove(path);
+    }
+
+    AmailTheme.startup();
+    await wait(800);
+    await look("after startup path");
+
+    await AmailTheme.deleteImported(palette);
+    await AmailTheme.apply();
+    await wait(1500);
+    await look("after delete");
+    record({
+      label: "files",
+      themesFolder: await IOUtils.getChildren(PathUtils.join(dir, "amail-themes")).catch(() => []),
+    });
+    for (const f of [exported, synth, edited]) {
+      await IOUtils.remove(f);
+    }
+    Services.prefs.setStringPref("amail.theme.palette", original);
+    await AmailTheme.apply();
+  },
   /** Settings dropdowns open with a short fade and slide; choosing still works. */
   async "select-dropdown-anim"(record) {
     const top = window.browsingContext.topChromeWindow;

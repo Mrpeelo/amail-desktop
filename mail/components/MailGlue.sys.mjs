@@ -623,6 +623,7 @@ MailGlue.prototype = {
   // (i.e. before the first window is opened).
   _beforeUIStartup() {
     lazy.TBDistCustomizer.applyPrefDefaults();
+    lazy.AmailTheme.startup();
 
     this._setFlatpakOrSnapPref();
 

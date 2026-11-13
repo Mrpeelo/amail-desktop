@@ -18,7 +18,7 @@ const { AmailSignatures } = ChromeUtils.importESModule(
 const { AddonManager } = ChromeUtils.importESModule(
   "resource://gre/modules/AddonManager.sys.mjs"
 );
-const { AmailTheme } = ChromeUtils.importESModule(
+const { AmailTheme, AmailThemeError } = ChromeUtils.importESModule(
   "resource:///modules/AmailTheme.sys.mjs"
 );
 
@@ -136,15 +136,118 @@ function bindPrefs() {
     const theme = await AddonManager.getAddonByID(themeMode.value);
     await theme?.enable();
   });
-  document
-    .querySelector('select[data-pref="amail.theme.palette"]')
-    .addEventListener("change", async () => {
-      await AmailTheme.apply();
-      renderGeneral();
+  $("palette").addEventListener("change", async () => {
+    $("themeStatus").hidden = true;
+    await AmailTheme.apply();
+    renderGeneral();
+  });
+  $("themeImport").addEventListener("click", importTheme);
+  $("themeExport").addEventListener("click", exportTheme);
+  $("themeDelete").addEventListener("click", deleteTheme);
+}
+
+/**
+ * Show the result of an import, export or delete under the theme buttons.
+ *
+ * @param {string} id - Fluent id.
+ * @param {object} [args]
+ */
+function themeStatus(id, args) {
+  const status = $("themeStatus");
+  document.l10n.setAttributes(status, id, args);
+  status.hidden = false;
+}
+
+/**
+ * Ask for a theme file to open or save.
+ *
+ * @param {integer} mode - nsIFilePicker.modeOpen or modeSave.
+ * @param {string} [defaultName]
+ * @returns {Promise<?string>} The chosen path.
+ */
+async function pickThemeFile(mode, defaultName) {
+  const [title, filter] = await document.l10n.formatValues([
+    mode == Ci.nsIFilePicker.modeOpen
+      ? "amail-settings-theme-import-title"
+      : "amail-settings-theme-export-title",
+    "amail-settings-theme-file-filter",
+  ]);
+  const picker = Cc["@mozilla.org/filepicker;1"].createInstance(Ci.nsIFilePicker);
+  picker.init(window.browsingContext, title, mode);
+  picker.appendFilter(filter, "*.css");
+  picker.appendFilters(Ci.nsIFilePicker.filterAll);
+  if (defaultName) {
+    picker.defaultString = defaultName;
+    picker.defaultExtension = "css";
+  }
+  const result = await new Promise(resolve => picker.open(resolve));
+  return result == Ci.nsIFilePicker.returnCancel ? null : picker.file.path;
+}
+
+async function importTheme() {
+  const path = await pickThemeFile(Ci.nsIFilePicker.modeOpen);
+  if (!path) {
+    return;
+  }
+  try {
+    const { palette, name } = await AmailTheme.importFile(path);
+    Services.prefs.setStringPref("amail.theme.palette", palette);
+    await AmailTheme.apply();
+    await renderGeneral();
+    themeStatus("amail-settings-theme-imported", { name });
+  } catch (e) {
+    if (!(e instanceof AmailThemeError)) {
+      console.error(e);
+    }
+    themeStatus("amail-settings-theme-error", {
+      reason: e instanceof AmailThemeError ? e.message : String(e),
     });
+  }
+}
+
+async function exportTheme() {
+  const palette = Services.prefs.getStringPref("amail.theme.palette");
+  const name = AmailTheme.exportName(palette);
+  const path = await pickThemeFile(Ci.nsIFilePicker.modeSave, `${name}.css`);
+  if (!path) {
+    return;
+  }
+  await AmailTheme.exportFile(palette, path);
+  themeStatus("amail-settings-theme-exported", { name, file: PathUtils.filename(path) });
+}
+
+async function deleteTheme() {
+  const palette = Services.prefs.getStringPref("amail.theme.palette");
+  const name = AmailTheme.exportName(palette);
+  const [title, message] = await document.l10n.formatValues([
+    "amail-settings-theme-delete",
+    { id: "amail-settings-theme-delete-confirm", args: { name } },
+  ]);
+  if (!Services.prompt.confirm(window, title, message)) {
+    return;
+  }
+  await AmailTheme.deleteImported(palette);
+  await AmailTheme.apply();
+  await renderGeneral();
+  themeStatus("amail-settings-theme-deleted", { name });
+}
+
+/** Fill the Colors list with the imported themes and update the buttons. */
+async function renderPalettes() {
+  const group = $("paletteImported");
+  const imported = await AmailTheme.listImported();
+  group.replaceChildren(
+    ...imported.map(theme => el("option", { value: theme.palette, text: theme.name }))
+  );
+  group.hidden = !imported.length;
+  const palette = Services.prefs.getStringPref("amail.theme.palette");
+  $("palette").value = palette;
+  $("themeExport").disabled = !AmailTheme.canExport(palette);
+  $("themeDelete").hidden = !palette.startsWith(AmailTheme.CUSTOM_PREFIX);
 }
 
 async function renderGeneral() {
+  await renderPalettes();
   const markMode = $("markReadMode");
   if (!Services.prefs.getBoolPref("mailnews.mark_message_read.auto")) {
     markMode.value = "never";

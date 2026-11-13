@@ -92,6 +92,19 @@ export const appearancePane = {
   },
 
   async updateThemeMode() {
+    const palettes = document.getElementById("amailThemePalette");
+    const imported = await lazy.AmailTheme.listImported();
+    palettes.menupopup.querySelectorAll(".amail-imported").forEach(item => item.remove());
+    for (const theme of imported) {
+      const item = document.createXULElement("menuitem");
+      item.className = "amail-imported";
+      item.value = theme.palette;
+      item.label = theme.name;
+      palettes.menupopup.append(item);
+    }
+    document.getElementById("amailThemeImportedSeparator").hidden = !imported.length;
+    palettes.value = Services.prefs.getStringPref("amail.theme.palette");
+
     const radiogroup = document.getElementById("amailThemeMode");
     const themes = await lazy.AddonManager.getAddonsByTypes(["theme"]);
     const active = themes.find(theme => theme.isActive);

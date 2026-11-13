@@ -41,7 +41,7 @@
         </label>
         <label class="field">
           <span data-l10n-id="amail-settings-palette"></span>
-          <select data-pref="amail.theme.palette">
+          <select id="palette" data-pref="amail.theme.palette">
             <option value="amail" data-l10n-id="amail-settings-palette-amail"></option>
             <option value="synthwave" data-l10n-id="amail-settings-palette-synthwave"></option>
             <option value="kingsley" data-l10n-id="amail-settings-palette-kingsley"></option>
@@ -49,10 +49,17 @@
             <option value="roman" data-l10n-id="amail-settings-palette-roman"></option>
             <option value="avida" data-l10n-id="amail-settings-palette-avida"></option>
             <option value="thunderbird" data-l10n-id="amail-settings-palette-thunderbird"></option>
+            <optgroup id="paletteImported" data-l10n-id="amail-settings-palette-imported" hidden="hidden"></optgroup>
           </select>
         </label>
       </div>
       <p id="themeModeForced" class="note" hidden="hidden"></p>
+      <div class="actions">
+        <button type="button" class="btn" id="themeImport" data-l10n-id="amail-settings-theme-import"></button>
+        <button type="button" class="btn" id="themeExport" data-l10n-id="amail-settings-theme-export"></button>
+        <button type="button" class="btn danger" id="themeDelete" data-l10n-id="amail-settings-theme-delete" hidden="hidden"></button>
+      </div>
+      <p id="themeStatus" class="note" role="status" hidden="hidden"></p>
 
       <h2 data-l10n-id="amail-settings-new-mail"></h2>
       <label class="check"><input type="checkbox" data-pref="mail.biff.show_alert" /><span data-l10n-id="amail-settings-new-mail-alert"></span></label>
