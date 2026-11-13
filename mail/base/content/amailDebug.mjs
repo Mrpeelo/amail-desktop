@@ -56,6 +56,105 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Search server: button on the global search page, results tab. */
+  async "server-search"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const tabmail = top.document.getElementById("tabmail");
+    const { GlodaMsgSearcher } = ChromeUtils.importESModule(
+      "resource:///modules/gloda/GlodaMsgSearcher.sys.mjs"
+    );
+    const { serverSearchFolders } = ChromeUtils.importESModule(
+      "chrome://messenger/content/amailServerSearch.mjs"
+    );
+    record({ label: "folders", folders: serverSearchFolders().map(f => f.URI) });
+    const query = "Patreon";
+    tabmail.openTab("glodaFacet", { searcher: new GlodaMsgSearcher(null, query) });
+    await wait(5000);
+    const facetTab = tabmail.currentTabInfo;
+    const facetDoc = facetTab.browser?.contentDocument;
+    const button = facetDoc?.getElementById("amail-search-server");
+    record({
+      label: "facet page",
+      button: button?.textContent,
+      title: button?.title,
+    });
+    button?.click();
+    let tab = null;
+    for (let i = 0; i < 40; i++) {
+      await wait(500);
+      const current = tabmail.currentTabInfo;
+      if (current != facetTab && current.mode.name == "mail3PaneTab") {
+        tab = current;
+        const win = current.chromeBrowser.contentWindow;
+        if (win.gDBView && i > 10) {
+          break;
+        }
+      }
+    }
+    const win = tab?.chromeBrowser.contentWindow;
+    // The server takes its time: wait for the hits to stop coming in.
+    let last = -1;
+    for (let i = 0; i < 45; i++) {
+      await wait(1000);
+      const rows = win?.gDBView?.rowCount ?? 0;
+      if (i % 5 == 0) {
+        record({
+          label: `t+${i}s`,
+          rows,
+          tabs: tabmail.tabInfo.map(t => `${t.mode.name}:${t.title}`),
+          searching: win?.gViewWrapper?.searching,
+        });
+      }
+      if (rows && rows == last && i > 8) {
+        break;
+      }
+      last = rows;
+    }
+    record({
+      label: "errors",
+      errors: Services.console
+        .getMessageArray()
+        .filter(m => m instanceof Ci.nsIScriptError && !(m.flags & Ci.nsIScriptError.warningFlag))
+        .slice(-8)
+        .map(m => `${m.errorMessage} @ ${m.sourceName.split("/").pop()}:${m.lineNumber}`),
+      tabs: tabmail.tabInfo.map(t => `${t.mode.name}:${t.title}`),
+    });
+    record({
+      label: "server results",
+      title: tab?.title,
+      rows: win?.gDBView?.rowCount,
+      first: win?.gDBView?.rowCount ? win.gDBView.getMsgHdrAt(0).mime2DecodedSubject.slice(0, 50) : null,
+      headerCount: win?.document.getElementById("threadPaneFolderCount")?.textContent,
+      renderedRows: win?.document.querySelectorAll("#threadTree tbody tr[is]").length,
+      treeRows: win?.threadTree?.view?.rowCount,
+      columns: win?.threadPane.columns.filter(c => !c.hidden).map(c => c.id),
+    });
+    await snapshot("server-search");
+    // Close every search and results tab, also ones left by earlier runs.
+    for (const t of [...tabmail.tabInfo]) {
+      if (t.mode.name == "glodaFacet" || (t.mode.name == "mail3PaneTab" && t != tabmail.tabInfo[0])) {
+        tabmail.closeTab(t);
+      }
+    }
+    record({ label: "tabs left", tabs: tabmail.tabInfo.map(t => `${t.mode.name}:${t.title}`) });
+  },
+
+  /** Command bar: ported icons, Reply / Reply all / Forward added once. */
+  async "command-bar"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const items = [...top.document.querySelectorAll("#unifiedToolbarContent > li")].map(li => {
+      const icon = li.querySelector(".button-icon");
+      return `${li.getAttribute("item-id")}: ${icon ? top.getComputedStyle(icon).content.split("/").pop().slice(0, 20) : "-"}`;
+    });
+    record({
+      label: "command bar",
+      items,
+      migrated: Services.prefs.getBoolPref("amail.toolbar.replyItemsAdded", false),
+      windowIcon: top.document.documentElement.getAttribute("icon"),
+    });
+    await snapshot("command-bar", top, new top.DOMRect(0, 0, 1400, 110));
+  },
+
   /** Label chips, conversation strip, invitation card. */
   async "reader-batch"(record) {
     const top = window.browsingContext.topChromeWindow;
