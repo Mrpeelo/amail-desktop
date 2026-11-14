@@ -11,3 +11,9 @@ html {
   min-inline-size: 45rem !important;
   min-block-size: 35rem !important;
 }
+
+/* aMail: the window shows just the message with its own actions; the menu
+   bar appears with Alt, as in the main window. */
+#mail-bar3 {
+  display: none;
+}

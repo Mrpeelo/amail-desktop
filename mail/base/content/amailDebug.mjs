@@ -56,6 +56,37 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** The message window shows just the message: no menu bar or toolbar. */
+  async "message-window-frame"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const about3 = top.document.getElementById("tabmail").currentAbout3Pane;
+    about3.threadTree.selectedIndex = 0;
+    await wait(1000);
+    const opened = new Promise(resolve => {
+      const listener = {
+        onOpenWindow(xulWin) {
+          Services.wm.removeListener(listener);
+          resolve(xulWin.docShell.domWindow);
+        },
+      };
+      Services.wm.addListener(listener);
+    });
+    about3.threadTree.dispatchEvent(
+      new about3.KeyboardEvent("keypress", { key: "Enter", bubbles: true })
+    );
+    const win = await opened;
+    await wait(3000);
+    const height = id => win.document.getElementById(id)?.getBoundingClientRect().height;
+    record({
+      label: "frame",
+      menubar: height("toolbar-menubar"),
+      toolbar: height("mail-bar3"),
+      toolbox: height("mail-toolbox"),
+      browserTop: win.document.getElementById("messageBrowser").getBoundingClientRect().top,
+    });
+    await snapshot("message-window-frame", win);
+    win.close();
+  },
   /** Folders never open in a tab: no menu item, middle-click does nothing. */
   async "folder-no-tab"(record) {
     const top = window.browsingContext.topChromeWindow;
