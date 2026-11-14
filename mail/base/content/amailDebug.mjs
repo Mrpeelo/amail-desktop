@@ -56,6 +56,76 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Enter, double-click and middle-click open a message window, not a tab. */
+  async "message-window"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const tabmail = top.document.getElementById("tabmail");
+    const about3 = tabmail.currentAbout3Pane;
+    record({
+      label: "pref",
+      value: Services.prefs.getIntPref("mail.openMessageBehavior"),
+      userSet: Services.prefs.prefHasUserValue("mail.openMessageBehavior"),
+      contextNewTab: !!about3.document.getElementById("mailContext-openNewTab"),
+    });
+    const tree = about3.threadTree;
+    about3.threadPane.scrollToIndex?.(0);
+    tree.selectedIndex = 0;
+    await wait(1500);
+    const messageWindows = () =>
+      [...Services.wm.getEnumerator("mail:messageWindow")];
+    const tryOpen = async (label, fire) => {
+      const tabsBefore = tabmail.tabInfo.length;
+      const opened = new Promise(resolve => {
+        const listener = {
+          onOpenWindow(xulWin) {
+            Services.wm.removeListener(listener);
+            resolve(xulWin.docShell.domWindow);
+          },
+        };
+        Services.wm.addListener(listener);
+        setTimeout(() => {
+          Services.wm.removeListener(listener);
+          resolve(null);
+        }, 4000);
+      });
+      fire();
+      const win = await opened;
+      await wait(2500);
+      record({
+        label,
+        windowOpened: !!win,
+        windowType: win?.document.documentElement.getAttribute("windowtype"),
+        title: win?.document.title,
+        tabsAdded: tabmail.tabInfo.length - tabsBefore,
+      });
+      return win;
+    };
+    const row = () => tree.getRowAtIndex(0);
+    const enterWin = await tryOpen("enter", () =>
+      tree.dispatchEvent(
+        new about3.KeyboardEvent("keypress", { key: "Enter", bubbles: true })
+      )
+    );
+    if (enterWin) {
+      await snapshot("message-window", enterWin);
+      enterWin.close();
+    }
+    await wait(500);
+    const dblWin = await tryOpen("double-click", () =>
+      row().dispatchEvent(
+        new about3.MouseEvent("dblclick", { bubbles: true, detail: 2 })
+      )
+    );
+    dblWin?.close();
+    await wait(500);
+    const midWin = await tryOpen("middle-click", () =>
+      row().dispatchEvent(
+        new about3.MouseEvent("auxclick", { bubbles: true, button: 1 })
+      )
+    );
+    midWin?.close();
+    record({ label: "left open", messageWindows: messageWindows().length });
+  },
   /** Mail, Calendar and Address book switch views without showing tabs. */
   async "view-tabs"(record) {
     const top = window.browsingContext.topChromeWindow;

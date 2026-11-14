@@ -2543,7 +2543,6 @@ function onShowOtherActionsPopup() {
   const openInNewWindow = document.getElementById(
     "otherActionsOpenInNewWindow"
   );
-  const openInNewTab = document.getElementById("otherActionsOpenInNewTab");
 
   if (hasTabmail) {
     // This action is only available if the conversation is indexed.
@@ -2555,14 +2554,12 @@ function onShowOtherActionsPopup() {
 
     // These actions are only available in the about:3pane preview pane.
     const inAbout3Pane = parent.location.href == "about:3pane";
-    openInNewTab.hidden = !inAbout3Pane;
     openInNewWindow.hidden = !inAbout3Pane;
   } else {
     // These actions are not available in the standalone window.
     redirectSeparator.hidden = true;
     openConversation.hidden = true;
     openInNewWindow.hidden = true;
-    openInNewTab.hidden = true;
   }
 
   const isDummyMessage = !gViewWrapper.isSynthetic && !gMessage.folder;

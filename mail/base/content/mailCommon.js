@@ -101,14 +101,11 @@ var commandController = {
         commandController.doCommand("cmd_forwardInline", event);
       }
     },
-    cmd_openMessage(event) {
-      const forceTab = event?.button == 1;
+    cmd_openMessage() {
       MailUtils.displayMessages(
         gDBView.getSelectedMsgHdrs(),
         gViewWrapper,
-        top.document.getElementById("tabmail"),
-        forceTab,
-        event?.shiftKey
+        top.document.getElementById("tabmail")
       );
     },
     cmd_tag() {

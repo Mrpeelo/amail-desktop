@@ -607,8 +607,8 @@ pref("dom.disable_window_status_change",          true);
 // If a message is opened using Enter or a double click, what should we do?
 // 0 - open it in a new window
 // 1 - open it in an existing window
-// 2 - open it in a new tab
-pref("mail.openMessageBehavior", 2);
+// 2 - open it in a new tab (not offered in aMail)
+pref("mail.openMessageBehavior", 0);
 // If messages or folders are opened using the context menu or a middle click,
 // we open them in the background.
 pref("mail.tabs.loadInBackground", false);

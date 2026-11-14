@@ -390,7 +390,6 @@ var mailContextMenu = {
       .getSelectedMsgHdrs()
       .every(msg => msg.flags & Ci.nsMsgMessageFlags.IMAPDeleted);
 
-    setSingleSelection("mailContext-openNewTab", inThreadTree);
     setSingleSelection("mailContext-openNewWindow", inThreadTree);
     setSingleSelection(
       "mailContext-openContainingFolder",
@@ -660,14 +659,6 @@ var mailContextMenu = {
         openWebSearch(this.selectionInfo.text);
         break;
 
-      // Open messages in the background.
-      case "mailContext-openNewTab":
-        top.OpenMessageInNewTab(gDBView.hdrForFirstSelectedMessage, {
-          event,
-          viewWrapper: gViewWrapper,
-          background: true,
-        });
-        break;
       case "mailContext-openNewWindow":
         top.MsgOpenNewWindowForMessage(
           gDBView.hdrForFirstSelectedMessage,

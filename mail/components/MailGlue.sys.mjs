@@ -624,6 +624,10 @@ MailGlue.prototype = {
   _beforeUIStartup() {
     lazy.TBDistCustomizer.applyPrefDefaults();
     lazy.AmailTheme.startup();
+    // aMail opens messages in their own window, never in a tab.
+    if (Services.prefs.getIntPref("mail.openMessageBehavior", 0) == 2) {
+      Services.prefs.clearUserPref("mail.openMessageBehavior");
+    }
 
     this._setFlatpakOrSnapPref();
 
