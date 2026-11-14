@@ -56,6 +56,50 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Mail, Calendar and Address book switch views without showing tabs. */
+  async "view-tabs"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const tabmail = doc.getElementById("tabmail");
+    const look = label =>
+      record({
+        label,
+        stripHidden: doc.getElementById("tabs-toolbar").collapsed,
+        tabbarhidden: doc.documentElement.getAttribute("tabbarhidden"),
+        tabs: tabmail.tabInfo.map(t => `${t.mode.name}${t.tabNode.hasAttribute("amail-view") ? " (view)" : ""}${t == tabmail.currentTabInfo ? " *" : ""}`),
+        shownTabs: tabmail.tabContainer.allTabs.filter(t => t.getBoundingClientRect().width > 0).length,
+        on: [...doc.querySelectorAll("#amailAppSwitch .on")].map(b => b.id),
+        addressBookPressed: doc.getElementById("amailAddressBook").getAttribute("aria-pressed"),
+      });
+    await look("start");
+    doc.getElementById("amailGoCalendar").click();
+    await wait(1500);
+    await look("calendar");
+    await snapshot("view-calendar", top);
+    doc.getElementById("amailGoMail").click();
+    await wait(800);
+    await look("mail again");
+    doc.getElementById("amailAddressBook").click();
+    await wait(1500);
+    await look("address book");
+    doc.getElementById("amailGoMail").click();
+    await wait(800);
+    const folder = tabmail.currentAbout3Pane.gFolder;
+    const extra = tabmail.openTab("mail3PaneTab", { folderURI: folder?.URI });
+    await wait(1500);
+    await look("extra tab open");
+    await snapshot("view-extra-tab", top);
+    tabmail.closeTab(extra);
+    await wait(800);
+    await look("extra tab closed");
+    for (const mode of ["calendar", "addressBookTab"]) {
+      for (const t of tabmail.tabModes[mode]?.tabs ?? []) {
+        tabmail.closeTab(t);
+      }
+    }
+    await wait(500);
+    await look("views closed");
+  },
   /** Theme import/export: round trip, applying, validation, delete. */
   async "theme-import-export"(record) {
     const top = window.browsingContext.topChromeWindow;

@@ -7,8 +7,8 @@
 import { initSplitButtons } from "chrome://messenger/content/amailSplitButtons.mjs";
 
 /**
- * aMail top bar: brand + Mail/Calendar switch, the tab strip (only shown
- * while more than one tab is open, see mail.tabs.autoHide), global search,
+ * aMail top bar: brand + Mail/Calendar switch, the tab strip (only for tabs
+ * other than the Mail, Calendar and address book views), global search,
  * quick actions and the window buttons. Replaces the spaces toolbar.
  */
 
@@ -29,10 +29,13 @@ function updateAppSwitch() {
   document.documentElement.setAttribute("amail-space", current ?? "mail");
   document
     .getElementById("amailGoMail")
-    .classList.toggle("on", current != "calendar");
+    .classList.toggle("on", !current || current == "mail");
   document
     .getElementById("amailGoCalendar")
     .classList.toggle("on", current == "calendar");
+  document
+    .getElementById("amailAddressBook")
+    .setAttribute("aria-pressed", current == "addressbook");
 }
 
 /**

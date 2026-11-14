@@ -28,11 +28,11 @@
 
 /* Top bar */
 
-/* Three columns: the search stays centred on the window whatever the side
-   groups contain. */
+/* Three columns: the search stays centred on the window, and narrows when a
+   side group (e.g. the tab strip) needs the room. */
 #amailTopbar {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 640px) minmax(0, 1fr);
+  grid-template-columns: minmax(min-content, 1fr) minmax(240px, 640px) minmax(min-content, 1fr);
   align-items: center;
   column-gap: 16px;
   min-block-size: var(--amail-topbar-height);
@@ -133,7 +133,12 @@
   }
 }
 
-/* Tabs appear in the top bar only while more than one tab is open. */
+/* Mail, Calendar and the address book are views, not tabs; the strip
+   appears only while another tab (a message, search results) is open. */
+.tabmail-tab[amail-view] {
+  display: none;
+}
+
 #amailTabsSlot {
   flex: 0 1 auto;
   min-inline-size: 0;
@@ -221,6 +226,14 @@
 
   &:hover {
     background-color: var(--amail-topbar-hover);
+  }
+
+  &[aria-pressed="true"] {
+    background-color: var(--color-surface-base);
+
+    &::before {
+      background-color: var(--color-primary-default);
+    }
   }
 }
 

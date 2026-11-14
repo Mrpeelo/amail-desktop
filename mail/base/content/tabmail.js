@@ -808,15 +808,13 @@ ChromeUtils.defineESModuleGetters(this, {
           this.tabContainer.appendChild(t);
         }
         tab.tabNode = t;
-
-        if (
-          this.tabContainer.mCollapseToolbar.collapsed &&
-          (!this.tabContainer.mAutoHide || this.tabContainer.allTabs.length > 1)
-        ) {
-          this.tabContainer.mCollapseToolbar.collapsed = false;
-          this.tabContainer._updateCloseButtons();
-          document.documentElement.removeAttribute("tabbarhidden");
-        }
+        t.toggleAttribute(
+          "amail-view",
+          !!aArgs.first ||
+            aTabModeName == "calendar" ||
+            aTabModeName == "addressBookTab"
+        );
+        this.tabContainer.updateStripVisibility();
 
         const oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
         // If we're not disregarding the opening, hold a reference to opener
@@ -1106,13 +1104,7 @@ ChromeUtils.defineESModuleGetters(this, {
           this.currentTabInfo.panel || this.currentTabInfo.mode.tabType.panel;
       }
 
-      if (
-        this.tabContainer.allTabs.length == 1 &&
-        this.tabContainer.mAutoHide
-      ) {
-        this.tabContainer.mCollapseToolbar.collapsed = true;
-        document.documentElement.setAttribute("tabbarhidden", "true");
-      }
+      this.tabContainer.updateStripVisibility();
     }
 
     removeTabByNode(aTabNode) {
@@ -1409,13 +1401,7 @@ ChromeUtils.defineESModuleGetters(this, {
         this.tabContainer.selectedIndex = 0;
       }
 
-      if (
-        this.tabContainer.allTabs.length == 1 &&
-        this.tabContainer.mAutoHide
-      ) {
-        this.tabContainer.mCollapseToolbar.collapsed = true;
-        document.documentElement.setAttribute("tabbarhidden", "true");
-      }
+      this.tabContainer.updateStripVisibility();
     }
 
     clearRecentlyClosedTabs() {

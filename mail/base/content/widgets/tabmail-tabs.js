@@ -529,6 +529,25 @@
         .call(this);
     }
 
+    /**
+     * aMail: the first mail tab, the calendar and the address book are views
+     * switched from the top bar, never shown in the strip. The strip shows
+     * only while another tab is open.
+     */
+    updateStripVisibility() {
+      const hide = this.allTabs.every(tab => tab.hasAttribute("amail-view"));
+      if (this.mCollapseToolbar.collapsed == hide) {
+        return;
+      }
+      this.mCollapseToolbar.collapsed = hide;
+      if (hide) {
+        document.documentElement.setAttribute("tabbarhidden", "true");
+      } else {
+        document.documentElement.removeAttribute("tabbarhidden");
+        this._updateCloseButtons();
+      }
+    }
+
     _updateCloseButtons() {
       const width =
         this.arrowScrollbox.firstElementChild.getBoundingClientRect().width;
