@@ -15,11 +15,54 @@ import { initSplitButtons } from "chrome://messenger/content/amailSplitButtons.m
 const tabmail = document.getElementById("tabmail");
 
 function openSpaceByName(name) {
+  // The main mail view, also from a later mail tab or a search list.
+  const main = name == "mail" && tabmail.tabInfo.find(tab => tab.first);
+  if (main) {
+    tabmail.switchToTab(main);
+    return;
+  }
   const space = gSpacesToolbar.spaces?.find(s => s.name == name);
   if (space) {
     gSpacesToolbar.openSpace(tabmail, space);
   }
 }
+
+/**
+ * Close the search views: results pages and the lists opened from them.
+ */
+function closeSearchViews() {
+  let back = tabmail.currentTabInfo;
+  while (back?.amailTransient) {
+    back = back.amailOpener;
+  }
+  if (back != tabmail.currentTabInfo) {
+    tabmail.switchToTab(
+      tabmail.tabInfo.includes(back) ? back : tabmail.tabInfo.find(t => t.first)
+    );
+  }
+  for (const tab of tabmail.tabInfo.filter(t => t.amailTransient)) {
+    tabmail.closeTab(tab);
+  }
+}
+window.amailCloseSearch = closeSearchViews;
+
+/**
+ * Back from a search list to the page it was opened from.
+ *
+ * @param {Window} contentWindow - The list's about:3pane window.
+ */
+window.amailSearchBack = contentWindow => {
+  const tab = tabmail.tabInfo.find(
+    t => t.chromeBrowser?.contentWindow == contentWindow
+  );
+  if (!tab) {
+    return;
+  }
+  if (tabmail.tabInfo.includes(tab.amailOpener)) {
+    tabmail.switchToTab(tab.amailOpener);
+  }
+  tabmail.closeTab(tab);
+};
 
 function updateAppSwitch() {
   const tabInfo = tabmail?.currentTabInfo;
@@ -204,6 +247,10 @@ window.addEventListener("TabSelect", () => {
   setTimeout(() => {
     try {
       updateAppSwitch();
+      // Leaving the search for any other view ends it.
+      if (!tabmail.currentTabInfo?.amailTransient) {
+        closeSearchViews();
+      }
     } catch (error) {
       console.error(error);
     }

@@ -193,7 +193,8 @@ window.addEventListener("DOMContentLoaded", async event => {
   import("chrome://messenger/content/amailSortPresets.mjs").then(module =>
     module.initAmailSortPresets()
   );
-  if (Services.env.get("AMAIL_DEBUG_CHECKS")) {
+  if (Services.env.get("AMAIL_DEBUG_CHECKS") && !top.amailDebugStarted) {
+    top.amailDebugStarted = true;
     import("chrome://messenger/content/amailDebug.mjs").then(module =>
       module.runDebugChecks(Services.env.get("AMAIL_DEBUG_CHECKS").split(","))
     );
@@ -773,7 +774,6 @@ var folderPaneContextMenu = {
     this._showMenuItem("folderPaneContext-resetSort", false);
 
     // Show only the standard commands that don't require special conditions.
-    this._showMenuItem("folderPaneContext-openNewTab", true);
     this._showMenuItem("folderPaneContext-openNewWindow", true);
     this._showMenuItem("folderPaneContext-markMailFolderAllRead", true);
 
@@ -931,13 +931,6 @@ var folderPaneContextMenu = {
           [folder],
           event.target.hasAttribute("checked")
         );
-        break;
-      case "folderPaneContext-openNewTab":
-        topChromeWindow.MsgOpenNewTabForFolders([folder], {
-          event,
-          folderPaneVisible: !paneLayout.folderPaneSplitter.isCollapsed,
-          messagePaneVisible: !paneLayout.messagePaneSplitter.isCollapsed,
-        });
         break;
       case "folderPaneContext-openNewWindow":
         topChromeWindow.MsgOpenNewWindowForFolder(folder.URI, -1);
@@ -1767,7 +1760,6 @@ var folderPane = {
     Services.obs.addObserver(this, "folder-strings-changed");
     Services.obs.addObserver(this, "server-connection-succeeded");
 
-    folderTree.addEventListener("auxclick", this);
     folderTree.addEventListener("contextmenu", this);
     folderTree.addEventListener("collapsed", this);
     folderTree.addEventListener("expanded", this);
@@ -1862,11 +1854,6 @@ var folderPane = {
         break;
       case "select":
         this._onSelect(event);
-        break;
-      case "auxclick":
-        if (event.button == 1) {
-          this._onMiddleClick(event);
-        }
         break;
       case "contextmenu":
         this._onContextMenu(event);
@@ -3051,28 +3038,6 @@ var folderPane = {
         quotaPanel.classList.add("alert-critical");
       }
     }
-  },
-
-  _onMiddleClick(event) {
-    if (
-      event.target.closest(".mode-container") ||
-      folderTree.selectedIndex == -1
-    ) {
-      return;
-    }
-    const row = event.target.closest("li");
-    if (!row) {
-      return;
-    }
-
-    top.MsgOpenNewTabForFolders(
-      [MailServices.folderLookup.getFolderForURL(row.uri)],
-      {
-        event,
-        folderPaneVisible: !paneLayout.folderPaneSplitter.isCollapsed,
-        messagePaneVisible: !paneLayout.messagePaneSplitter.isCollapsed,
-      }
-    );
   },
 
   _onContextMenu(event) {
@@ -4761,6 +4726,9 @@ var threadPaneHeader = {
     document
       .getElementById("amailRunFiltersButton")
       .addEventListener("click", () => goDoCommand("cmd_applyFilters"));
+    document
+      .getElementById("amailSearchBack")
+      .addEventListener("click", () => top.amailSearchBack?.(window));
     Services.prefs.addObserver("mail.threadpane.listview", () =>
       this.updateAmailToggles()
     );
@@ -4777,6 +4745,9 @@ var threadPaneHeader = {
       .getElementById("amailCompactButton")
       .setAttribute("aria-pressed", compact);
     document.getElementById("amailColumnsButton").hidden = !compact;
+    const synthetic = !!gViewWrapper?.isSynthetic;
+    document.getElementById("amailSearchBack").hidden = !synthetic;
+    document.getElementById("amailRunFiltersButton").hidden = synthetic;
   },
 
   uninit() {

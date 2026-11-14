@@ -126,6 +126,8 @@ amail-column-lock =
     .label = Lock column width
 amail-list-run-filters = Run filters
     .title = Run the account's filters on this folder
+amail-search-back = Back
+    .title = Back to where this list was opened from
 
 ## Search index status (top bar)
 

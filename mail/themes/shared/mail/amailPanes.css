@@ -300,6 +300,25 @@
     flex: none;
   }
 
+  #amailSearchBack {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline-end: 6px;
+
+    &[hidden] {
+      display: none;
+    }
+
+    &::before {
+      content: "";
+      inline-size: 16px;
+      block-size: 16px;
+      background-color: currentColor;
+      mask: url("chrome://messenger/skin/icons/new/compact/nav-back.svg") center / contain no-repeat;
+    }
+  }
+
   /* Menu buttons show a down arrow. */
   .amail-toggle[aria-haspopup="menu"] {
     display: inline-flex;

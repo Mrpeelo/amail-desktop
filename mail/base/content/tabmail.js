@@ -759,8 +759,13 @@ ChromeUtils.defineESModuleGetters(this, {
           return null;
         }
 
+        // aMail: search results and other synthetic lists are transient views
+        // without a tab; they always open in front.
+        const transient =
+          aTabModeName == "glodaFacet" ||
+          (aTabModeName == "mail3PaneTab" && !!aArgs.syntheticView);
         // Do this so that we don't generate strict warnings
-        const background = aArgs.background;
+        const background = !transient && aArgs.background;
         // If the mode wants us to, we should switch to an existing tab
         // rather than open a new one. We shouldn't switch to the tab if
         // we're opening it in the background, though.
@@ -808,15 +813,18 @@ ChromeUtils.defineESModuleGetters(this, {
           this.tabContainer.appendChild(t);
         }
         tab.tabNode = t;
+        tab.amailTransient = transient;
         t.toggleAttribute(
           "amail-view",
-          !!aArgs.first ||
+          transient ||
+            !!aArgs.first ||
             aTabModeName == "calendar" ||
             aTabModeName == "addressBookTab"
         );
         this.tabContainer.updateStripVisibility();
 
         const oldTab = (this._mostRecentTabInfo = this.currentTabInfo);
+        tab.amailOpener = oldTab;
         // If we're not disregarding the opening, hold a reference to opener
         // so that if the new tab is closed without switching, we can switch
         // back to the opener tab.

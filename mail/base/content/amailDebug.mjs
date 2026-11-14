@@ -56,6 +56,70 @@ async function snapshot(
  * @type {Record<string, function(function(object): void): Promise<void>>}
  */
 const CHECKS = {
+  /** Folders never open in a tab: no menu item, middle-click does nothing. */
+  async "folder-no-tab"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const tabmail = top.document.getElementById("tabmail");
+    const about3 = tabmail.currentAbout3Pane;
+    const before = tabmail.tabInfo.length;
+    const row = about3.folderTree.selectedRow ?? about3.folderTree.querySelector("li");
+    row.dispatchEvent(new about3.MouseEvent("auxclick", { bubbles: true, button: 1 }));
+    await wait(1500);
+    record({
+      label: "folder",
+      menuItem: !!about3.document.getElementById("folderPaneContext-openNewTab"),
+      middleClickTabsAdded: tabmail.tabInfo.length - before,
+      runFiltersShown: !about3.document.getElementById("amailRunFiltersButton").hidden,
+    });
+  },
+  /** Search results and "Open as list" are views without tabs, with Back. */
+  async "search-views"(record) {
+    const top = window.browsingContext.topChromeWindow;
+    const doc = top.document;
+    const tabmail = doc.getElementById("tabmail");
+    const look = label => {
+      const current = tabmail.currentTabInfo;
+      const about3 = current.mode.name == "mail3PaneTab" && current.chromeBrowser?.contentWindow;
+      record({
+        label,
+        stripHidden: doc.getElementById("tabs-toolbar").collapsed,
+        tabs: tabmail.tabInfo.map(t => `${t.mode.name}${t.amailTransient ? " (search)" : ""}${t.tabNode.hasAttribute("amail-view") ? "" : " SHOWN"}${t == current ? " *" : ""}`),
+        on: [...doc.querySelectorAll("#amailAppSwitch .on")].map(b => b.id),
+        backShown: about3 ? !about3.document.getElementById("amailSearchBack").hidden : undefined,
+        listRows: about3 ? about3.gDBView?.rowCount : undefined,
+        title: about3 ? about3.document.getElementById("threadPaneFolderName").textContent : undefined,
+      });
+    };
+    const search = async text => {
+      doc.querySelector("#amailSearch global-search-bar").dispatchEvent(
+        new top.CustomEvent("search", { detail: text })
+      );
+      await wait(4000);
+    };
+    const openAsList = async () => {
+      tabmail.currentTabInfo.browser.contentDocument.getElementById("gloda-showall").click();
+      await wait(2500);
+    };
+    await search("patreon");
+    look("search results page");
+    await openAsList();
+    look("open as list");
+    await snapshot("search-list", top);
+    await wait(4000);
+    look("6 s later, list still open");
+    tabmail.currentTabInfo.chromeBrowser.contentDocument.getElementById("amailSearchBack").click();
+    await wait(1500);
+    look("after Back");
+    await openAsList();
+    await search("anime");
+    look("new search from a list");
+    await openAsList();
+    doc.getElementById("amailGoMail").click();
+    await wait(1500);
+    look("Mail button from a list");
+    const mainAbout3 = tabmail.tabInfo[0].chromeBrowser.contentWindow;
+    record({ label: "main view intact", folder: mainAbout3.gFolder?.name, synthetic: !!mainAbout3.gViewWrapper?.isSynthetic });
+  },
 };
 
 export async function runDebugChecks(names) {

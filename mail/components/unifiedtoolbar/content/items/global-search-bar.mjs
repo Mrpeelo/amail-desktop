@@ -157,6 +157,8 @@ class GlobalSearchBar extends SearchBar {
         searcher: new lazy.GlodaMsgSearcher(null, searchString),
       };
     }
+    // aMail: a new search replaces the previous one.
+    window.amailCloseSearch?.();
     tabmail.openTab("glodaFacet", args);
     this.popup.closePopup();
     this.controller.matchCount = 0;

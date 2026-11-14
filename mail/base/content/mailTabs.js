@@ -186,8 +186,9 @@ var mailTabType = {
         };
       },
       restoreTab(tabmail, persistedState) {
+        // aMail has one mail view; extra folder tabs from an earlier
+        // session are not restored.
         if (!persistedState.firstTab) {
-          tabmail.openTab("mail3PaneTab", persistedState);
           return;
         }
 
