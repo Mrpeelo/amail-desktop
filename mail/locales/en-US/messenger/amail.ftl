@@ -313,6 +313,21 @@ amail-settings-about-data = Everything { -brand-short-name } stores (accounts, m
 amail-settings-about-open-folder = Open folder
 amail-settings-about-details = More about { -brand-short-name }…
 
+## Settings: General > Start menu
+
+amail-settings-start-menu-heading = Start menu
+amail-settings-start-menu-intro = Add a shortcut to your Windows Start menu. { -brand-short-name } itself stays portable: if you move this folder, click the button again to update the shortcut.
+amail-settings-start-menu = Add to Start menu
+amail-settings-start-menu-added = Added “{ $name }” to the Start menu.
+amail-settings-start-menu-updated = Updated “{ $name }” in the Start menu.
+amail-settings-start-menu-replace-title = Replace Start menu shortcut?
+# $name - shortcut name, $target - the program it starts now
+amail-settings-start-menu-replace = The Start menu shortcut “{ $name }” starts a different program:
+    { $target }
+    Replace it with this copy of { -brand-short-name }?
+# $message - the error text
+amail-settings-start-menu-error = Could not create the shortcut: { $message }
+
 ## Undo send
 
 amail-settings-undo-send = Undo send

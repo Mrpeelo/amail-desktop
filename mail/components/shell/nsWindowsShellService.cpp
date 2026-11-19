@@ -8,11 +8,14 @@
 #include "shellapi.h"
 #include "nsIFile.h"
 #include "nsDirectoryServiceDefs.h"
+#include "nsDirectoryServiceUtils.h"
 #include "nsUnicharUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsIProperties.h"
 #include "nsString.h"
+#include "nsXULAppAPI.h"
 #include "mozilla/Preferences.h"
+#include "mozilla/RefPtr.h"
 
 using mozilla::Preferences;
 
@@ -268,6 +271,80 @@ nsWindowsShellService::GetShouldCheckDefaultClient(bool* aResult) {
 NS_IMETHODIMP
 nsWindowsShellService::SetShouldCheckDefaultClient(bool aShouldCheck) {
   return Preferences::SetBool("mail.shell.checkDefaultClient", aShouldCheck);
+}
+
+NS_IMETHODIMP
+nsWindowsShellService::CreateAppShortcut(nsIFile* aLink,
+                                         const nsAString& aDescription) {
+  NS_ENSURE_ARG(aLink);
+
+  nsCOMPtr<nsIFile> exe;
+  nsresult rv =
+      NS_GetSpecialDirectory(XRE_EXECUTABLE_FILE, getter_AddRefs(exe));
+  NS_ENSURE_SUCCESS(rv, rv);
+  nsCOMPtr<nsIFile> exeDir;
+  rv = exe->GetParent(getter_AddRefs(exeDir));
+  NS_ENSURE_SUCCESS(rv, rv);
+
+  nsCOMPtr<nsIFile> linkDir;
+  rv = aLink->GetParent(getter_AddRefs(linkDir));
+  NS_ENSURE_SUCCESS(rv, rv);
+  rv = linkDir->Create(nsIFile::DIRECTORY_TYPE, 0755);
+  if (NS_FAILED(rv) && rv != NS_ERROR_FILE_ALREADY_EXISTS) {
+    return rv;
+  }
+
+  RefPtr<IShellLinkW> link;
+  HRESULT hr =
+      ::CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER,
+                         __uuidof(IShellLinkW), getter_AddRefs(link));
+  if (FAILED(hr)) return NS_ERROR_FAILURE;
+
+  nsString exePath(exe->NativePath());
+  nsString exeDirPath(exeDir->NativePath());
+  nsString linkPath(aLink->NativePath());
+  if (FAILED(link->SetPath(exePath.get()))) return NS_ERROR_FAILURE;
+  link->SetWorkingDirectory(exeDirPath.get());
+  link->SetIconLocation(exePath.get(), 0);
+  if (!aDescription.IsEmpty()) {
+    link->SetDescription(PromiseFlatString(aDescription).get());
+  }
+
+  RefPtr<IPersistFile> persist;
+  hr = link->QueryInterface(__uuidof(IPersistFile), getter_AddRefs(persist));
+  if (FAILED(hr)) return NS_ERROR_FAILURE;
+  hr = persist->Save(linkPath.get(), TRUE);
+  if (FAILED(hr)) return NS_ERROR_FAILURE;
+
+  // Let Explorer and the Start menu pick the new entry up right away.
+  ::SHChangeNotify(SHCNE_CREATE, SHCNF_PATHW | SHCNF_FLUSHNOWAIT,
+                   linkPath.get(), nullptr);
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsWindowsShellService::GetShortcutTarget(nsIFile* aLink, nsAString& aTarget) {
+  NS_ENSURE_ARG(aLink);
+  aTarget.Truncate();
+
+  RefPtr<IShellLinkW> link;
+  HRESULT hr =
+      ::CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER,
+                         __uuidof(IShellLinkW), getter_AddRefs(link));
+  if (FAILED(hr)) return NS_ERROR_FAILURE;
+  RefPtr<IPersistFile> persist;
+  hr = link->QueryInterface(__uuidof(IPersistFile), getter_AddRefs(persist));
+  if (FAILED(hr)) return NS_ERROR_FAILURE;
+
+  nsString linkPath(aLink->NativePath());
+  if (FAILED(persist->Load(linkPath.get(), STGM_READ))) {
+    return NS_OK;  // missing or not a shortcut
+  }
+  wchar_t target[MAX_PATH + 1] = {};
+  if (SUCCEEDED(link->GetPath(target, MAX_PATH, nullptr, SLGP_RAWPATH))) {
+    aTarget.Assign(target);
+  }
+  return NS_OK;
 }
 
 /* helper routine. Iterate over the passed in settings object. */

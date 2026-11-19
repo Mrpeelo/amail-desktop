@@ -345,3 +345,13 @@ extern "C" bool nsGNOMEShellService_GetGSettingsBoolean(
                                                 PromiseFlatCString(aKey))
       .valueOr(aDefault);
 }
+
+NS_IMETHODIMP
+nsGNOMEShellService::CreateAppShortcut(nsIFile* aLink, const nsAString& aDescription) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP
+nsGNOMEShellService::GetShortcutTarget(nsIFile* aLink, nsAString& aTarget) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}

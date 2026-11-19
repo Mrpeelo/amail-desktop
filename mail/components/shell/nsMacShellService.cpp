@@ -141,3 +141,13 @@ nsresult nsMacShellService::setAsDefaultHandlerForProtocol(
 
   return NS_OK;
 }
+
+NS_IMETHODIMP
+nsMacShellService::CreateAppShortcut(nsIFile* aLink, const nsAString& aDescription) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP
+nsMacShellService::GetShortcutTarget(nsIFile* aLink, nsAString& aTarget) {
+  return NS_ERROR_NOT_IMPLEMENTED;
+}

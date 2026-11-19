@@ -704,6 +704,66 @@ async function renderAbout() {
   $("aboutDataDir").textContent = PathUtils.profileDir;
 }
 
+/**
+ * Write <Start menu>\Programs\<brand>.lnk pointing at the running amail.exe.
+ * A shortcut of that name that starts another program (the Rust aMail also
+ * ships an amail.exe) is only replaced after asking.
+ *
+ * @param {nsIFile} [folder] - Where to put it; the user's Start menu
+ *   Programs folder by default (the debug check passes a temp folder).
+ * @returns {Promise<string>} The Fluent id of the status shown.
+ */
+async function addStartMenuShortcut(folder) {
+  const status = $("startMenuStatus");
+  const show = (id, args) => {
+    document.l10n.setAttributes(status, id, args);
+    status.hidden = false;
+    return id;
+  };
+  const shell = Cc["@mozilla.org/mail/shell-service;1"].getService(
+    Ci.nsIShellService
+  );
+  const name = Services.strings
+    .createBundle("chrome://branding/locale/brand.properties")
+    .GetStringFromName("brandShortName");
+  const link = folder?.clone() ?? Services.dirsvc.get("Progs", Ci.nsIFile);
+  link.append(`${name}.lnk`);
+  const exe = Services.dirsvc.get("XREExeF", Ci.nsIFile).path;
+
+  const existed = link.exists();
+  if (existed) {
+    const target = shell.getShortcutTarget(link);
+    if (target && target.toLowerCase() != exe.toLowerCase()) {
+      const [title, question] = await document.l10n.formatValues([
+        { id: "amail-settings-start-menu-replace-title" },
+        {
+          id: "amail-settings-start-menu-replace",
+          args: { name, target },
+        },
+      ]);
+      if (!Services.prompt.confirm(top, title, question)) {
+        status.hidden = true;
+        return "cancelled";
+      }
+    }
+  }
+  try {
+    shell.createAppShortcut(link, name);
+  } catch (e) {
+    console.error(e);
+    return show("amail-settings-start-menu-error", {
+      message: e.message,
+    });
+  }
+  return show(
+    existed
+      ? "amail-settings-start-menu-updated"
+      : "amail-settings-start-menu-added",
+    { name }
+  );
+}
+window.amailAddStartMenuShortcut = addStartMenuShortcut;
+
 // Wiring
 
 const tabs = [...document.querySelectorAll("[role=tab]")];
@@ -750,6 +810,8 @@ $("openDataDir").addEventListener("click", () => {
   Services.dirsvc.get("ProfD", Ci.nsIFile).launch();
 });
 $("aboutDetails").addEventListener("click", () => top.openAboutDialog());
+$("startMenuAdd").addEventListener("click", () => addStartMenuShortcut());
+$("startMenuBox").hidden = Services.appinfo.OS != "WINNT";
 window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
 window.addEventListener("focus", () => {
   const current = location.hash.slice(1);

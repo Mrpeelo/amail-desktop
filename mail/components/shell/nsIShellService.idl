@@ -5,6 +5,8 @@
 
 #include "nsISupports.idl"
 
+interface nsIFile;
+
 [scriptable, uuid(95F53544-F445-48d1-B3A2-D54AA020BC3D)]
 interface nsIShellService : nsISupports
 {
@@ -49,4 +51,22 @@ interface nsIShellService : nsISupports
    * is false.
    */
   attribute boolean shouldCheckDefaultClient;
+
+  /**
+   * aMail: write a Windows shortcut (.lnk) to aLink that starts the running
+   * executable, with the executable's folder as working directory and its
+   * icon. An existing file at aLink is replaced; missing parent folders are
+   * created. Windows only (NS_ERROR_NOT_IMPLEMENTED elsewhere).
+   *
+   * @param aLink        The shortcut file to write, e.g. <Programs>\aMail.lnk.
+   * @param aDescription The shortcut's comment (tooltip).
+   */
+  void createAppShortcut(in nsIFile aLink, in AString aDescription);
+
+  /**
+   * aMail: the program a Windows shortcut (.lnk) starts, or an empty string
+   * when aLink is missing or not a readable shortcut. Windows only
+   * (NS_ERROR_NOT_IMPLEMENTED elsewhere).
+   */
+  AString getShortcutTarget(in nsIFile aLink);
 };
